@@ -1,0 +1,1561 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="DisputeInvoiceAction.php" path="/app/Actions" hash="d48e21a1f8253c4a3556b8f1c8f793eeadd8ee10">
+    <totals>
+      <lines total="139" comments="44" code="95" executable="55" executed="53" percent="96.36"/>
+      <methods count="2" tested="1" percent="50.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="App\Actions\DisputeInvoiceAction" start="37" executable="55" executed="53" crap="8">
+      <namespace name="App\Actions"/>
+      <method name="execute" signature="execute(Invoice $invoice, object $disputedBy, string $reason, bool $bypassPolicy): Invoice" start="54" end="121" crap="4" executable="50" executed="50" coverage="100"/>
+      <method name="resolveActorIdentifier" signature="resolveActorIdentifier(object $actor): string" start="127" end="137" crap="5.02" executable="5" executed="3" coverage="60"/>
+    </class>
+    <coverage>
+      <line nr="60">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_AuthorizationException_when_client_user_disputes_another_client_s_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_NOT_fire_event_when_authorization_is_denied"/>
+      </line>
+      <line nr="61">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_AuthorizationException_when_client_user_disputes_another_client_s_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_NOT_fire_event_when_authorization_is_denied"/>
+      </line>
+      <line nr="64">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+      </line>
+      <line nr="65">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+      </line>
+      <line nr="66">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+      </line>
+      <line nr="67">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+      </line>
+      <line nr="71">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="73">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="74">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="75">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="76">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="77">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="78">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="79">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="81">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="84">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="85">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="86">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="87">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="88">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="89">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="90">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="91">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="92">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="94">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="95">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="96">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="101">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="102">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="103">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="104">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="105">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="107">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="111">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="112">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="113">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="114">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="115">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="116">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="119">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="120">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="129">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="132">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="136">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="68">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice"/>
+      </line>
+      <line nr="80">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="93">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="97">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="98">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="106">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="108">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="109">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+      <line nr="117">
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID"/>
+        <covered by="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\Actions</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Support\Facades\DB</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Support\Facades\Gate</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Support\Facades\Log</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="10">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Payment\DataTransferObjects\PaymentDisputedData</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="11">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Payment\Events\PaymentDisputed</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="12">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Models\BillingAdjustment</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="13">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Models\Invoice</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="14"/>
+      <line no="15">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> * DisputeInvoiceAction</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> * Encapsulates the full invoice dispute state machine transition:</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT"> *   published | pending | sent  →  disputed</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT"> * Side effects (all within a single DB transaction):</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT"> *   1. Invoice.status transitions to 'disputed'</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT"> *   2. Invoice.metadata records dispute provenance</token>
+      </line>
+      <line no="25">
+        <token name="T_DOC_COMMENT"> *   3. A BillingAdjustment of type 'dispute' is created</token>
+      </line>
+      <line no="26">
+        <token name="T_DOC_COMMENT"> *   4. PaymentDisputed event is fired — halts any pending auto-pay job for this invoice</token>
+      </line>
+      <line no="27">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="28">
+        <token name="T_DOC_COMMENT"> * Authorization:</token>
+      </line>
+      <line no="29">
+        <token name="T_DOC_COMMENT"> *   Enforces InvoicePolicy::dispute() which restricts to active client users owning the invoice.</token>
+      </line>
+      <line no="30">
+        <token name="T_DOC_COMMENT"> *   Internal callers (admin via admin panel) may bypass by passing $bypassPolicy = true.</token>
+      </line>
+      <line no="31">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="32">
+        <token name="T_DOC_COMMENT"> * Graph edge covered: ACT_04 (xInvoices → InvoiceManager)</token>
+      </line>
+      <line no="33">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="34">
+        <token name="T_DOC_COMMENT"> * Usage:</token>
+      </line>
+      <line no="35">
+        <token name="T_DOC_COMMENT"> *   app(DisputeInvoiceAction::class)-&gt;execute($invoice, $clientUser, 'Charge does not match contract.');</token>
+      </line>
+      <line no="36">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="37">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DisputeInvoiceAction</token>
+      </line>
+      <line no="38">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="39">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/** Statuses from which a dispute transition is valid. */</token>
+      </line>
+      <line no="40">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PRIVATE">private</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONST">const</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DISPUTABLE_STATUSES</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'submitted'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'overdue'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'partially_paid'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="41"/>
+      <line no="42">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="43">
+        <token name="T_DOC_COMMENT">     * Execute the invoice dispute workflow.</token>
+      </line>
+      <line no="44">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="45">
+        <token name="T_DOC_COMMENT">     * @param  Invoice  $invoice  The invoice to dispute</token>
+      </line>
+      <line no="46">
+        <token name="T_DOC_COMMENT">     * @param  object  $disputedBy  User initiating the dispute (internal or external)</token>
+      </line>
+      <line no="47">
+        <token name="T_DOC_COMMENT">     * @param  string  $reason  Client-provided reason for the dispute</token>
+      </line>
+      <line no="48">
+        <token name="T_DOC_COMMENT">     * @param  bool  $bypassPolicy  Set true for admin-initiated disputes that skip gate check</token>
+      </line>
+      <line no="49">
+        <token name="T_DOC_COMMENT">     * @return Invoice The updated invoice (status = 'disputed')</token>
+      </line>
+      <line no="50">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="51">
+        <token name="T_DOC_COMMENT">     * @throws \Illuminate\Auth\Access\AuthorizationException If policy denies the action</token>
+      </line>
+      <line no="52">
+        <token name="T_DOC_COMMENT">     * @throws \LogicException If invoice is not in a disputable state</token>
+      </line>
+      <line no="53">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="54">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">execute</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="55">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">Invoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">object</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">''</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="58">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$bypassPolicy</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+      </line>
+      <line no="59">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Invoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="60">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_EXCLAMATION_MARK">!</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$bypassPolicy</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="61">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Gate</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">forUser</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">authorize</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'dispute'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="62">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="63"/>
+      <line no="64">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_EXCLAMATION_MARK">!</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">in_array</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">status</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">self</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">DISPUTABLE_STATUSES</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">true</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="65">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_FULLY_QUALIFIED">\LogicException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="66">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Invoice #</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> cannot be disputed from status '</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">status</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">'. </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_DOT">.</token>
+      </line>
+      <line no="67">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Only '</token>
+        <token name="T_DOT">.</token>
+        <token name="T_STRING">implode</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">', '</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">self</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">DISPUTABLE_STATUSES</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_DOT">.</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">' invoices may be disputed.'</token>
+      </line>
+      <line no="68">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="69">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="70"/>
+      <line no="71">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">transaction</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Invoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// ── 1. Transition invoice status ───────────────────────────────────</token>
+      </line>
+      <line no="73">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">status</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'disputed'</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="74">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">metadata</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_merge</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">metadata</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="75">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'disputed'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">true</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="76">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'dispute_reason'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="77">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'dispute_initiated_at'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">now</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">toIso8601String</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="78">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'dispute_initiated_by'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolveActorIdentifier</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="79">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'pre_dispute_status'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getOriginal</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'status'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="80">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="81">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">save</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="82"/>
+      <line no="83">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// ── 2. Create BillingAdjustment for audit trail ───────────────────</token>
+      </line>
+      <line no="84">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">BillingAdjustment</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">create</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="85">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">client_id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="86">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'adjustment_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'dispute'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="87">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'effective_date'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">now</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">toDateString</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="88">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'old_value'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="89">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'new_value'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COMMENT">// Amount unchanged until resolution</token>
+      </line>
+      <line no="90">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'justification'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Client-initiated dispute via portal'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="91">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'status'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'pending'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="92">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'created_by'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="93">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'metadata'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="94">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="95">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_number'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="96">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'initiated_by'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolveActorIdentifier</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="97">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="98">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="99"/>
+      <line no="100">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// ── 3. Fire PaymentDisputed event (halts auto-pay) ─────────────────</token>
+      </line>
+      <line no="101">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">event</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">PaymentDisputed</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="102">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">PaymentDisputedData</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="103">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_STRING">paymentId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE">  </token>
+        <token name="T_COMMENT">// No payment yet — disputed at invoice stage</token>
+      </line>
+      <line no="104">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_STRING">invoiceId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="105">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_STRING">amount</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_CAST">(float)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="106">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_STRING">reason</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="107">
+        <token name="T_WHITESPACE">                    </token>
+        <token name="T_STRING">disputeStatus</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'opened'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="108">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="109">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="110"/>
+      <line no="111">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Log</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">info</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'DisputeInvoiceAction: invoice disputed'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="112">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="113">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_number'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="114">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">client_id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="115">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'disputed_by'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolveActorIdentifier</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$disputedBy</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="116">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'reason'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reason</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="117">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="118"/>
+      <line no="119">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="120">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="121">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="122"/>
+      <line no="123">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="124">
+        <token name="T_DOC_COMMENT">     * Extract a human-readable identifier from the actor object.</token>
+      </line>
+      <line no="125">
+        <token name="T_DOC_COMMENT">     * Supports User model (both portal and admin users).</token>
+      </line>
+      <line no="126">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="127">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PRIVATE">private</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">resolveActorIdentifier</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">object</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+      </line>
+      <line no="128">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="129">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">property_exists</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'email'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_BOOLEAN_AND">&amp;&amp;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">is_string</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">email</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="130">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">email</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="131">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="132">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">property_exists</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'id'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="133">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">get_class</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_DOT">.</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'#'</token>
+        <token name="T_DOT">.</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="134">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="135"/>
+      <line no="136">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">get_class</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$actor</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="137">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="138">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="139"/>
+    </source>
+  </file>
+</phpunit>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\SoftwareSubscriptions;
 
 use App\Models\User;
+use Modules\Crm\Models\Client;
 use Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;
 use Modules\SoftwareSubscriptions\Models\SoftwareProduct;
 use Tests\IntegrationTestCase;
@@ -89,8 +90,10 @@ class SoftwareSubscriptionsHttpTest extends IntegrationTestCase
 
     public function test_subscription_show_page_accessible_by_admin(): void
     {
+        $client = Client::factory()->create();
         $product = SoftwareProduct::factory()->create();
         $sub = ClientSoftwareSubscription::factory()->create([
+            'client_id' => $client->id,
             'software_product_id' => $product->id,
         ]);
 
@@ -100,8 +103,10 @@ class SoftwareSubscriptionsHttpTest extends IntegrationTestCase
 
     public function test_subscription_edit_page_accessible_by_admin(): void
     {
+        $client = Client::factory()->create();
         $product = SoftwareProduct::factory()->create();
         $sub = ClientSoftwareSubscription::factory()->create([
+            'client_id' => $client->id,
             'software_product_id' => $product->id,
         ]);
 

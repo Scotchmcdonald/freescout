@@ -175,4 +175,28 @@ class ConversationPolicyTest extends TestCase
 
         $this->assertTrue($policy->viewCached($user, $conversation));
     }
+
+    public function test_user_without_mailbox_access_is_denied_view_authorization(): void
+    {
+        $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        // User has no mailbox attachment — authorization must be denied
+        $policy = new ConversationPolicy;
+
+        $this->assertFalse($policy->view($user, $conversation));
+    }
+
+    public function test_delete_authorization_denied_for_user_without_mailbox_access(): void
+    {
+        $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        // User has no access to the mailbox — delete authorization must fail
+        $policy = new ConversationPolicy;
+
+        $this->assertFalse($policy->delete($user, $conversation));
+    }
 }

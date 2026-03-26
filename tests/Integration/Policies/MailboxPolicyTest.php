@@ -228,4 +228,17 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->reply($user, $mailbox));
         $this->assertTrue($policy->update($user, $mailbox));
     }
+
+    public function test_unauthenticated_context_denies_all_authorization(): void
+    {
+        $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+
+        // Without any mailbox attachment, all authorization scopes must return false
+        $policy = new MailboxPolicy;
+
+        $this->assertFalse($policy->view($user, $mailbox));
+        $this->assertFalse($policy->reply($user, $mailbox));
+        $this->assertFalse($policy->update($user, $mailbox));
+    }
 }

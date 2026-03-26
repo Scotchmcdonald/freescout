@@ -1,0 +1,1037 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="BillingAnalysisService.php" path="/Modules/PIB/Services" hash="cd00433c2162f8b00ea5a1b7d4356245d2575331">
+    <totals>
+      <lines total="100" comments="14" code="86" executable="35" executed="32" percent="91.43"/>
+      <methods count="5" tested="3" percent="60.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Modules\PIB\Services\BillingAnalysisService" start="10" executable="35" executed="32" crap="10.06">
+      <namespace name="Modules\PIB\Services"/>
+      <method name="__construct" signature="__construct(EntitlementEngineService $engine)" start="16" end="19" crap="1" executable="1" executed="1" coverage="100"/>
+      <method name="getBillingVarianceReport" signature="getBillingVarianceReport(): array" start="26" end="67" crap="4.01" executable="24" executed="22" coverage="91.666666666667"/>
+      <method name="calculatePercentChange" signature="calculatePercentChange(float $previousAmount, float $currentAmount): float" start="69" end="80" crap="3.07" executable="5" executed="4" coverage="80"/>
+      <method name="isUnusualVariance" signature="isUnusualVariance(float $percentChange): bool" start="82" end="85" crap="1" executable="1" executed="1" coverage="100"/>
+      <method name="sortVariancesByMagnitude" signature="sortVariancesByMagnitude(array $variances): array" start="91" end="98" crap="1" executable="4" executed="4" coverage="100"/>
+    </class>
+    <coverage>
+      <line nr="18">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_zero_percent_change_for_identical_amounts"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_positive_variance_relative_to_previous_amount"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_treats_new_non_zero_charge_as_one_hundred_percent_variance"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_flags_unusual_variance_at_the_threshold"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_create_template_page"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_rent_to_own_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_service_plan_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_validation_works"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="29">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="30">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="31">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="33">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="35">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="38">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="39">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="46">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="47">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="48">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="50">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="53">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="55">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="56">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="57">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="58">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="59">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="60">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="61">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="62">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="66">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="71">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_zero_percent_change_for_identical_amounts"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_positive_variance_relative_to_previous_amount"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_treats_new_non_zero_charge_as_one_hundred_percent_variance"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="72">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_zero_percent_change_for_identical_amounts"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_positive_variance_relative_to_previous_amount"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_negative_variance_correctly"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="75">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_treats_new_non_zero_charge_as_one_hundred_percent_variance"/>
+      </line>
+      <line nr="76">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_treats_new_non_zero_charge_as_one_hundred_percent_variance"/>
+      </line>
+      <line nr="84">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_flags_unusual_variance_at_the_threshold"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="93">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="94">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending"/>
+      </line>
+      <line nr="95">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="97">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="63">
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\ContractManager\Models\BillingTemplate</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Models\Invoice</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9"/>
+      <line no="10">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">BillingAnalysisService</token>
+      </line>
+      <line no="11">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="12">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PRIVATE">private</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONST">const</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">UNUSUAL_THRESHOLD_PERCENT</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DNUMBER">20.0</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="13"/>
+      <line no="14">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">EntitlementEngineService</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$engine</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="15"/>
+      <line no="16">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">__construct</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">EntitlementEngineService</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$engine</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="17">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="18">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">engine</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$engine</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="19">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="20"/>
+      <line no="21">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT">     * Generate a variance report comparing projected billing vs last invoice</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT">     * @return array&lt;int, array&lt;string, mixed&gt;&gt;</token>
+      </line>
+      <line no="25">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getBillingVarianceReport</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+      </line>
+      <line no="27">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Fetch all active templates</token>
+      </line>
+      <line no="29">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$templates</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">BillingTemplate</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">with</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="30">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'status'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'active'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="31">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="32"/>
+      <line no="33">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="34"/>
+      <line no="35">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_FOREACH">foreach</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$templates</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_AS">as</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="36">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Calculate current entitlement (Dry Run)</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_TRY">try</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">engine</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolve</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="39">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">amount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="40">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CATCH">catch</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Exception</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$e</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="41">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_COMMENT">// Skip if calculation fails</token>
+      </line>
+      <line no="42">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONTINUE">continue</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="43">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="44"/>
+      <line no="45">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Get last invoice amount</token>
+      </line>
+      <line no="46">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$lastInvoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Invoice</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billing_template_id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="47">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">orderBy</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'created_at'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'desc'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="48">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="49"/>
+      <line no="50">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$lastInvoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$lastInvoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DNUMBER">0.00</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="51"/>
+      <line no="52">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Calculate percentage change</token>
+      </line>
+      <line no="53">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$percentChange</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">calculatePercentChange</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_CAST">(float)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_CAST">(float)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="54"/>
+      <line no="55">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_name'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">name</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Unknown'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'template_name'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">name</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Default'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="58">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'previous_amount'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="59">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'current_amount'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="60">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'percent_change'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$percentChange</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="61">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_unusual'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">isUnusualVariance</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$percentChange</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="62">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'breakdown'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">breakdown</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="63">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="64">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="65"/>
+      <line no="66">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">sortVariancesByMagnitude</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="67">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="68"/>
+      <line no="69">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">calculatePercentChange</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="70">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="71">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_GT">&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MINUS">-</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DIV">/</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$previousAmount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="73">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="74"/>
+      <line no="75">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$currentAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_GT">&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="76">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DNUMBER">100.0</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="77">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="78"/>
+      <line no="79">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DNUMBER">0.0</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="80">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="81"/>
+      <line no="82">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">isUnusualVariance</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$percentChange</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+      </line>
+      <line no="83">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="84">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">abs</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$percentChange</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_GREATER_OR_EQUAL">&gt;=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">self</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">UNUSUAL_THRESHOLD_PERCENT</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="85">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="86"/>
+      <line no="87">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="88">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;int, array{percent_change: float, ...}&gt;  $variances</token>
+      </line>
+      <line no="89">
+        <token name="T_DOC_COMMENT">     * @return array&lt;int, array{percent_change: float, ...}&gt;</token>
+      </line>
+      <line no="90">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="91">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">sortVariancesByMagnitude</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+      </line>
+      <line no="92">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="93">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">usort</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$a</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$b</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="94">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">abs</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_CAST">(float)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$b</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'percent_change'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_SPACESHIP">&lt;=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">abs</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_CAST">(float)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$a</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'percent_change'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="95">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="96"/>
+      <line no="97">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$variances</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="98">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="99">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="100"/>
+    </source>
+  </file>
+</phpunit>

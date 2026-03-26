@@ -1,0 +1,1816 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="ClientCreditService.php" path="/Modules/Payment/Services" hash="23293f1b3c665311c75d0b9e6ac49a11d612a1a1">
+    <totals>
+      <lines total="169" comments="38" code="131" executable="77" executed="76" percent="98.70"/>
+      <methods count="4" tested="3" percent="75.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Modules\Payment\Services\ClientCreditService" start="14" executable="77" executed="76" crap="11">
+      <namespace name="Modules\Payment\Services"/>
+      <method name="getBalance" signature="getBalance(Client $client): float" start="19" end="26" crap="2" executable="4" executed="4" coverage="100"/>
+      <method name="addCredit" signature="addCredit(Client $client, float $amount, string $description, ?Model $reference): ClientCreditLedger" start="33" end="59" crap="2" executable="18" executed="18" coverage="100"/>
+      <method name="deductCredit" signature="deductCredit(Client $client, float $amount, string $description, ?Model $reference): ClientCreditLedger" start="68" end="99" crap="3" executable="20" executed="20" coverage="100"/>
+      <method name="applyToInvoice" signature="applyToInvoice(Client $client, Invoice $invoice, float $amount): ClientCreditLedger" start="106" end="167" crap="4" executable="35" executed="34" coverage="97.142857142857"/>
+    </class>
+    <coverage>
+      <line nr="21">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="22">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="23">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="25">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="35">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="37">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="39">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="40">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="43">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="44">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="46">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="47">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="48">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="49">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="50">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="51">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="52">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="53">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="54">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="57">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="58">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="70">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="72">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="74">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="76">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="77">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+      </line>
+      <line nr="80">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="83">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="84">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="86">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="87">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="88">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="89">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="90">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="91">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="92">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="93">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="94">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="97">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="98">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="109">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="113">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="115">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="119">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="120">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="121">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="123">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="127">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="128">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="132">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="133">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="135">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="140">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="141">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="142">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="143">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="145">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="146">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="147">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="148">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="149">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="150">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="155">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="156">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="157">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="158">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="159">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="165">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="166">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="55">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="95">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail"/>
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations"/>
+      </line>
+      <line nr="134">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="136">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="137">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="144">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+      <line nr="151">
+        <covered by="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Payment\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Exception</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Database\Eloquent\Model</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Crm\Models\Client</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="10">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Payment\Models\ClientCreditLedger</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="11">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Payment\Models\Payment</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="12">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Models\Invoice</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="13"/>
+      <line no="14">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditService</token>
+      </line>
+      <line no="15">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="16">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT">     * Get the current credit balance for a client.</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="19">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getBalance</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">Client</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="20">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="21">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$lastEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="22">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">latest</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'id'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="23">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="24"/>
+      <line no="25">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$lastEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$lastEntry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">balance_after_cents</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DIV">/</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DNUMBER">0.00</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="27"/>
+      <line no="28">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="29">
+        <token name="T_DOC_COMMENT">     * Add credit to a client account.</token>
+      </line>
+      <line no="30">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="31">
+        <token name="T_DOC_COMMENT">     * @param  float  $amount  positive amount to add</token>
+      </line>
+      <line no="32">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="33">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">addCredit</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">Client</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">Model</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+      </line>
+      <line no="34">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="35">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">app</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Illuminate\Database\DatabaseManager</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_CLASS">class</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">transaction</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="36">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Lock the client to serialize credit operations</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Client</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">lockForUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="38"/>
+      <line no="39">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getBalance</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="40">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$newBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_PLUS">+</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="41"/>
+      <line no="42">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Convert to cents for storage</token>
+      </line>
+      <line no="43">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$amountCents</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="44">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$balanceAfterCents</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$newBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="45"/>
+      <line no="46">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">create</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="47">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="48">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'amount_cents'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amountCents</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'balance_after_cents'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balanceAfterCents</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="50">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'transaction_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'credit'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="51">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'description'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="52">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'reference_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_NULLSAFE_OBJECT_OPERATOR">?-&gt;</token>
+        <token name="T_STRING">getKey</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="53">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'reference_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">get_class</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="54">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'created_by_user_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">auth</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="55">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="56"/>
+      <line no="57">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="58">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="59">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="60"/>
+      <line no="61">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="62">
+        <token name="T_DOC_COMMENT">     * Deduct credit from a client account.</token>
+      </line>
+      <line no="63">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="64">
+        <token name="T_DOC_COMMENT">     * @param  float  $amount  positive amount to deduct (will be stored as negative)</token>
+      </line>
+      <line no="65">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="66">
+        <token name="T_DOC_COMMENT">     * @throws Exception if insufficient funds</token>
+      </line>
+      <line no="67">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="68">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">deductCredit</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">Client</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">Model</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+      </line>
+      <line no="69">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="70">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">app</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Illuminate\Database\DatabaseManager</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_CLASS">class</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">transaction</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="71">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Lock the client to serialize credit operations</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Client</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">lockForUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="73"/>
+      <line no="74">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getBalance</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="75"/>
+      <line no="76">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="77">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Exception</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Insufficient credit balance. Available: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">, Required: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="78">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="79"/>
+      <line no="80">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$newBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$currentBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MINUS">-</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="81"/>
+      <line no="82">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Convert to cents for storage (negative amount for debit)</token>
+      </line>
+      <line no="83">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$amountCents</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MINUS">-</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="84">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$balanceAfterCents</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$newBalance</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="85"/>
+      <line no="86">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">create</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="87">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="88">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'amount_cents'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amountCents</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="89">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'balance_after_cents'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balanceAfterCents</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="90">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'transaction_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'debit'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="91">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'description'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="92">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'reference_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_NULLSAFE_OBJECT_OPERATOR">?-&gt;</token>
+        <token name="T_STRING">getKey</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="93">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'reference_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">get_class</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$reference</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="94">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'created_by_user_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">auth</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="95">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="96"/>
+      <line no="97">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="98">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="99">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="100"/>
+      <line no="101">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="102">
+        <token name="T_DOC_COMMENT">     * Apply credit to an invoice.</token>
+      </line>
+      <line no="103">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="104">
+        <token name="T_DOC_COMMENT">     * @throws Exception</token>
+      </line>
+      <line no="105">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="106">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">applyToInvoice</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">Client</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Invoice</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientCreditLedger</token>
+      </line>
+      <line no="107">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="108">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// 1. Validate invoice ownership</token>
+      </line>
+      <line no="109">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">client_id</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_NOT_IDENTICAL">!==</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="110">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Exception</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Invoice #</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> does not belong to client </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">name</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOT">.</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="111">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="112"/>
+      <line no="113">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">app</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Illuminate\Database\DatabaseManager</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_CLASS">class</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">transaction</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="114">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Lock client for balance check</token>
+      </line>
+      <line no="115">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Client</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">lockForUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="116"/>
+      <line no="117">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// 2. Calculate remaining balance on invoice</token>
+      </line>
+      <line no="118">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Sum successful payments for this invoice</token>
+      </line>
+      <line no="119">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$paidAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Payment</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="120">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'status'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'successful'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="121">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">sum</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'amount'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="122"/>
+      <line no="123">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$balanceDue</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MINUS">-</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$paidAmount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="124"/>
+      <line no="125">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// 3. Prevent overpayment</token>
+      </line>
+      <line no="126">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// Allow small epsilon for float comparison if needed, but using strict &lt; check for now</token>
+      </line>
+      <line no="127">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_GT">&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balanceDue</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="128">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Exception</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Credit application amount (</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">) exceeds invoice balance due (</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$balanceDue</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">).</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="129">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="130"/>
+      <line no="131">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// 4. Deduct credit (this throws if insufficient funds)</token>
+      </line>
+      <line no="132">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">deductCredit</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="133">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="134">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="135">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Applied to Invoice #</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="136">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$invoice</token>
+      </line>
+      <line no="137">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="138"/>
+      <line no="139">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// 5. Create Payment Record to reflect this internal transfer</token>
+      </line>
+      <line no="140">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">Payment</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">create</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="141">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'company_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">company_id</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$client</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">company_id</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COMMENT">// Fallback if invoice doesn't explicitly store it</token>
+      </line>
+      <line no="142">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="143">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'amount'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="144">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'payment_method_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COMMENT">// Internal credit</token>
+      </line>
+      <line no="145">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'status'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'successful'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="146">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'payment_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'credit_balance'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="147">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'description'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Paid via Client Credit Balance (Ledger ID: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="148">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'invoice_number'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">invoice_number</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="149">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'processed_at'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">now</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="150">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'transaction_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'purchase'</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="151">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="152"/>
+      <line no="153">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// 6. Update Invoice Status if fully paid</token>
+      </line>
+      <line no="154">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_COMMENT">// We re-calculate to be safe, including the just-added payment</token>
+      </line>
+      <line no="155">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$newPaidAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$paidAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_PLUS">+</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="156">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$newPaidAmount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_GREATER_OR_EQUAL">&gt;=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">total_amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="157">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">status</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'paid'</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="158">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">paid_at</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">now</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="159">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$invoice</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">save</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="160">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ELSE">else</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="161">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_COMMENT">// Potentially set to 'partial' if that status exists</token>
+      </line>
+      <line no="162">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_COMMENT">// For now, leave as is or 'pending'</token>
+      </line>
+      <line no="163">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="164"/>
+      <line no="165">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$ledger</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="166">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="167">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="168">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="169"/>
+    </source>
+  </file>
+</phpunit>

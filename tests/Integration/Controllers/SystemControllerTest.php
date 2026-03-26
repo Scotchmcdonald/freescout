@@ -18,14 +18,14 @@ class SystemControllerTest extends IntegrationTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
 
         $this->assertInstanceOf(SystemController::class, $controller);
     }
 
     public function test_index_returns_view(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $this->assertEquals('system.index', $view->name());
@@ -33,7 +33,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_index_passes_stats_to_view(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $this->assertArrayHasKey('stats', $view->getData());
@@ -42,7 +42,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_index_stats_contains_correct_keys(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $stats = $view->getData()['stats'];
@@ -57,7 +57,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_index_system_info_contains_correct_keys(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $systemInfo = $view->getData()['systemInfo'];
@@ -76,7 +76,7 @@ class SystemControllerTest extends IntegrationTestCase
         Mailbox::factory()->count(1)->create();
         Conversation::factory()->count(3)->create();
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $stats = $view->getData()['stats'];
@@ -91,7 +91,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_returns_json_response(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
@@ -99,7 +99,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_checks_database_connection(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -110,7 +110,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_checks_storage_writable(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -120,7 +120,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_checks_cache_working(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -130,7 +130,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_checks_required_extensions(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -145,7 +145,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -158,7 +158,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'invalid_action']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -171,7 +171,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -185,7 +185,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'system_info']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -197,7 +197,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_logs_returns_view(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $request = Request::create('/system/logs', 'GET');
 
         $view = $controller->logs($request);
@@ -207,7 +207,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_logs_defaults_to_application_type(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $request = Request::create('/system/logs', 'GET');
 
         $view = $controller->logs($request);
@@ -218,7 +218,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_logs_can_filter_by_type(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $request = Request::create('/system/logs?type=email', 'GET');
 
         $view = $controller->logs($request);
@@ -229,7 +229,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_update_returns_view(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->update();
 
         $this->assertEquals('system.update', $view->name());
@@ -237,7 +237,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_update_passes_data_to_view(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->update();
 
         $data = $view->getData();
@@ -258,7 +258,7 @@ class SystemControllerTest extends IntegrationTestCase
         file_put_contents($logPath, "Test log content\n");
 
         try {
-            $controller = new SystemController;
+            $controller = app(SystemController::class);
             $response = $controller->downloadLogs();
 
             $this->assertInstanceOf(BinaryFileResponse::class, $response);
@@ -272,7 +272,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_contains_database_check(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -283,7 +283,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_contains_storage_check(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -294,7 +294,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_contains_cache_check(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -313,7 +313,7 @@ class SystemControllerTest extends IntegrationTestCase
             $request->setUserResolver(fn () => $admin);
             $request->merge(['action' => $action]);
 
-            $controller = new SystemController;
+            $controller = app(SystemController::class);
             $response = $controller->ajax($request);
 
             $this->assertInstanceOf(JsonResponse::class, $response);
@@ -324,7 +324,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_index_disk_usage_calculations_are_numeric(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $systemInfo = $view->getData()['systemInfo'];
@@ -334,7 +334,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_index_php_configuration_values_are_present(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $view = $controller->index();
 
         $systemInfo = $view->getData()['systemInfo'];
@@ -349,7 +349,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request = Request::create('/system/ajax', 'GET');
         $request->setUserResolver(fn () => $admin);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
 
         // GET requests should not be processed the same way
         $this->assertInstanceOf(SystemController::class, $controller);
@@ -357,7 +357,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_logs_view_contains_log_types(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $request = Request::create('/system/logs', 'GET');
 
         $view = $controller->logs($request);
@@ -370,7 +370,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_logs_paginates_results(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $request = Request::create('/system/logs?page=1', 'GET');
 
         $view = $controller->logs($request);
@@ -394,7 +394,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -412,7 +412,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'optimize']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -427,7 +427,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'queue_work']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -443,7 +443,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'system_info']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -468,7 +468,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -491,7 +491,7 @@ class SystemControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'optimize']);
 
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(500, $response->getStatusCode());
@@ -502,7 +502,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_executes_database_check(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -514,7 +514,7 @@ class SystemControllerTest extends IntegrationTestCase
 
     public function test_diagnostics_returns_multiple_checks(): void
     {
-        $controller = new SystemController;
+        $controller = app(SystemController::class);
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -543,7 +543,7 @@ class SystemControllerTest extends IntegrationTestCase
             $request->setUserResolver(fn () => $admin);
             $request->merge(['action' => $action]);
 
-            $controller = new SystemController;
+            $controller = app(SystemController::class);
             $response = $controller->ajax($request);
 
             $this->assertInstanceOf(JsonResponse::class, $response);

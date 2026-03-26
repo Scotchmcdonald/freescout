@@ -1,0 +1,2241 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="TimeEntryService.php" path="/Modules/PIB/Services" hash="ecd40f0f396e7384750e9100f041dd2ba03b9aa0">
+    <totals>
+      <lines total="216" comments="49" code="167" executable="81" executed="75" percent="92.59"/>
+      <methods count="8" tested="6" percent="75.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Modules\PIB\Services\TimeEntryService" start="19" executable="81" executed="75" crap="17.12">
+      <namespace name="Modules\PIB\Services"/>
+      <method name="createEntry" signature="createEntry(int $conversationId, int $clientId, int $userId, int $durationMinutes, string $workType, bool $isBillable, ?float $billingRate, ?string $description, ?string $internalNotes, ?DateTimeInterface $startedAt, ?DateTimeInterface $endedAt): TimeEntry" start="24" end="67" crap="1" executable="25" executed="25" coverage="100"/>
+      <method name="updateEntry" signature="updateEntry(TimeEntry $entry, array $data): TimeEntry" start="74" end="103" crap="7" executable="14" executed="14" coverage="100"/>
+      <method name="deleteEntry" signature="deleteEntry(TimeEntry $entry): void" start="108" end="125" crap="1" executable="10" executed="10" coverage="100"/>
+      <method name="getEntriesForConversation" signature="getEntriesForConversation(int $conversationId): Illuminate\Database\Eloquent\Collection" start="132" end="138" crap="1" executable="4" executed="4" coverage="100"/>
+      <method name="getTotalTimeForConversation" signature="getTotalTimeForConversation(int $conversationId): array" start="145" end="161" crap="1" executable="9" executed="9" coverage="100"/>
+      <method name="getUninvoicedBillableEntries" signature="getUninvoicedBillableEntries(int $clientId, int $year, int $month): Illuminate\Database\Eloquent\Collection" start="168" end="175" crap="2" executable="5" executed="0" coverage="0"/>
+      <method name="updateConversationTimeTotals" signature="updateConversationTimeTotals(int $conversationId, int $minutes, bool $isBillable): void" start="180" end="191" crap="3" executable="5" executed="5" coverage="100"/>
+      <method name="recalculateConversationTimeTotals" signature="recalculateConversationTimeTotals(int $conversationId): void" start="196" end="214" crap="2.01" executable="9" executed="8" coverage="88.888888888889"/>
+    </class>
+    <coverage>
+      <line nr="37">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="38">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="39">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="40">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="41">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="42">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="43">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="44">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="45">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="46">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="47">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="48">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="49">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="53">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="56">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="57">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="66">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="78">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="80">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="83">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="84">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="88">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="89">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="90">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="91">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="95">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="96">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="97">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="102">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="110">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="111">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="112">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="114">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="117">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="120">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="121">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="134">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+      </line>
+      <line nr="135">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+      </line>
+      <line nr="136">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+      </line>
+      <line nr="137">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+      </line>
+      <line nr="147">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="150">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="152">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="154">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="157">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="158">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="159">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="182">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="184">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="185">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="187">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="188">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="198">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="200">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="204">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="207">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="210">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="211">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="212">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="213">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="50">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="58">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="59">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="60">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="61">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="62">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="63">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="64">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries"/>
+      </line>
+      <line nr="98">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="99">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+      </line>
+      <line nr="122">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="123">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="124">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+      </line>
+      <line nr="156">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+      <line nr="160">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Support\Str</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\Crm\Models\ClientConversation</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Events\TimeEntryCreated</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="10">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Events\TimeEntryDeleted</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="11">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Events\TimeEntryUpdated</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="12">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Models\TimeEntry</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="13"/>
+      <line no="14">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="15">
+        <token name="T_DOC_COMMENT"> * Time Entry Service</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> * Handles creation, updates, and aggregation of time entries.</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="19">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntryService</token>
+      </line>
+      <line no="20">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="21">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT">     * Create a time entry for a conversation.</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="24">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">createEntry</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="25">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="27">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$userId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$durationMinutes</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="29">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workType</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">WORK_TROUBLESHOOTING</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="30">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="31">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$billingRate</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="32">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="33">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$internalNotes</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="34">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\DateTimeInterface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startedAt</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="35">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_NAME_FULLY_QUALIFIED">\DateTimeInterface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$endedAt</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="36">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">create</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'entry_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING_CAST">(string)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Str</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">uuid</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="39">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'conversation_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="40">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'client_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="41">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'user_id'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$userId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="42">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$durationMinutes</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="43">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'work_type'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workType</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="44">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_billable'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="45">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billing_rate'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$billingRate</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="46">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'description'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$description</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="47">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'internal_notes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$internalNotes</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="48">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'started_at'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startedAt</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">now</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'ended_at'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$endedAt</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="50">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="51"/>
+      <line no="52">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Update client_conversations time totals</token>
+      </line>
+      <line no="53">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">updateConversationTimeTotals</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$durationMinutes</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="54"/>
+      <line no="55">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Fire event</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">event</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntryCreated</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">entryId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="58">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">conversationId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="59">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">clientId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="60">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">userId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$userId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="61">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">durationMinutes</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$durationMinutes</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="62">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">isBillable</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="63">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">billingRate</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$billingRate</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="64">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="65"/>
+      <line no="66">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="67">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="68"/>
+      <line no="69">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="70">
+        <token name="T_DOC_COMMENT">     * Update a time entry.</token>
+      </line>
+      <line no="71">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="72">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $data</token>
+      </line>
+      <line no="73">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="74">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">updateEntry</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="75">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="76">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$data</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="77">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="78">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$oldData</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">only</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_billable'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'work_type'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billing_rate'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="79"/>
+      <line no="80">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">update</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$data</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="81"/>
+      <line no="82">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Recalculate time totals if duration or billable changed</token>
+      </line>
+      <line no="83">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_ISSET">isset</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$data</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_BOOLEAN_OR">||</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ISSET">isset</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$data</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_billable'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="84">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">recalculateConversationTimeTotals</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">conversation_id</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="85">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="86"/>
+      <line no="87">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Fire event with changes</token>
+      </line>
+      <line no="88">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$changes</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="89">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_FOREACH">foreach</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$data</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_AS">as</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$newValue</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="90">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_ISSET">isset</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$oldData</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_BOOLEAN_AND">&amp;&amp;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$oldData</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_NOT_IDENTICAL">!==</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$newValue</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="91">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$changes</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$oldData</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$newValue</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="92">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="93">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="94"/>
+      <line no="95">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_EXCLAMATION_MARK">!</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EMPTY">empty</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$changes</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="96">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">event</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntryUpdated</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="97">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_STRING">entryId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="98">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_STRING">changes</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$changes</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="99">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="100">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="101"/>
+      <line no="102">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="103">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="104"/>
+      <line no="105">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="106">
+        <token name="T_DOC_COMMENT">     * Delete a time entry.</token>
+      </line>
+      <line no="107">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="108">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">deleteEntry</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="109">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="110">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">conversation_id</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="111">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">client_id</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="112">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$entryId</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">id</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="113"/>
+      <line no="114">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$entry</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">delete</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="115"/>
+      <line no="116">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Recalculate time totals</token>
+      </line>
+      <line no="117">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">recalculateConversationTimeTotals</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="118"/>
+      <line no="119">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Fire event</token>
+      </line>
+      <line no="120">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">event</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntryDeleted</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="121">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">entryId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entryId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="122">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">conversationId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="123">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">clientId</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="124">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="125">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="126"/>
+      <line no="127">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="128">
+        <token name="T_DOC_COMMENT">     * Get time entries for a conversation.</token>
+      </line>
+      <line no="129">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="130">
+        <token name="T_DOC_COMMENT">     * @return \Illuminate\Database\Eloquent\Collection&lt;int, \Modules\PIB\Models\TimeEntry&gt;</token>
+      </line>
+      <line no="131">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="132">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getEntriesForConversation</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Illuminate\Database\Eloquent\Collection</token>
+      </line>
+      <line no="133">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="134">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">forConversation</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="135">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">with</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'user'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="136">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">orderBy</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'started_at'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'desc'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="137">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="138">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="139"/>
+      <line no="140">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="141">
+        <token name="T_DOC_COMMENT">     * Get total time for a conversation.</token>
+      </line>
+      <line no="142">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="143">
+        <token name="T_DOC_COMMENT">     * @return array&lt;string, int&gt;</token>
+      </line>
+      <line no="144">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="145">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getTotalTimeForConversation</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+      </line>
+      <line no="146">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="147">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$entries</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">forConversation</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="148"/>
+      <line no="149">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_DOC_COMMENT">/** @var int|float|string|null $m1 */</token>
+      </line>
+      <line no="150">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$m1</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entries</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">sum</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="151">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_DOC_COMMENT">/** @var int|float|string|null $m2 */</token>
+      </line>
+      <line no="152">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$m2</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entries</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_billable'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">true</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">sum</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="153">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_DOC_COMMENT">/** @var int|float|string|null $m3 */</token>
+      </line>
+      <line no="154">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$m3</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$entries</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'is_billable'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">sum</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'duration_minutes'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="155"/>
+      <line no="156">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="157">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'total_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$m1</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="158">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billable_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$m2</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="159">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'non_billable_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$m3</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="160">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="161">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="162"/>
+      <line no="163">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="164">
+        <token name="T_DOC_COMMENT">     * Get uninvoiced billable entries for a client in a month.</token>
+      </line>
+      <line no="165">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="166">
+        <token name="T_DOC_COMMENT">     * @return \Illuminate\Database\Eloquent\Collection&lt;int, \Modules\PIB\Models\TimeEntry&gt;</token>
+      </line>
+      <line no="167">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="168">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getUninvoicedBillableEntries</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$year</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$month</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Illuminate\Database\Eloquent\Collection</token>
+      </line>
+      <line no="169">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="170">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">TimeEntry</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">forClient</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$clientId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="171">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">forMonth</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$year</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$month</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="172">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">billable</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="173">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">uninvoiced</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+      </line>
+      <line no="174">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="175">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="176"/>
+      <line no="177">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="178">
+        <token name="T_DOC_COMMENT">     * Update time totals on client_conversations.</token>
+      </line>
+      <line no="179">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="180">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">updateConversationTimeTotals</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$minutes</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="181">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="182">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientConversation</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'conversation_id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="183"/>
+      <line no="184">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="185">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">increment</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'total_time_minutes'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$minutes</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="186"/>
+      <line no="187">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$isBillable</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="188">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">increment</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billable_time_minutes'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$minutes</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="189">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="190">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="191">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="192"/>
+      <line no="193">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="194">
+        <token name="T_DOC_COMMENT">     * Recalculate time totals on client_conversations from time entries.</token>
+      </line>
+      <line no="195">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="196">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">recalculateConversationTimeTotals</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="197">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="198">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ClientConversation</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'conversation_id'</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">first</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="199"/>
+      <line no="200">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_EXCLAMATION_MARK">!</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="201">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="202">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="203"/>
+      <line no="204">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$totals</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getTotalTimeForConversation</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$conversationId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="205"/>
+      <line no="206">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_DOC_COMMENT">/** @var \Illuminate\Database\Eloquent\Model $model */</token>
+      </line>
+      <line no="207">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$model</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$clientConversation</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="208">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Using forceFill to bypass strict property checks in PHPStan if properties are missing from docblocks</token>
+      </line>
+      <line no="209">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// But update() is safer for mass assignment. Logic is correct though.</token>
+      </line>
+      <line no="210">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$model</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">forceFill</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+      </line>
+      <line no="211">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'total_time_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$totals</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'total_minutes'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="212">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billable_time_minutes'</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$totals</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'billable_minutes'</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="213">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">save</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="214">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="215">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="216"/>
+    </source>
+  </file>
+</phpunit>

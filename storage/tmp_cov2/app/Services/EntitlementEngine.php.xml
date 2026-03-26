@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="EntitlementEngine.php" path="/app/Services" hash="2845ff97dd11e39f988ca6b9550b9da4bf650fc0">
+    <totals>
+      <lines total="16" comments="8" code="8" executable="0" executed="0" percent="0"/>
+      <methods count="0" tested="0" percent="0"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="0" tested="0" percent="0"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="App\Services\EntitlementEngine" start="15" executable="0" executed="0" crap="0">
+      <namespace name="App\Services"/>
+    </class>
+    <coverage/>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="8">
+        <token name="T_DOC_COMMENT"> * Abstract base for the entitlement engine.</token>
+      </line>
+      <line no="9">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="10">
+        <token name="T_DOC_COMMENT"> * The concrete implementation lives in the PIB module.</token>
+      </line>
+      <line no="11">
+        <token name="T_DOC_COMMENT"> * The AppServiceProvider registers that concrete class under this abstract name</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> * so application-layer code can depend on App\Services\EntitlementEngine without</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> * a hard dependency on the module class name here.</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="15">
+        <token name="T_ABSTRACT">abstract</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">EntitlementEngine</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="16"/>
+    </source>
+  </file>
+</phpunit>

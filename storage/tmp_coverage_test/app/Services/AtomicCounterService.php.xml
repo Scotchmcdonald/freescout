@@ -1,0 +1,1707 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="AtomicCounterService.php" path="/app/Services" hash="a826e1ee86bc4679b7b784b4fbe50576825b1b00">
+    <totals>
+      <lines total="181" comments="76" code="105" executable="38" executed="23" percent="60.53"/>
+      <methods count="8" tested="3" percent="37.50"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="App\Services\AtomicCounterService" start="24" executable="38" executed="23" crap="28.84">
+      <namespace name="App\Services"/>
+      <method name="increment" signature="increment(string $table, array $where, string $column, int $amount): int" start="35" end="42" crap="2.15" executable="3" executed="2" coverage="66.666666666667"/>
+      <method name="decrement" signature="decrement(string $table, array $where, string $column, int $amount): int" start="53" end="60" crap="2.15" executable="3" executed="2" coverage="66.666666666667"/>
+      <method name="get" signature="get(string $table, array $where, string $column): int" start="70" end="82" crap="3" executable="5" executed="5" coverage="100"/>
+      <method name="set" signature="set(string $table, array $where, string $column, int $value): void" start="92" end="101" crap="6" executable="4" executed="0" coverage="0"/>
+      <method name="atomicUpdate" signature="atomicUpdate(string $table, array $where, string $column, int $delta): int" start="113" end="122" crap="2.06" executable="4" executed="3" coverage="75"/>
+      <method name="atomicUpdatePostgres" signature="atomicUpdatePostgres(string $table, array $where, string $column, int $delta): int" start="129" end="142" crap="2" executable="8" executed="0" coverage="0"/>
+      <method name="atomicUpdateMysql" signature="atomicUpdateMysql(string $table, array $where, string $column, int $delta): int" start="149" end="163" crap="1" executable="7" executed="7" coverage="100"/>
+      <method name="buildWhereClause" signature="buildWhereClause(array $where): string" start="170" end="179" crap="2" executable="4" executed="4" coverage="100"/>
+    </class>
+    <coverage>
+      <line nr="37">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="41">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="55">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+      </line>
+      <line nr="59">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+      </line>
+      <line nr="72">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="74">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="75">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="79">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="81">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged"/>
+        <covered by="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="115">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="117">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="120">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="151">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="152">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="155">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="156">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="157">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="159">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="162">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="172">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="174">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="175">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+      <line nr="178">
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_"/>
+        <covered by="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Illuminate\Support\Facades\DB</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9"/>
+      <line no="10">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="11">
+        <token name="T_DOC_COMMENT"> * AtomicCounterService - Thread-safe counter operations</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> * Provides atomic increment/decrement operations that prevent lost updates</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> * under concurrent load. Critical for financial counters (billing, credits, etc.)</token>
+      </line>
+      <line no="15">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> * Usage:</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> * app(AtomicCounterService::class)-&gt;increment(</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> *     table: 'client_asset_counters',</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT"> *     where: ['client_id' =&gt; $clientId, 'asset_type' =&gt; 'chromebook'],</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT"> *     column: 'count',</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT"> *     amount: 1</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT"> * );</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="24">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">AtomicCounterService</token>
+      </line>
+      <line no="25">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="27">
+        <token name="T_DOC_COMMENT">     * Atomically increment a counter</token>
+      </line>
+      <line no="28">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="29">
+        <token name="T_DOC_COMMENT">     * @param  string  $table  Database table name</token>
+      </line>
+      <line no="30">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where  Where conditions (e.g., ['client_id' =&gt; 1])</token>
+      </line>
+      <line no="31">
+        <token name="T_DOC_COMMENT">     * @param  string  $column  Counter column name</token>
+      </line>
+      <line no="32">
+        <token name="T_DOC_COMMENT">     * @param  int  $amount  Amount to increment by (default: 1)</token>
+      </line>
+      <line no="33">
+        <token name="T_DOC_COMMENT">     * @return int New counter value after increment</token>
+      </line>
+      <line no="34">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="35">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">increment</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="36">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Use decrement() for negative amounts'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="39">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="40"/>
+      <line no="41">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">atomicUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="42">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="43"/>
+      <line no="44">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="45">
+        <token name="T_DOC_COMMENT">     * Atomically decrement a counter</token>
+      </line>
+      <line no="46">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="47">
+        <token name="T_DOC_COMMENT">     * @param  string  $table  Database table name</token>
+      </line>
+      <line no="48">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where  Where conditions</token>
+      </line>
+      <line no="49">
+        <token name="T_DOC_COMMENT">     * @param  string  $column  Counter column name</token>
+      </line>
+      <line no="50">
+        <token name="T_DOC_COMMENT">     * @param  int  $amount  Amount to decrement by (default: 1)</token>
+      </line>
+      <line no="51">
+        <token name="T_DOC_COMMENT">     * @return int New counter value after decrement</token>
+      </line>
+      <line no="52">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="53">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">decrement</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="54">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="55">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Use increment() for negative amounts'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="58"/>
+      <line no="59">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">atomicUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MINUS">-</token>
+        <token name="T_VARIABLE">$amount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="60">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="61"/>
+      <line no="62">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="63">
+        <token name="T_DOC_COMMENT">     * Get current counter value</token>
+      </line>
+      <line no="64">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="65">
+        <token name="T_DOC_COMMENT">     * @param  string  $table  Database table name</token>
+      </line>
+      <line no="66">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where  Where conditions</token>
+      </line>
+      <line no="67">
+        <token name="T_DOC_COMMENT">     * @param  string  $column  Counter column name</token>
+      </line>
+      <line no="68">
+        <token name="T_DOC_COMMENT">     * @return int Current counter value</token>
+      </line>
+      <line no="69">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="70">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="71">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">table</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="73"/>
+      <line no="74">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_FOREACH">foreach</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_AS">as</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$value</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="75">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$value</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="76">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="77"/>
+      <line no="78">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_DOC_COMMENT">/** @var string|int|float|null $result */</token>
+      </line>
+      <line no="79">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">value</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="80"/>
+      <line no="81">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">is_numeric</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_INT_CAST">(int)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="82">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="83"/>
+      <line no="84">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="85">
+        <token name="T_DOC_COMMENT">     * Set counter to specific value</token>
+      </line>
+      <line no="86">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="87">
+        <token name="T_DOC_COMMENT">     * @param  string  $table  Database table name</token>
+      </line>
+      <line no="88">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where  Where conditions</token>
+      </line>
+      <line no="89">
+        <token name="T_DOC_COMMENT">     * @param  string  $column  Counter column name</token>
+      </line>
+      <line no="90">
+        <token name="T_DOC_COMMENT">     * @param  int  $value  New counter value</token>
+      </line>
+      <line no="91">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="92">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">set</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$value</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="93">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="94">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">table</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="95"/>
+      <line no="96">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_FOREACH">foreach</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_AS">as</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$val</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="97">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">where</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$val</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="98">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="99"/>
+      <line no="100">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$query</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">update</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_ARROW">=&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$value</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="101">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="102"/>
+      <line no="103">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="104">
+        <token name="T_DOC_COMMENT">     * Perform atomic counter update</token>
+      </line>
+      <line no="105">
+        <token name="T_DOC_COMMENT">     * Uses raw SQL to ensure atomicity at database level</token>
+      </line>
+      <line no="106">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="107">
+        <token name="T_DOC_COMMENT">     * @param  string  $table  Database table name</token>
+      </line>
+      <line no="108">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where  Where conditions</token>
+      </line>
+      <line no="109">
+        <token name="T_DOC_COMMENT">     * @param  string  $column  Counter column name</token>
+      </line>
+      <line no="110">
+        <token name="T_DOC_COMMENT">     * @param  int  $delta  Amount to change (+/-)</token>
+      </line>
+      <line no="111">
+        <token name="T_DOC_COMMENT">     * @return int New counter value</token>
+      </line>
+      <line no="112">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="113">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">atomicUpdate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="114">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="115">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$driver</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">connection</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getDriverName</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="116"/>
+      <line no="117">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$driver</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_IDENTICAL">===</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'pgsql'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="118">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">atomicUpdatePostgres</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="119">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ELSE">else</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="120">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">atomicUpdateMysql</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="121">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="122">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="123"/>
+      <line no="124">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="125">
+        <token name="T_DOC_COMMENT">     * PostgreSQL atomic update with RETURNING clause</token>
+      </line>
+      <line no="126">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="127">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where</token>
+      </line>
+      <line no="128">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="129">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">atomicUpdatePostgres</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="130">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="131">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$whereClause</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">buildWhereClause</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="132">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$whereValues</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_values</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="133"/>
+      <line no="134">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$sql</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">UPDATE </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> </token>
+      </line>
+      <line no="135">
+        <token name="T_ENCAPSED_AND_WHITESPACE">                SET </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> = </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> + ? </token>
+      </line>
+      <line no="136">
+        <token name="T_ENCAPSED_AND_WHITESPACE">                WHERE </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$whereClause</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> </token>
+      </line>
+      <line no="137">
+        <token name="T_ENCAPSED_AND_WHITESPACE">                RETURNING </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="138"/>
+      <line no="139">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">selectOne</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$sql</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_merge</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$whereValues</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="140"/>
+      <line no="141">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$result</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="142">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="143"/>
+      <line no="144">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="145">
+        <token name="T_DOC_COMMENT">     * MySQL atomic update with separate SELECT</token>
+      </line>
+      <line no="146">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="147">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where</token>
+      </line>
+      <line no="148">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="149">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">atomicUpdateMysql</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+      </line>
+      <line no="150">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="151">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$whereClause</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">buildWhereClause</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="152">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$whereValues</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_values</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="153"/>
+      <line no="154">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Perform atomic update</token>
+      </line>
+      <line no="155">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$sql</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">UPDATE </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> </token>
+      </line>
+      <line no="156">
+        <token name="T_ENCAPSED_AND_WHITESPACE">                SET </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> = </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> + ? </token>
+      </line>
+      <line no="157">
+        <token name="T_ENCAPSED_AND_WHITESPACE">                WHERE </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$whereClause</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="158"/>
+      <line no="159">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">DB</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">update</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$sql</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_merge</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$delta</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$whereValues</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="160"/>
+      <line no="161">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_COMMENT">// Fetch new value</token>
+      </line>
+      <line no="162">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">get</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$table</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$column</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="163">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="164"/>
+      <line no="165">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="166">
+        <token name="T_DOC_COMMENT">     * Build WHERE clause from conditions array</token>
+      </line>
+      <line no="167">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="168">
+        <token name="T_DOC_COMMENT">     * @param  array&lt;string, mixed&gt;  $where</token>
+      </line>
+      <line no="169">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="170">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PROTECTED">protected</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">buildWhereClause</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">string</token>
+      </line>
+      <line no="171">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="172">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$conditions</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="173"/>
+      <line no="174">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_FOREACH">foreach</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">array_keys</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$where</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_AS">as</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="175">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$conditions</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$key</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE"> = ?</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="176">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="177"/>
+      <line no="178">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">implode</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">' AND '</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$conditions</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="179">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="180">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="181"/>
+    </source>
+  </file>
+</phpunit>

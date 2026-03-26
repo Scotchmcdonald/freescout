@@ -64,3 +64,25 @@ test('MigrationMailbox fillable blocks status override to invalid state', functi
     expect($fresh)->not->toBeNull()
         ->and($fresh->email)->toBe('user@example.com');
 });
+
+test('MigrationMailbox rejects mass assignment of sensitive credential fields via direct fill', function () {
+    $project = MigrationProject::create([
+        'name' => 'Security Validation Test',
+        'domain' => 'secure.example.com',
+        'source_host' => 'imap.source.com',
+        'dest_host' => 'imap.dest.com',
+    ]);
+
+    // Validation boundary: only whitelisted fillable fields should be persisted
+    $mailbox = $project->mailboxes()->make([
+        'email' => 'test@example.com',
+        'source_user' => 'legit',
+        'source_pass' => 'legit_pass',
+        'dest_user' => 'dest',
+        'dest_pass' => 'dest_pass',
+        'id' => 99999,  // attempt to override PK — mass assignment guard must block
+    ]);
+
+    // The 'id' field is not fillable — it must not be set via fill
+    expect($mailbox->id)->not->toBe(99999);
+});

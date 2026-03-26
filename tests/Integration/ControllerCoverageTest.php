@@ -83,7 +83,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/clone', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->clone($request, $mailbox, $thread);
 
         // Verify redirect response
@@ -114,7 +114,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->move($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -142,7 +142,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->updateThread($request, $conversation, $thread);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -172,7 +172,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->updateSettings($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -206,7 +206,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/chats', 'GET');
         $request->setUserResolver(fn () => $this->user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->chats($request);
 
         $this->assertEquals('conversations.chats', $view->name());
@@ -226,7 +226,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/upload', 'POST');
         $request->files->set('file', $file);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->upload($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -257,7 +257,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversationId, 'DELETE');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->destroy($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -279,7 +279,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/clone', 'POST');
         $request->setUserResolver(fn () => $this->user); // Not attached to mailbox
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
         $controller->clone($request, $mailbox, $thread);
@@ -312,7 +312,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/clone', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $controller->clone($request, $mailbox, $thread);
 
         $clonedConversation = Conversation::where('id', '!=', $originalConversation->id)->first();
@@ -339,7 +339,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->move($request, $conversation);
@@ -360,7 +360,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->headers->set('Accept', 'application/json');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->move($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
@@ -379,7 +379,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/move', 'POST', []);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->move($request, $conversation);
@@ -400,7 +400,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->updateThread($request, $conversation1, $thread);
@@ -420,7 +420,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->headers->set('Accept', 'application/json');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->updateThread($request, $conversation, $thread);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
@@ -440,7 +440,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/threads/update', 'POST', []);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateThread($request, $conversation, $thread);
@@ -462,7 +462,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->updateSettings($request, $conversation);
 
         $conversation->refresh();
@@ -483,7 +483,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->headers->set('Accept', 'application/json');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->updateSettings($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
@@ -504,7 +504,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateSettings($request, $conversation);
@@ -531,7 +531,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/chats', 'GET');
         $request->setUserResolver(fn () => $this->user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->chats($request);
 
         $conversations = $view->getData()['conversations'];
@@ -552,7 +552,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/chats?id='.$chat->id, 'GET');
         $request->setUserResolver(fn () => $this->user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->chats($request);
 
         $activeConversation = $view->getData()['activeConversation'];
@@ -564,7 +564,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $request = Request::create('/conversations/upload', 'POST', []);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);
@@ -580,7 +580,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/upload', 'POST');
         $request->files->set('file', $file);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);
@@ -600,7 +600,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             $request = Request::create('/conversations/upload', 'POST');
             $request->files->set('file', $file);
 
-            $controller = new ConversationController;
+            $controller = app(ConversationController::class);
             $response = $controller->upload($request);
 
             $this->assertEquals(200, $response->getStatusCode());
@@ -618,7 +618,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversation->id, 'DELETE');
         $request->setUserResolver(fn () => $this->user); // Not attached to mailbox
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->destroy($request, $conversation);
@@ -637,7 +637,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversationId, 'DELETE');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $controller->destroy($request, $conversation);
 
         // Verify conversation is soft deleted
@@ -707,7 +707,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/settings/alerts', 'GET');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new SettingsController;
+        $controller = app(SettingsController::class);
         $view = $controller->alerts();
 
         $this->assertEquals('settings.alerts', $view->name());
@@ -729,7 +729,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new SettingsController;
+        $controller = app(SettingsController::class);
         $response = $controller->updateAlerts($request);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -753,7 +753,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new SettingsController;
+        $controller = app(SettingsController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateAlerts($request);
@@ -766,7 +766,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new SettingsController;
+        $controller = app(SettingsController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateAlerts($request);
@@ -779,7 +779,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new SettingsController;
+        $controller = app(SettingsController::class);
         $response = $controller->updateAlerts($request);
 
         // Should not throw exception, should handle gracefully
@@ -812,7 +812,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -853,7 +853,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $data = json_decode($response->getContent(), true);
@@ -884,7 +884,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $data = json_decode($response->getContent(), true);
@@ -903,7 +903,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -928,7 +928,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $data = json_decode($response->getContent(), true);
@@ -945,7 +945,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -965,7 +965,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -982,7 +982,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'status' => 1,
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $view = $controller->userSetup('test-hash-123');
 
         $this->assertEquals('users.setup', $view->name());
@@ -992,7 +992,7 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_user_setup_returns_404_for_invalid_hash(): void
     {
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->userSetup('invalid-hash-xyz');
@@ -1007,7 +1007,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         // Simulate authenticated user
         $this->actingAs($this->admin);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->userSetup('test-hash-789');
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -1032,7 +1032,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'phone' => '+1234567890',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
         $response = $controller->userSetupSave('test-hash-456', $request);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -1058,7 +1058,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'time_format' => '12',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-valid', $request);
@@ -1078,7 +1078,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'time_format' => '12',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-mismatch', $request);
@@ -1098,7 +1098,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'time_format' => '12',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-short', $request);
@@ -1118,7 +1118,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'time_format' => 'invalid',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-format', $request);
@@ -1134,7 +1134,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'time_format' => '12',
         ]);
 
-        $controller = new UserController;
+        $controller = app(UserController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->userSetupSave('invalid-hash', $request);

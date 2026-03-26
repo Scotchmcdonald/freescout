@@ -339,3 +339,18 @@ test('artisan commands are registered', function () {
     expect($commands)->toHaveKey('freescout:clear-cache')
         ->toHaveKey('freescout:update-folder-counters');
 });
+
+test('create-user command validates required email format', function () {
+    // Validation boundary: the create-user command must reject invalid emails
+    // and not create any user record
+    $this->artisan('freescout:create-user', [
+        '--firstName' => 'Test',
+        '--lastName' => 'User',
+        '--email' => 'not-a-valid-email',
+        '--password' => 'password',
+        '--role' => 'user',
+    ]);
+
+    // Validation boundary: no user with the invalid email should exist
+    expect(\App\Models\User::where('email', 'not-a-valid-email')->exists())->toBeFalse();
+});

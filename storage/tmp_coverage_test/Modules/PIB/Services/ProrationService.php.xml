@@ -1,0 +1,892 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="ProrationService.php" path="/Modules/PIB/Services" hash="b31841bf2af9fa05832cf2a305e199c10e60ade2">
+    <totals>
+      <lines total="68" comments="27" code="41" executable="10" executed="10" percent="100.00"/>
+      <methods count="4" tested="4" percent="100.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="1" percent="100.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Modules\PIB\Services\ProrationService" start="15" executable="10" executed="10" crap="5">
+      <namespace name="Modules\PIB\Services"/>
+      <method name="calculateProration" signature="calculateProration(float $monthlyRate, Carbon $startDate, Carbon $endDate): float" start="25" end="38" crap="2" executable="7" executed="7" coverage="100"/>
+      <method name="calculateDailyRate" signature="calculateDailyRate(float $monthlyRate, Carbon $referenceDate): float" start="47" end="50" crap="1" executable="1" executed="1" coverage="100"/>
+      <method name="calculateRemainderOfMonth" signature="calculateRemainderOfMonth(float $monthlyRate, Carbon $startDate): float" start="55" end="58" crap="1" executable="1" executed="1" coverage="100"/>
+      <method name="calculateForDays" signature="calculateForDays(float $monthlyRate, int $days, Carbon $referenceDate): float" start="63" end="66" crap="1" executable="1" executed="1" coverage="100"/>
+    </class>
+    <coverage>
+      <line nr="27">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="28">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="30">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="31">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="33">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="34">
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date"/>
+      </line>
+      <line nr="37">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="49">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_daily_rate"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_for_specific_days"/>
+        <covered by="Tests\Unit\ProrationServiceTest::test_handles_different_month_lengths"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_daily_rate_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_daily_rate_varies_by_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_calculate_for_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_zero_days_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_daily_rate_for_28_day_month_is_higher_than_31_day_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_daily_rate_times_days_in_month_equals_monthly_rate"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_daily_rate_for_zero_monthly_rate"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_zero_days_returns_zero_amount"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_negative_days_returns_negative_amount__no_guard_"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_full_month_days_equals_monthly_rate"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;28-day Feb&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;29-day Feb leap&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;30-day Apr&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Jan&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Mar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;30-day Jun&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Dec&quot;"/>
+      </line>
+      <line nr="57">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances"/>
+      </line>
+      <line nr="65">
+        <covered by="Tests\Unit\ProrationServiceTest::test_calculates_for_specific_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_calculate_for_days"/>
+        <covered by="Tests\Unit\Services\ProrationServiceTest::test_zero_days_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_zero_days_returns_zero_amount"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_negative_days_returns_negative_amount__no_guard_"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_full_month_days_equals_monthly_rate"/>
+        <covered by="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Carbon\Carbon</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8"/>
+      <line no="9">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="10">
+        <token name="T_DOC_COMMENT"> * Day-weighted proration calculator for mid-month billing adjustments.</token>
+      </line>
+      <line no="11">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> * Canonical owner: PIB module.</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> * Formula: (monthlyRate / daysInMonth) * daysUsed</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="15">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">ProrationService</token>
+      </line>
+      <line no="16">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="17">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT">     * Calculate prorated amount based on days used in a month.</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT">     * @param  float  $monthlyRate  Full monthly rate</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT">     * @param  Carbon  $startDate  Start date of service</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT">     * @param  Carbon  $endDate  End date of service (typically end of month)</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT">     * @return float Prorated amount (rounded to 2 decimal places)</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="25">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">calculateProration</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Carbon</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startDate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Carbon</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$endDate</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="27">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$start</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startDate</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">copy</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">startOfDay</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$end</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$endDate</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">copy</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">startOfDay</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="29"/>
+      <line no="30">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$daysInMonth</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$start</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">daysInMonth</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="31">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$daysUsed</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$start</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">diffInDays</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$end</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_PLUS">+</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="32"/>
+      <line no="33">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$daysUsed</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="34">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_FULLY_QUALIFIED">\InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'End date must be on or after start date'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="35">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="36"/>
+      <line no="37">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DIV">/</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$daysInMonth</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$daysUsed</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">2</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="39"/>
+      <line no="40">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="41">
+        <token name="T_DOC_COMMENT">     * Calculate the daily rate for a given monthly rate.</token>
+      </line>
+      <line no="42">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="43">
+        <token name="T_DOC_COMMENT">     * @param  float  $monthlyRate  Full monthly rate</token>
+      </line>
+      <line no="44">
+        <token name="T_DOC_COMMENT">     * @param  Carbon  $referenceDate  Date used to determine days in month</token>
+      </line>
+      <line no="45">
+        <token name="T_DOC_COMMENT">     * @return float Daily rate (4 decimal places for precision)</token>
+      </line>
+      <line no="46">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="47">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">calculateDailyRate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Carbon</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$referenceDate</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="48">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_DIV">/</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$referenceDate</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">daysInMonth</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">4</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="50">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="51"/>
+      <line no="52">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="53">
+        <token name="T_DOC_COMMENT">     * Calculate proration for the remainder of the month from a given start date.</token>
+      </line>
+      <line no="54">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="55">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">calculateRemainderOfMonth</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Carbon</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startDate</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">calculateProration</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startDate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$startDate</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">copy</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">endOfMonth</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="58">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="59"/>
+      <line no="60">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="61">
+        <token name="T_DOC_COMMENT">     * Calculate proration for an explicit number of days.</token>
+      </line>
+      <line no="62">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="63">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">calculateForDays</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">float</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$days</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Carbon</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$referenceDate</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">float</token>
+      </line>
+      <line no="64">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="65">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">round</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">calculateDailyRate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$monthlyRate</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$referenceDate</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_MULT">*</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$days</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">2</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="66">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="67">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="68"/>
+    </source>
+  </file>
+</phpunit>

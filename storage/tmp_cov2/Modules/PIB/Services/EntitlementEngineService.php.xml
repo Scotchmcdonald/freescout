@@ -1,0 +1,544 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="EntitlementEngineService.php" path="/Modules/PIB/Services" hash="198c0caa9ceba3640b2c5c23173d54b2c60a993c">
+    <totals>
+      <lines total="77" comments="35" code="42" executable="8" executed="6" percent="75.00"/>
+      <methods count="4" tested="2" percent="50.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="0" percent="0.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Modules\PIB\Services\EntitlementEngineService" start="26" executable="8" executed="6" crap="5.39">
+      <namespace name="Modules\PIB\Services"/>
+      <method name="registerResolver" signature="registerResolver(string $productType, EntitlementResolver $resolver): void" start="37" end="40" crap="1" executable="1" executed="1" coverage="100"/>
+      <method name="resolve" signature="resolve(BillingTemplateInterface $template): EntitlementResult" start="47" end="57" crap="2" executable="5" executed="5" coverage="100"/>
+      <method name="hasResolver" signature="hasResolver(string $productType): bool" start="62" end="65" crap="2" executable="1" executed="0" coverage="0"/>
+      <method name="getRegisteredProductTypes" signature="getRegisteredProductTypes(): array" start="72" end="75" crap="2" executable="1" executed="0" coverage="0"/>
+    </class>
+    <coverage>
+      <line nr="39">
+        <covered by="Modules\PIB\Tests\Feature\BillingPreviewTest::test_billing_preview_page_loads_for_seeded_client"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_skips_invoice_generation_if_template_is_paused_before_write"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_does_not_generate_for_future_date"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_does_not_generate_for_paused_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_create_template_page"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_rent_to_own_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_service_plan_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_validation_works"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="49">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_throws_controlled_error_when_no_resolver_is_registered_for_product_type"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="50">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_throws_controlled_error_when_no_resolver_is_registered_for_product_type"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="52">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_throws_controlled_error_when_no_resolver_is_registered_for_product_type"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+      <line nr="53">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_throws_controlled_error_when_no_resolver_is_registered_for_product_type"/>
+      </line>
+      <line nr="56">
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle"/>
+        <covered by="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report"/>
+        <covered by="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Modules\PIB\Services</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\Contracts\BillingTemplateInterface</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\Contracts\EntitlementResolver</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">App\DataTransferObjects\EntitlementResult</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="10"/>
+      <line no="11">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> * Central registry that routes billing templates to their entitlement resolver.</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> * Canonical owner: PIB module.</token>
+      </line>
+      <line no="15">
+        <token name="T_DOC_COMMENT"> * The interface contracts (`EntitlementResolver`, `BillingTemplateInterface`) deliberately</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> * remain in `app/Contracts/` so ContractManager and SoftwareSubscriptions can participate</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> * without a hard PIB dependency (Core Blindness pattern).</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT"> * Registration:</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT"> *   Modules register their resolvers via PIBServiceProvider::boot() using afterResolving():</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT"> *   $engine-&gt;registerResolver('silver_plan', new ServicePlanEntitlementResolver(...));</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT"> * Resolution:</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT"> *   $result = app(\Modules\PIB\Services\EntitlementEngineService::class)-&gt;resolve($template);</token>
+      </line>
+      <line no="25">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="26">
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">EntitlementEngineService</token>
+      </line>
+      <line no="27">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/** @var array&lt;string, EntitlementResolver&gt; */</token>
+      </line>
+      <line no="29">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PRIVATE">private</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$resolvers</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="30"/>
+      <line no="31">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="32">
+        <token name="T_DOC_COMMENT">     * Register a resolver for a specific product type.</token>
+      </line>
+      <line no="33">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="34">
+        <token name="T_DOC_COMMENT">     * @param  string  $productType  Product type identifier (e.g., 'silver_plan', 'rent_to_own')</token>
+      </line>
+      <line no="35">
+        <token name="T_DOC_COMMENT">     * @param  EntitlementResolver  $resolver  Resolver instance to delegate calculation to</token>
+      </line>
+      <line no="36">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">registerResolver</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">EntitlementResolver</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$resolver</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="39">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolvers</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$resolver</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="40">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="41"/>
+      <line no="42">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="43">
+        <token name="T_DOC_COMMENT">     * Resolve entitlement for a billing template.</token>
+      </line>
+      <line no="44">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="45">
+        <token name="T_DOC_COMMENT">     * @throws \Exception If no resolver is registered for the template's product type</token>
+      </line>
+      <line no="46">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="47">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">resolve</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">BillingTemplateInterface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">EntitlementResult</token>
+      </line>
+      <line no="48">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getProductType</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="50">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$resolver</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolvers</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_COALESCE">??</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="51"/>
+      <line no="52">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_EXCLAMATION_MARK">!</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$resolver</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="53">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_FULLY_QUALIFIED">\Exception</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">No resolver registered for product type: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="54">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="55"/>
+      <line no="56">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$resolver</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">calculate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$template</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="57">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="58"/>
+      <line no="59">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="60">
+        <token name="T_DOC_COMMENT">     * Check if a resolver is registered for a given product type.</token>
+      </line>
+      <line no="61">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="62">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">hasResolver</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+      </line>
+      <line no="63">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="64">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ISSET">isset</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolvers</token>
+        <token name="T_OPEN_SQUARE">[</token>
+        <token name="T_VARIABLE">$productType</token>
+        <token name="T_CLOSE_SQUARE">]</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="65">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="66"/>
+      <line no="67">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="68">
+        <token name="T_DOC_COMMENT">     * Get all registered product type identifiers.</token>
+      </line>
+      <line no="69">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="70">
+        <token name="T_DOC_COMMENT">     * @return array&lt;string&gt;</token>
+      </line>
+      <line no="71">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getRegisteredProductTypes</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ARRAY">array</token>
+      </line>
+      <line no="73">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="74">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">array_keys</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">resolvers</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="75">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="76">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="77"/>
+    </source>
+  </file>
+</phpunit>

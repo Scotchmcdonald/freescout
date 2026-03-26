@@ -1,0 +1,1148 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <build time="Thu Mar 26 14:01:40 UTC 2026" phpunit="12.5.8" coverage="12.5.3">
+    <runtime name="PHP" version="8.3.30" url="https://www.php.net/"/>
+    <driver name="xdebug" version="3.5.1"/>
+  </build>
+  <project source="/var/www/html">
+    <tests>
+      <test name="Tests\Unit\Action1\Action1ConfigHelperTest::test_is_assigned_returns_true_when_client_id_is_present" size="unknown" status="success" time="0.008001"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_values_are_correct" size="unknown" status="success" time="0.240424"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_from_value" size="unknown" status="success" time="0.134143"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_label_returns_string" size="unknown" status="success" time="0.130588"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_color_returns_hex_string" size="unknown" status="success" time="0.135413"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_css_class_contains_text_class" size="unknown" status="success" time="0.137444"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_status_options_covers_all_cases" size="unknown" status="success" time="0.134888"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_type_values" size="unknown" status="success" time="0.133721"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_type_icon_is_non_empty_string" size="unknown" status="success" time="0.134345"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_type_label_is_non_empty_string" size="unknown" status="success" time="0.134558"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_conversation_type_options_count" size="unknown" status="success" time="0.135780"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_state_values" size="unknown" status="success" time="0.136980"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_state_label_non_empty" size="unknown" status="success" time="0.136133"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_state_is_visible_only_for_published" size="unknown" status="success" time="0.137516"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_state_is_editable" size="unknown" status="success" time="0.137973"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_type_values" size="unknown" status="success" time="0.165963"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_type_label" size="unknown" status="success" time="0.135761"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_type_is_internal" size="unknown" status="success" time="0.137113"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_thread_type_sends_email" size="unknown" status="success" time="0.135233"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_role_values" size="unknown" status="success" time="0.138308"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_role_label_non_empty" size="unknown" status="success" time="0.135879"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_role_description_non_empty" size="unknown" status="success" time="0.136266"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_role_is_admin_only_for_admin" size="unknown" status="success" time="0.137915"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_role_options_count" size="unknown" status="success" time="0.136045"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_status_values" size="unknown" status="success" time="0.135988"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_status_label_non_empty" size="unknown" status="success" time="0.135603"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_status_css_class_non_empty" size="unknown" status="success" time="0.136182"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_status_is_active" size="unknown" status="success" time="0.137792"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_status_options_excludes_deleted" size="unknown" status="success" time="0.135572"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_type_values" size="unknown" status="success" time="0.135528"/>
+      <test name="Tests\Unit\EnumBehaviourTest::test_user_type_label" size="unknown" status="success" time="0.136671"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_separate_reply_returns_original_body_when_message_is_not_reply" size="unknown" status="success" time="0.008598"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_separate_reply_trims_plaintext_before_generic_separator" size="unknown" status="success" time="0.001052"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_separate_reply_handles_html_on_wrote_pattern" size="unknown" status="success" time="0.000973"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_get_original_sender_from_fwd_parses_name_and_email" size="unknown" status="success" time="0.000978"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_get_original_sender_from_fwd_parses_bare_email_format" size="unknown" status="success" time="0.000934"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_get_original_sender_from_fwd_returns_null_when_no_email_pattern_exists" size="unknown" status="success" time="0.000947"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_get_addresses_with_names_handles_string_and_array_inputs" size="unknown" status="success" time="0.000961"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_get_addresses_with_names_truncates_long_names_to_model_limits" size="unknown" status="success" time="0.000933"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_parse_addresses_extracts_from_mixed_entries_and_skips_empty_values" size="unknown" status="success" time="0.000934"/>
+      <test name="Tests\Unit\Services\ImapServicePureLogicTest::test_parse_addresses_returns_empty_array_for_non_array_non_string_input" size="unknown" status="success" time="0.000933"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_full_month_proration" size="unknown" status="success" time="0.004737"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_half_month_proration" size="unknown" status="success" time="0.001650"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_single_day_proration" size="unknown" status="success" time="0.001593"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_february_proration" size="unknown" status="success" time="0.001615"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_leap_year_february_proration" size="unknown" status="success" time="0.001613"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_mid_month_start" size="unknown" status="success" time="0.001586"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_daily_rate" size="unknown" status="success" time="0.001120"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_remainder_of_month" size="unknown" status="success" time="0.001570"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_calculates_for_specific_days" size="unknown" status="success" time="0.001124"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_rounds_to_two_decimal_places" size="unknown" status="success" time="0.001595"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_handles_different_month_lengths" size="unknown" status="success" time="0.001277"/>
+      <test name="Tests\Unit\ProrationServiceTest::test_proration_accuracy_for_billing_scenario" size="unknown" status="success" time="0.002020"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_remember_without_tags_caches_and_returns_callback_value" size="unknown" status="success" time="0.003740"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_remember_with_tags_stores_direct_key_copy_and_registry_key" size="unknown" status="success" time="0.001354"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_put_without_tags_stores_value_and_updates_registry_once" size="unknown" status="success" time="0.001331"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_put_with_tags_requires_both_tagged_and_direct_storage_success" size="unknown" status="success" time="0.001310"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_get_without_tags_returns_default_when_missing" size="unknown" status="success" time="0.001261"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_get_with_tags_prefers_tagged_value_then_falls_back_to_direct_key" size="unknown" status="success" time="0.001306"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_has_without_tags_checks_direct_key_only" size="unknown" status="success" time="0.001291"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_has_with_tags_checks_tagged_or_direct_key" size="unknown" status="success" time="0.001279"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_forget_without_tags_removes_key_and_unregisters_from_registry" size="unknown" status="success" time="0.001318"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_forget_with_tags_returns_true_if_tagged_or_direct_forget_succeeds" size="unknown" status="success" time="0.001285"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_forget_without_tags_returns_false_when_key_does_not_exist" size="unknown" status="success" time="0.001267"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_flush_entity_without_tags_forgets_all_registered_keys_and_registry_entry" size="unknown" status="success" time="0.001315"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_flush_entity_with_tags_forgets_mirrored_direct_keys_and_flushes_tag" size="unknown" status="success" time="0.001325"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_flush_entity_handles_non_array_registry_values_gracefully" size="unknown" status="success" time="0.001283"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_warm_multiple_counts_successes_and_skips_exceptions" size="unknown" status="success" time="0.001331"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_warm_multiple_with_empty_entity_ids_returns_zero" size="unknown" status="success" time="0.001247"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_remember_without_attribute_builds_three_part_key" size="unknown" status="success" time="0.001280"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_get_and_has_without_attribute_use_three_part_key" size="unknown" status="success" time="0.001296"/>
+      <test name="Tests\Unit\Services\CacheServiceTest::test_flush_domain_flushes_using_domain_tag" size="unknown" status="success" time="0.001269"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_is_open_returns_true_when_state_is_open" size="unknown" status="success" time="0.008644"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_is_open_returns_false_when_state_is_closed" size="unknown" status="success" time="0.001336"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_executes_callback_when_circuit_is_closed" size="unknown" status="success" time="0.001296"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_throws_when_circuit_open_and_recovery_not_allowed" size="unknown" status="success" time="0.001333"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_transitions_to_half_open_when_recovery_is_allowed" size="unknown" status="success" time="0.001302"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_resets_failures_on_success_when_previous_failure_count_above_zero" size="unknown" status="success" time="0.001301"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_increments_failure_count_and_rethrows_exception" size="unknown" status="success" time="0.001395"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_call_opens_circuit_when_failure_threshold_is_reached" size="unknown" status="success" time="0.001446"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_reset_transitions_to_closed_and_resets_failures" size="unknown" status="success" time="0.001552"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_get_recent_transitions_currently_returns_empty_array_placeholder" size="unknown" status="success" time="0.001330"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_should_attempt_recovery_returns_true_when_opened_at_is_missing" size="unknown" status="success" time="0.001308"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_should_attempt_recovery_returns_false_when_timeout_not_elapsed" size="unknown" status="success" time="0.001520"/>
+      <test name="Tests\Unit\Services\CircuitBreakerServiceTest::test_should_attempt_recovery_returns_true_when_timeout_elapsed" size="unknown" status="success" time="0.001535"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_source_url_returns_default_when_config_is_not_string" size="unknown" status="success" time="0.006335"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_source_url_returns_configured_value_when_present" size="unknown" status="success" time="0.001355"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_modules_uses_cache_and_returns_sample_modules_in_testing_environment" size="unknown" status="success" time="0.001362"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_modules_returns_modules_from_successful_http_response_in_non_testing_env" size="unknown" status="success" time="0.001364"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_modules_returns_empty_when_successful_response_has_non_array_modules_key" size="unknown" status="success" time="0.001323"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_modules_logs_warning_and_returns_empty_on_http_failure" size="unknown" status="success" time="0.001348"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceHelperTest::test_get_modules_logs_error_and_returns_empty_on_exception" size="unknown" status="success" time="0.001344"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceTest::test_get_sample_modules_returns_expected_seed_data" size="unknown" status="success" time="0.003949"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceTest::test_get_module_returns_matching_module_by_alias" size="unknown" status="success" time="0.001101"/>
+      <test name="Tests\Unit\Services\ModuleSourceServiceTest::test_get_module_returns_null_when_alias_is_missing" size="unknown" status="success" time="0.001059"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_full_month_equals_monthly_rate" size="unknown" status="success" time="0.003195"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_half_month_proration" size="unknown" status="success" time="0.001747"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_single_day_proration" size="unknown" status="success" time="0.001696"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_february_proration" size="unknown" status="success" time="0.001707"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_leap_year_february_proration" size="unknown" status="success" time="0.001685"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_30_day_month_proration" size="unknown" status="success" time="0.001687"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_daily_rate_calculation" size="unknown" status="success" time="0.001167"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_daily_rate_varies_by_month" size="unknown" status="success" time="0.001305"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_remainder_of_month_calculation" size="unknown" status="success" time="0.001650"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_first_day_remainder_equals_full_month" size="unknown" status="success" time="0.001652"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_calculate_for_days" size="unknown" status="success" time="0.001164"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_zero_days_returns_zero" size="unknown" status="success" time="0.001141"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_large_rate_precision" size="unknown" status="success" time="0.001658"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_small_rate_precision" size="unknown" status="success" time="0.001696"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_negative_date_range_throws_exception" size="unknown" status="success" time="0.001696"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_uses_start_month_days" size="unknown" status="success" time="0.001633"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_upgrade_scenario" size="unknown" status="success" time="0.001965"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_downgrade_scenario" size="unknown" status="success" time="0.001974"/>
+      <test name="Tests\Unit\Services\ProrationServiceTest::test_cancellation_credit" size="unknown" status="success" time="0.001705"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceFacadeTest::test_clear_forgets_cache_keys_and_deletes_tracking_row" size="unknown" status="success" time="0.007954"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceFacadeTest::test_reset_expired_deletes_rows_with_reset_at_less_than_now" size="unknown" status="success" time="0.001635"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceTest::test_attempt_executes_callback_and_records_hit_when_under_limit" size="unknown" status="success" time="0.002229"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceTest::test_attempt_throws_with_retry_after_when_limit_is_reached" size="unknown" status="success" time="0.001364"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceTest::test_remaining_never_returns_negative_values" size="unknown" status="success" time="0.001064"/>
+      <test name="Tests\Unit\Services\RateLimiterServiceTest::test_get_usage_stats_computes_percentages_colors_and_reset_metadata" size="unknown" status="success" time="0.003177"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_configure_smtp_method_exists_and_is_callable" size="unknown" status="success" time="0.003695"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_returns_result_array_with_required_keys" size="unknown" status="success" time="0.003473"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_validates_mailbox_settings_before_sending" size="unknown" status="success" time="0.002099"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_logs_start_with_correct_parameters" size="unknown" status="success" time="0.003676"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_requires_valid_email_address" size="unknown" status="success" time="0.003017"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_fails_with_invalid_server" size="unknown" status="success" time="0.003285"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_handles_authentication_errors" size="unknown" status="success" time="0.003392"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_validates_port_number" size="unknown" status="success" time="0.003291"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_test_connection_handles_timeout" size="unknown" status="success" time="0.003216"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_with_valid_settings" size="unknown" status="success" time="0.001280"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_requires_out_server" size="unknown" status="success" time="0.001117"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_requires_out_port" size="unknown" status="success" time="0.001095"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_validates_port_range_minimum" size="unknown" status="success" time="0.001125"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_validates_port_range_maximum" size="unknown" status="success" time="0.001157"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_validates_port_is_numeric" size="unknown" status="success" time="0.001141"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_requires_email" size="unknown" status="success" time="0.001200"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_validates_email_format" size="unknown" status="success" time="0.001112"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_returns_all_errors_at_once" size="unknown" status="success" time="0.001099"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_warns_about_port_465_without_ssl" size="unknown" status="success" time="0.001174"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_warns_about_port_587_without_tls" size="unknown" status="success" time="0.001258"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_accepts_port_465_with_ssl" size="unknown" status="success" time="0.001088"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_accepts_port_587_with_tls" size="unknown" status="success" time="0.001087"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_handles_port_as_string" size="unknown" status="success" time="0.001092"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_rejects_negative_port" size="unknown" status="success" time="0.001084"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_handles_email_with_special_characters" size="unknown" status="success" time="0.001082"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_rejects_email_without_domain" size="unknown" status="success" time="0.001073"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_rejects_email_with_spaces" size="unknown" status="success" time="0.001097"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_handles_common_smtp_ports" size="unknown" status="success" time="0.001120"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_handles_server_with_whitespace" size="unknown" status="success" time="0.001089"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_validate_settings_boundary_port_values" size="unknown" status="success" time="0.001115"/>
+      <test name="Tests\Unit\Services\SmtpServiceComprehensiveTest::test_smtp_service_test_connection_returns_array" size="unknown" status="success" time="0.001695"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_validate_mailbox_settings_reports_missing_required_fields" size="unknown" status="success" time="0.014738"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_validate_mailbox_settings_rejects_invalid_email_format" size="unknown" status="success" time="0.001819"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_validate_mailbox_settings_accepts_valid_configuration" size="unknown" status="success" time="0.001810"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_get_encryption_maps_integer_and_string_values" size="unknown" status="success" time="0.001045"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_decrypt_password_returns_empty_string_for_empty_input" size="unknown" status="success" time="0.001005"/>
+      <test name="Tests\Unit\Services\SmtpServicePureLogicTest::test_decrypt_password_falls_back_to_original_value_when_decryption_fails" size="unknown" status="success" time="0.001062"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_database_version_mysql" size="unknown" status="success" time="0.008513"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_database_version_sqlite" size="unknown" status="success" time="0.001281"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_database_version_pgsql" size="unknown" status="success" time="0.001211"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_database_version_unknown_driver" size="unknown" status="success" time="0.001158"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_database_version_returns_unknown_on_exception" size="unknown" status="success" time="0.001160"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_database_connection_success" size="unknown" status="success" time="0.001155"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_database_connection_failure" size="unknown" status="success" time="0.001152"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_queue_health_no_failed_jobs_table" size="unknown" status="success" time="0.002889"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_queue_health_zero_failures" size="unknown" status="success" time="0.010367"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_queue_health_with_failed_jobs" size="unknown" status="success" time="0.001334"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_check_queue_health_returns_error_on_exception" size="unknown" status="success" time="0.001196"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_cancel_job_deletes_from_jobs_table" size="unknown" status="success" time="0.001279"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_retry_job_sets_available_at_to_now" size="unknown" status="success" time="0.001325"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_delete_failed_jobs_by_queue" size="unknown" status="success" time="0.001276"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_failed_jobs_by_queue_returns_collection" size="unknown" status="success" time="0.001258"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_polycast_events_no_filters" size="unknown" status="success" time="0.003750"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_polycast_events_with_search_filter" size="unknown" status="success" time="0.001398"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_polycast_events_with_event_type_filter" size="unknown" status="success" time="0.001372"/>
+      <test name="Tests\Unit\Services\SystemDiagnosticsServiceTest::test_get_polycast_events_with_date_range" size="unknown" status="success" time="0.001434"/>
+      <test name="Tests\Unit\Services\WidgetRegistryServiceTest::test_get_widgets_for_unknown_hook_returns_empty_collection" size="unknown" status="success" time="0.008270"/>
+      <test name="Tests\Unit\Services\WidgetRegistryServiceTest::test_closure_widgets_are_sorted_by_priority_and_receive_context" size="unknown" status="success" time="0.001077"/>
+      <test name="Tests\Unit\Services\WidgetRegistryServiceTest::test_closure_widget_receives_object_context_unchanged" size="unknown" status="success" time="0.001016"/>
+      <test name="Modules\PIB\Tests\Feature\BillingPreviewTest::test_billing_preview_page_loads_for_seeded_client" size="unknown" status="success" time="0.775933"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_does_nothing_without_ad_hoc_bucket_template" size="unknown" status="success" time="0.200944"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_does_nothing_when_under_bucket_limit" size="unknown" status="success" time="0.391872"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_fires_event_when_bucket_exceeded" size="unknown" status="success" time="0.423541"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_ignores_inactive_billing_template" size="unknown" status="success" time="0.379884"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_ignores_other_product_types" size="unknown" status="success" time="0.381346"/>
+      <test name="P\Modules\PIB\Tests\Feature\ConversationLinkedToClientListenerPestTest::__pest_evaluable_it_only_counts_current_month_tickets" size="unknown" status="success" time="0.470691"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_transitions_invoice_status_to_disputed" size="unknown" status="success" time="0.174638"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_persists_the_dispute_reason_in_invoice_metadata" size="unknown" status="success" time="0.167055"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('submitted')" size="unknown" status="success" time="0.165402"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('overdue')" size="unknown" status="success" time="0.166824"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_works_for_all_disputable_statuses#('partially_paid')" size="unknown" status="success" time="0.168537"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_creates_a_BillingAdjustment_of_type_dispute" size="unknown" status="success" time="0.170794"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_stores_the_invoice_number_in_the_billing_adjustment_metadata" size="unknown" status="success" time="0.173119"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_fires_a_PaymentDisputed_event_with_the_correct_invoice_ID" size="unknown" status="success" time="0.188267"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_includes_the_correct_amount_in_the_PaymentDisputed_event" size="unknown" status="success" time="0.177309"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_paid_invoice" size="unknown" status="success" time="0.157336"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_a_draft_invoice" size="unknown" status="success" time="0.157653"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_LogicException_when_disputing_an_already_disputed_invoice" size="unknown" status="success" time="0.160500"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_not_transition_status_on_a_non_disputable_invoice" size="unknown" status="success" time="0.159390"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_throws_AuthorizationException_when_client_user_disputes_another_client_s_invoice" size="unknown" status="success" time="0.171585"/>
+      <test name="P\Modules\PIB\Tests\Feature\DisputeInvoiceActionPestTest::__pest_evaluable_it_does_NOT_fire_event_when_authorization_is_denied" size="unknown" status="success" time="0.172984"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_observer_invalidates_cache_on_entitlement_update" size="unknown" status="success" time="0.167876"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_observer_invalidates_cache_on_addon_creation" size="unknown" status="success" time="0.158343"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_service_handles_multiple_entitlements" size="unknown" status="success" time="0.170891"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_service_ignores_inactive_entitlements" size="unknown" status="success" time="0.154388"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_entitlements_are_deleted_when_client_is_force_deleted" size="unknown" status="success" time="0.153131"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_entitlements_are_deleted_when_client_is_deleted" size="unknown" status="success" time="0.153290"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementScaleTest::__pest_evaluable_service_returns_empty_if_product_relationship_is_broken" size="unknown" status="success" time="0.157593"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementServiceTest::__pest_evaluable_it_returns_empty_array_when_no_entitlements_exist" size="unknown" status="success" time="0.154488"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementServiceTest::__pest_evaluable_it_returns_formatted_entitlements_structure" size="unknown" status="success" time="0.154594"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementServiceTest::__pest_evaluable_it_caches_entitlement_results" size="unknown" status="success" time="0.154595"/>
+      <test name="P\Modules\PIB\Tests\Feature\EntitlementServiceTest::__pest_evaluable_it_invalidates_cache" size="unknown" status="success" time="0.152680"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_view_product_index" size="unknown" status="success" time="0.189371"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_create_product" size="unknown" status="success" time="0.191939"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_view_client_entitlements" size="unknown" status="success" time="0.183792"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_provision_entitlement" size="unknown" status="success" time="0.168916"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_cancel_and_restore_entitlement" size="unknown" status="success" time="0.176862"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_update_product" size="unknown" status="success" time="0.167143"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_delete_product" size="unknown" status="success" time="0.163742"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_update_entitlement" size="unknown" status="success" time="0.173315"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_can_view_history_page" size="unknown" status="success" time="0.184320"/>
+      <test name="Modules\PIB\Tests\Feature\EntitlementUiTest::test_cannot_provision_entitlement_with_invalid_data" size="unknown" status="success" time="0.164853"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_RecalculateProrationOnContractChange_marks_templates_for_proration" size="unknown" status="success" time="0.168511"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_RecalculateProrationOnContractChange_skips_inactive_contracts" size="unknown" status="success" time="0.158417"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_UpdateEntitlementSnapshots_updates_asset_count" size="unknown" status="success" time="0.160099"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_UpdateEntitlementSnapshots_skips_non_asset_templates" size="unknown" status="success" time="0.150519"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_AdjustBillingOnSoftwareCountChange_updates_license_count" size="unknown" status="success" time="0.158748"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_all_event_listeners_are_idempotent" size="unknown" status="success" time="0.160707"/>
+      <test name="P\Modules\PIB\Tests\Feature\EventListenersIntegrationTest::__pest_evaluable__PIB_Event_Listeners__&#x2192;_event_listeners_are_registered_in_PIBServiceProvider" size="unknown" status="success" time="0.140709"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_admin_can_view__create__update__delete__pay__and_download_any_invoice" size="unknown" status="success" time="0.174944"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_finance_can_view__create__update__delete__pay__and_download_any_invoice" size="unknown" status="success" time="0.167766"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_technician_with_company_access_can_view_only_own_company_invoice_and_cannot_manage_or_pay_it" size="unknown" status="success" time="0.194686"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_technician_without_company_access_cannot_view_or_manage_invoices" size="unknown" status="success" time="0.180677"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_client_can_view__pay__dispute__and_download_only_own_active_company_invoices" size="unknown" status="success" time="0.181836"/>
+      <test name="P\Modules\PIB\Tests\Feature\InvoiceAuthorizationPestTest::__pest_evaluable__Invoice_authorization_matrix__&#x2192;_client_cannot_pay_non_payable_draft_invoice_or_dispute_draft_invoice" size="unknown" status="success" time="0.176736"/>
+      <test name="P\Modules\PIB\Tests\Feature\PibViewsTest::__pest_evaluable_pib_invoices_index_page_loads_successfully" size="unknown" status="success" time="0.209111"/>
+      <test name="P\Modules\PIB\Tests\Feature\PibViewsTest::__pest_evaluable_pib_service_usage_index_page_loads_successfully" size="unknown" status="success" time="0.182309"/>
+      <test name="P\Modules\PIB\Tests\Feature\PibViewsTest::__pest_evaluable_pib_adjustments_index_page_loads_successfully" size="unknown" status="success" time="0.179397"/>
+      <test name="P\Modules\PIB\Tests\Feature\PibViewsTest::__pest_evaluable_pib_credit_ledger_index_page_loads_successfully" size="unknown" status="success" time="0.179831"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_throws_controlled_error_when_no_resolver_is_registered_for_product_type" size="unknown" status="success" time="0.156446"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_zero_amount_invoice_when_entitlement_calculator_returns_zero" size="unknown" status="success" time="0.171125"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Zero_Entitlement_Scenarios__&#x2192;_generates_invoice_with_zero_additional_assets_but_non_zero_users" size="unknown" status="success" time="0.168482"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__user__counters_record_gracefully" size="unknown" status="success" time="0.169902"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Missing_Counter_Records__&#x2192;_handles_missing_client__asset__counters_record_gracefully" size="unknown" status="success" time="0.168408"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_month_end_boundary_correctly__Feb_28_to_Mar_28_" size="unknown" status="success" time="0.174232"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_quarterly_boundary_correctly" size="unknown" status="success" time="0.167727"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Billing_Cycle_Boundary_Transitions__&#x2192;_handles_annual_boundary_correctly" size="unknown" status="success" time="0.168264"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_exactly_at_20__threshold_as_unusual" size="unknown" status="success" time="0.172230"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_change_just_above_20__threshold_as_unusual" size="unknown" status="success" time="0.172891"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_does_not_detect_change_just_below_20__as_unusual" size="unknown" status="success" time="0.199115"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Unusual_Amount_Threshold_Detection__&#x2192;_detects_negative_amount_change_as_unusual" size="unknown" status="success" time="0.171475"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_skips_invoice_generation_if_template_is_paused_before_write" size="unknown" status="success" time="0.158945"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobEdgeCasesPestTest::__pest_evaluable__GenerateRecurringInvoicesJob___Edge_Cases__&#x2192;__Template_Status_Race_Conditions__&#x2192;_generates_invoice_if_template_becomes_completed_after_date_check" size="unknown" status="success" time="0.169263"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_invoice_for_due_template" size="unknown" status="success" time="0.179334"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_does_not_generate_for_future_date" size="unknown" status="success" time="0.153390"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_does_not_generate_for_paused_template" size="unknown" status="success" time="0.155709"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_detects_unusual_amount" size="unknown" status="success" time="0.172454"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_completes_rent_to_own_template_at_goal" size="unknown" status="success" time="0.174859"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_generates_unique_invoice_numbers" size="unknown" status="success" time="0.179654"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_handles_quarterly_billing_cycle" size="unknown" status="success" time="0.171588"/>
+      <test name="P\Modules\PIB\Tests\Feature\RecurringInvoicesJobPestTest::__pest_evaluable__GenerateRecurringInvoicesJob__&#x2192;_prevents_duplicate_invoices_when_job_runs_concurrently_for_same_template" size="unknown" status="success" time="0.169089"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_calculates_full_installment_on_first_invoice" size="unknown" status="success" time="0.158315"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_calculates_with_partial_payment_history" size="unknown" status="success" time="0.173089"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_calculates_final_partial_payment" size="unknown" status="success" time="0.222187"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_handles_goal_reached" size="unknown" status="success" time="0.222454"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_simulates_full_20_month_payment_cycle" size="unknown" status="success" time="0.229527"/>
+      <test name="P\Modules\PIB\Tests\Feature\RentToOwnResolversPestTest::__pest_evaluable_throws_exception_for_missing_config" size="unknown" status="success" time="0.151369"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_silver_tier_calculates_with_one_asset_per_user" size="unknown" status="success" time="0.185591"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_calculates_with_two_assets_per_user" size="unknown" status="success" time="0.153108"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_gold_tier_charges_for_assets_beyond_allocation" size="unknown" status="success" time="0.154588"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_platinum_tier_unlimited_user_assets" size="unknown" status="success" time="0.155908"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_non_allocated_assets_always_charged" size="unknown" status="success" time="0.152668"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_throws_exception_for_missing_config" size="unknown" status="success" time="0.152776"/>
+      <test name="P\Modules\PIB\Tests\Feature\ServicePlanResolversPestTest::__pest_evaluable__ServicePlanEntitlementResolver__&#x2192;_defaults_display_name_from_tier" size="unknown" status="success" time="0.157301"/>
+      <test name="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_reports_zero_percent_change_when_amounts_are_identical" size="unknown" status="success" time="0.166269"/>
+      <test name="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_flags_variance_above_threshold_as_unusual" size="unknown" status="success" time="0.159598"/>
+      <test name="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_new_charge_with_no_previous_invoice_as_100__change" size="unknown" status="success" time="0.154631"/>
+      <test name="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_handles_negative_variance_correctly" size="unknown" status="success" time="0.160070"/>
+      <test name="P\Modules\PIB\Tests\Integration\BillingAnalysisServicePestTest::__pest_evaluable_it_sorts_report_by_variance_magnitude_descending" size="unknown" status="success" time="0.173283"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_generates_an_invoice_from_a_service_plan_template" size="unknown" status="success" time="0.180143"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_generates_correct_totals_from_line_items" size="unknown" status="success" time="0.177464"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_advances_next__invoice__date_after_generation" size="unknown" status="success" time="0.179513"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_stops_billing_for_terminated_template_after_generation" size="unknown" status="success" time="0.174138"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_publishes_a_draft_invoice" size="unknown" status="success" time="0.155673"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_throws_when_publishing_a_non_draft_invoice" size="unknown" status="success" time="0.154360"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_returns_only_templates_due_on_or_before_today" size="unknown" status="success" time="0.173493"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_excludes_paused_templates_from_due_list" size="unknown" status="success" time="0.176316"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_generates_invoices_for_all_due_templates" size="unknown" status="success" time="0.193698"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_skips_templates_that_are_not_yet_due" size="unknown" status="success" time="0.157148"/>
+      <test name="P\Modules\PIB\Tests\Integration\InvoiceGeneratorPestTest::__pest_evaluable_it_generates_correct_period_for_quarterly_billing" size="unknown" status="success" time="0.178448"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_defaults_to_previous_month" size="unknown" status="success" time="0.212165"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_aggregates_billable_entries_into_service_usage" size="unknown" status="success" time="0.220938"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_groups_entries_by_work_type" size="unknown" status="success" time="0.230607"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_links_time_entries_to_service_usage" size="unknown" status="success" time="0.217905"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_ignores_non_billable_entries" size="unknown" status="success" time="0.220366"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_ignores_already_invoiced_entries" size="unknown" status="success" time="0.216465"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_only_processes_specified_month" size="unknown" status="success" time="0.214811"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_calculates_average_billing_rate" size="unknown" status="success" time="0.220881"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_stores_metadata_with_entry_info" size="unknown" status="success" time="0.217118"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_builds_descriptive_description" size="unknown" status="success" time="0.215834"/>
+      <test name="P\Modules\PIB\Tests\Integration\Jobs\MonthEndTimeAggregationJobPestTest::__pest_evaluable_it_maps_work_types_to_service_types" size="unknown" status="success" time="0.244267"/>
+      <test name="P\Modules\PIB\Tests\Integration\Listeners\PaymentDisputedListenerPestTest::__pest_evaluable_it_updates_invoice_status_on_payment_dispute_event" size="unknown" status="success" time="0.193370"/>
+      <test name="P\Modules\PIB\Tests\Integration\Listeners\PaymentDisputedListenerPestTest::__pest_evaluable_it_processes_disputed_payment_event_only_once_for_the_same_eventId" size="unknown" status="success" time="0.165240"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_adds_credit_and_increases_balance" size="unknown" status="success" time="0.152282"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_add_credit" size="unknown" status="success" time="0.144865"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_deducts_credit_and_decreases_balance" size="unknown" status="success" time="0.150049"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_creates_ledger_entry_on_deduct_credit" size="unknown" status="success" time="0.150138"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_on_insufficient_balance" size="unknown" status="success" time="0.146236"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_ledger_entries_in_descending_order" size="unknown" status="success" time="0.149155"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_respects_ledger_limit" size="unknown" status="success" time="0.158738"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_current_balance" size="unknown" status="success" time="0.147655"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_for_nonexistent_client_balance" size="unknown" status="success" time="0.146277"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_true_when_sufficient_credit" size="unknown" status="success" time="0.145542"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_when_insufficient_credit" size="unknown" status="success" time="0.147873"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_returns_false_for_nonexistent_client_credit_check" size="unknown" status="success" time="0.149818"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_maintains_accurate_balance_across_multiple_operations" size="unknown" status="success" time="0.153346"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_uses_atomic_counter_service_for_consistency" size="unknown" status="success" time="0.159133"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_stores_fractional_dollar_amounts_with_correct_cent_precision__invariant_" size="unknown" status="success" time="0.147342"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_running_balance_in_ledger_matches_cumulative_operations__invariant_" size="unknown" status="success" time="0.149941"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\ClientCreditServicePestTest::__pest_evaluable_it_insufficient_credit_cannot_reduce_balance_below_zero__invariant_" size="unknown" status="success" time="0.148591"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_creates_a_time_entry_record" size="unknown" status="success" time="0.225341"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryCreated_event_on_create" size="unknown" status="success" time="0.235814"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_client_conversation_totals_on_create" size="unknown" status="success" time="0.215478"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_updates_a_time_entry_record" size="unknown" status="success" time="0.215759"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryUpdated_event_with_changes" size="unknown" status="success" time="0.221494"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_update" size="unknown" status="success" time="0.222107"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_deletes_a_time_entry_record" size="unknown" status="success" time="0.221259"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_fires_TimeEntryDeleted_event_on_delete" size="unknown" status="success" time="0.213603"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_recalculates_totals_on_delete" size="unknown" status="success" time="0.224284"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_calculates_total_time_for_conversation" size="unknown" status="success" time="0.222417"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_returns_entries_ordered_by_started__at_desc" size="unknown" status="success" time="0.222896"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_generates_uuid_for_new_entries" size="unknown" status="success" time="0.209016"/>
+      <test name="P\Modules\PIB\Tests\Integration\Services\TimeEntryServicePestTest::__pest_evaluable_it_has_all_work_type_constants_available" size="unknown" status="success" time="0.206271"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_zero_percent_change_for_identical_amounts" size="unknown" status="success" time="0.008995"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_positive_variance_relative_to_previous_amount" size="unknown" status="success" time="0.001476"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_calculates_negative_variance_correctly" size="unknown" status="success" time="0.001413"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_treats_new_non_zero_charge_as_one_hundred_percent_variance" size="unknown" status="success" time="0.001398"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_flags_unusual_variance_at_the_threshold" size="unknown" status="success" time="0.001422"/>
+      <test name="P\Modules\PIB\Tests\Unit\BillingAnalysisServiceMathPestTest::__pest_evaluable_it_sorts_variances_by_absolute_magnitude_descending" size="unknown" status="success" time="0.001393"/>
+      <test name="P\Modules\PIB\Tests\Unit\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_for_negative_add_credit_amount" size="unknown" status="success" time="0.147537"/>
+      <test name="P\Modules\PIB\Tests\Unit\ClientCreditServicePestTest::__pest_evaluable_it_throws_exception_for_negative_deduct_credit_amount" size="unknown" status="success" time="0.143514"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_for_same_start_and_end_when_daysUsed___1" size="unknown" status="success" time="0.149498"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_throws_for_end_date_before_start_date" size="unknown" status="success" time="0.159055"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_zero_monthly_rate_correctly" size="unknown" status="success" time="0.144894"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_handles_very_large_monthly_rate_with_precision" size="unknown" status="success" time="0.143384"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_produces_correct_result_for_each_month_length" size="unknown" status="success" time="0.146647"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_daily_rate_for_28_day_month_is_higher_than_31_day_month" size="unknown" status="success" time="0.142585"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_daily_rate_times_days_in_month_equals_monthly_rate" size="unknown" status="success" time="0.149434"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_returns_zero_daily_rate_for_zero_monthly_rate" size="unknown" status="success" time="0.146442"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_last_day_of_month_equals_one_day" size="unknown" status="success" time="0.149317"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_first_day_equals_full_month" size="unknown" status="success" time="0.143977"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_remainder_from_mid_month_is_approximately_half" size="unknown" status="success" time="0.145609"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_zero_days_returns_zero_amount" size="unknown" status="success" time="0.143121"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_negative_days_returns_negative_amount__no_guard_" size="unknown" status="success" time="0.145002"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_full_month_days_equals_monthly_rate" size="unknown" status="success" time="0.155225"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_calculation_is_consistent__forDays_matches_calculateProration" size="unknown" status="success" time="0.157190"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_is_never_negative_for_valid_inputs" size="unknown" status="success" time="0.154955"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServiceEdgeCasesPestTest::__pest_evaluable_it_proration_never_exceeds_monthly_rate_for_single_month_range" size="unknown" status="success" time="0.146120"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;zero&quot;" size="unknown" status="success" time="0.158251"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;penny&quot;" size="unknown" status="success" time="0.171839"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;one dollar&quot;" size="unknown" status="success" time="0.155876"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;small&quot;" size="unknown" status="success" time="0.147567"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;typical&quot;" size="unknown" status="success" time="0.149211"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;hundred&quot;" size="unknown" status="success" time="0.164727"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;large&quot;" size="unknown" status="success" time="0.150001"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_result_is_always_between_0_and_monthlyRate_inclusive#dataset &quot;very large&quot;" size="unknown" status="success" time="0.147155"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;zero&quot;" size="unknown" status="success" time="0.150008"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;penny&quot;" size="unknown" status="success" time="0.149562"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;one dollar&quot;" size="unknown" status="success" time="0.148357"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;small&quot;" size="unknown" status="success" time="0.147398"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;typical&quot;" size="unknown" status="success" time="0.150770"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;hundred&quot;" size="unknown" status="success" time="0.146358"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;large&quot;" size="unknown" status="success" time="0.146697"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateProration_for_full_month_always_equals_the_monthly_rate#dataset &quot;very large&quot;" size="unknown" status="success" time="0.146128"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;28-day Feb&quot;" size="unknown" status="success" time="0.146766"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;29-day Feb leap&quot;" size="unknown" status="success" time="0.148010"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;30-day Apr&quot;" size="unknown" status="success" time="0.146119"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Jan&quot;" size="unknown" status="success" time="0.142838"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Mar&quot;" size="unknown" status="success" time="0.145654"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;30-day Jun&quot;" size="unknown" status="success" time="0.145656"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateDailyRate_times_daysInMonth_approximately_equals_monthlyRate#dataset &quot;31-day Dec&quot;" size="unknown" status="success" time="0.146067"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;zero&quot;" size="unknown" status="success" time="0.166533"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;penny&quot;" size="unknown" status="success" time="0.147545"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;one dollar&quot;" size="unknown" status="success" time="0.149492"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;small&quot;" size="unknown" status="success" time="0.176135"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;typical&quot;" size="unknown" status="success" time="0.146180"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;hundred&quot;" size="unknown" status="success" time="0.154922"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;large&quot;" size="unknown" status="success" time="0.147534"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_is_always_non_negative#dataset &quot;very large&quot;" size="unknown" status="success" time="0.147836"/>
+      <test name="P\Modules\PIB\Tests\Unit\ProrationServicePropertyPestTest::__pest_evaluable_it_calculateRemainderOfMonth_decreases_or_stays_equal_as_start_date_advances" size="unknown" status="success" time="0.162558"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_create_template_page" size="unknown" status="success" time="0.197840"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_rent_to_own_template" size="unknown" status="success" time="0.171127"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_create_service_plan_template" size="unknown" status="success" time="0.166491"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_validation_works" size="unknown" status="success" time="0.161022"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_admin_can_view_variance_report" size="unknown" status="success" time="0.187510"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\BillingAdminPestTest::__pest_evaluable_normal_variance_is_displayed" size="unknown" status="success" time="0.189999"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\ClientAdminPestTest::__pest_evaluable_admin_can_view_client_360_workspace" size="unknown" status="success" time="0.197592"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\ClientAdminPestTest::__pest_evaluable_client_360_displays_assets" size="unknown" status="success" time="0.208925"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\ClientAdminPestTest::__pest_evaluable_client_360_displays_billing_information" size="unknown" status="success" time="0.204617"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\ClientAdminPestTest::__pest_evaluable_client_360_displays_contacts" size="unknown" status="success" time="0.190718"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Admin\ClientAdminPestTest::__pest_evaluable_non_admin_cannot_view_client_360" size="unknown" status="success" time="0.179487"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\AssetBillingPestTest::__pest_evaluable_invoice_generation_handles_mid_period_asset_transfer" size="unknown" status="success" time="0.293532"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\AssetBillingPestTest::__pest_evaluable_mid_month_asset_addition_is_prorated" size="unknown" status="success" time="0.181805"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\AssetBillingPestTest::__pest_evaluable_retired_asset_billing_leak" size="unknown" status="success" time="0.185454"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\AssetBillingPestTest::__pest_evaluable_proration_first_day_full_charge" size="unknown" status="success" time="0.180963"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\AssetBillingPestTest::__pest_evaluable_proration_last_day_charge" size="unknown" status="success" time="0.182743"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ContractBillingPestTest::__pest_evaluable_terminated_contract_generates_final_invoice" size="unknown" status="success" time="0.198185"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ContractBillingPestTest::__pest_evaluable_mid_cycle_plan_change_is_handled_correctly" size="unknown" status="success" time="0.208749"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ContractBillingPestTest::__pest_evaluable_invoice_numbers_are_globally_unique" size="unknown" status="success" time="0.205436"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ServiceBillingPestTest::__pest_evaluable_unbilled_service_usage_is_invoiced" size="unknown" status="success" time="0.189551"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ServiceBillingPestTest::__pest_evaluable_multiple_service_usage_items_aggregation" size="unknown" status="success" time="0.185788"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ServiceBillingPestTest::__pest_evaluable_service_usage_is_billed_once_only" size="unknown" status="success" time="0.197697"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\Billing\ServiceBillingPestTest::__pest_evaluable_unapproved_service_usage_is_ignored" size="unknown" status="success" time="0.181659"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\BillingTemplateInvoicePestTest::__pest_evaluable_it_generates_invoice_from_simple_template" size="unknown" status="success" time="0.179680"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\BillingTemplateInvoicePestTest::__pest_evaluable_it_calculates_asset_count_in_template" size="unknown" status="success" time="0.180548"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\BillingTemplateInvoicePestTest::__pest_evaluable_it_calculates_software_licenses_in_template" size="unknown" status="success" time="0.174298"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\BillingTemplateLogicPestTest::__pest_evaluable_it_billing_template_can_be_paused_and_resumed" size="unknown" status="success" time="0.168134"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\BillingTemplateLogicPestTest::__pest_evaluable_it_billing_template_trigger_dispatches_event" size="unknown" status="success" time="0.160572"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractAuthorizationPestTest::__pest_evaluable__Contract_authorization_matrix__&#x2192;_admin_can_view_and_generate_invoice_for_any_contract" size="unknown" status="success" time="0.244930"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractAuthorizationPestTest::__pest_evaluable__Contract_authorization_matrix__&#x2192;_technician_with_company_access_can_view_and_generate_invoice_for_own_company_contract" size="unknown" status="success" time="0.231321"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractAuthorizationPestTest::__pest_evaluable__Contract_authorization_matrix__&#x2192;_technician_without_company_access_cannot_view_or_generate_invoice_for_contract" size="unknown" status="success" time="0.197913"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractAuthorizationPestTest::__pest_evaluable__Contract_authorization_matrix__&#x2192;_technician_with_company_access_is_blocked_from_other_company_contract" size="unknown" status="success" time="0.197866"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractAuthorizationPestTest::__pest_evaluable__Contract_authorization_matrix__&#x2192;_client_can_view_own_company_contract_but_cannot_generate_invoice" size="unknown" status="success" time="0.224021"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractManagerViewsTest::__pest_evaluable_contract_manager_index_pages_load_successfully" size="unknown" status="success" time="0.216391"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractManagerViewsTest::__pest_evaluable_contract_create_page_loads_successfully" size="unknown" status="success" time="0.189248"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\ContractManagerViewsTest::__pest_evaluable_quote_create_page_loads_successfully" size="unknown" status="success" time="0.187769"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\CreditWorkflowPestTest::__pest_evaluable__Cross_Module_Credit_Workflow__&#x2192;_no_credit_applied_when_none_available" size="unknown" status="success" time="0.184103"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\CreditWorkflowPestTest::__pest_evaluable__Cross_Module_Credit_Workflow__&#x2192;_partial_credit_applied_when_available" size="unknown" status="success" time="0.189607"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\CreditWorkflowPestTest::__pest_evaluable__Cross_Module_Credit_Workflow__&#x2192;_full_credit_covers_invoice" size="unknown" status="success" time="0.189875"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\CreditWorkflowPestTest::__pest_evaluable__Cross_Module_Credit_Workflow__&#x2192;_ledger_chain_tracks_credit_deductions" size="unknown" status="success" time="0.226540"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\CreditWorkflowPestTest::__pest_evaluable__Cross_Module_Credit_Workflow__&#x2192;_ledger_references_correct_invoice" size="unknown" status="success" time="0.207711"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_it_transfers_ownership_when_final_invoice_is_paid" size="unknown" status="success" time="0.180627"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_it_transfers_ownership_when_a_buyout_invoice_is_paid" size="unknown" status="success" time="0.174966"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_it_does_not_transfer_ownership_on_regular_invoice_payment" size="unknown" status="success" time="0.176691"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_it_dispatches_invoice_paid_event" size="unknown" status="success" time="0.175968"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_ownership_transfer_fires_on_exactly_final_payment_not_before" size="unknown" status="success" time="0.196293"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_cancellation_during_final_payment_month_prevents_ownership_transfer" size="unknown" status="success" time="0.191649"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnOwnershipTransferTest::__pest_evaluable_cannot_create_second_active_rto_contract_on_same_asset_description" size="unknown" status="success" time="0.160167"/>
+      <test name="P\Modules\ContractManager\Tests\Feature\RentToOwnSafetyTest::__pest_evaluable_it_does_not_transfer_ownership_if_total_paid_is_less_than_purchase_price" size="unknown" status="success" time="0.194006"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_billable_amount_equals_sum_of_line_totals_when_no_discount_or_adjustment" size="unknown" status="success" time="0.171815"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(-50.0)" size="unknown" status="success" time="0.160747"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(-10.0)" size="unknown" status="success" time="0.160735"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(0.0)" size="unknown" status="success" time="0.161120"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(10.0)" size="unknown" status="success" time="0.160519"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(50.0)" size="unknown" status="success" time="0.158959"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_100_percent_discount_zeroes_out_base_amount_before_adjustment#(100.0)" size="unknown" status="success" time="0.161937"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_zero_discount_preserves_base_amount" size="unknown" status="success" time="0.158058"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_higher_discount_percent_always_produces_lower_or_equal_billable_amount" size="unknown" status="success" time="0.212860"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(-50.0)" size="unknown" status="success" time="0.157612"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(-10.0)" size="unknown" status="success" time="0.158151"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(0.0)" size="unknown" status="success" time="0.155470"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(10.0)" size="unknown" status="success" time="0.158488"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(50.0)" size="unknown" status="success" time="0.185734"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\BillableAmountPropertyPestTest::__pest_evaluable_it_with_no_line_items_billable_amount_equals_the_adjustment#(100.0)" size="unknown" status="success" time="0.162971"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractFinancialInvariantsTest::__pest_evaluable_it_remaining_balance_decrements_as_invoices_accumulate_toward_purchase_price" size="unknown" status="success" time="0.187880"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractFinancialInvariantsTest::__pest_evaluable_it_canGenerateInvoice_returns_false_when_balance_reaches_zero_before_ownership_transfers" size="unknown" status="success" time="0.168936"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractFinancialInvariantsTest::__pest_evaluable_it_getRemainingBalance_always_floors_at_zero_when_invoices_exceed_purchase_price" size="unknown" status="success" time="0.164369"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractFinancialInvariantsTest::__pest_evaluable_it_getRemainingBalance_returns_zero_for_non_rent_to_own_contracts" size="unknown" status="success" time="0.155311"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_creates_a_contract_from_an_approved_quote" size="unknown" status="success" time="0.176984"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_creates_a_contract_with_a_custom_start_date" size="unknown" status="success" time="0.166887"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_creates_billing_templates_for_recurring_line_items" size="unknown" status="success" time="0.191745"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_creates_one_time_billing_template_for_non_recurring_items" size="unknown" status="success" time="0.192109"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_paginates_all_contracts" size="unknown" status="success" time="0.163291"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_filters_contracts_by_client__id" size="unknown" status="success" time="0.169572"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_filters_contracts_by_status" size="unknown" status="success" time="0.161563"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_filters_contracts_by_search_term" size="unknown" status="success" time="0.160083"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_terminates_a_contract_and_updates_status" size="unknown" status="success" time="0.163490"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_deactivates_billing_templates_when_terminating" size="unknown" status="success" time="0.182449"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_returns_the_active_contract_for_a_client" size="unknown" status="success" time="0.162701"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ContractServicePestTest::__pest_evaluable_it_returns_null_when_client_has_no_active_contract" size="unknown" status="success" time="0.154854"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\OwnershipTransferContractTest::__pest_evaluable_it_does_not_transfer_ownership_when_final_payment_is_paid_before_purchase_price_threshold" size="unknown" status="success" time="0.201587"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\OwnershipTransferContractTest::__pest_evaluable_it_transfers_ownership_when_buyout_payment_makes_total_paid_reach_purchase_price" size="unknown" status="success" time="0.182922"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ProrationContractRevisionTest::__pest_evaluable_it_marks_only_active_future_dated_templates_for_proration_after_contract_revision" size="unknown" status="success" time="0.175485"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ProrationContractRevisionTest::__pest_evaluable_it_applies_identical_proration_change_context_to_every_active_future_template_on_one_revision" size="unknown" status="success" time="0.176378"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\ProrationContractRevisionTest::__pest_evaluable_it_processes_a_ContractRevised_event_only_once_per_eventId" size="unknown" status="success" time="0.170664"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_creates_a_draft_quote_with_correct_defaults" size="unknown" status="success" time="0.162713"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_creates_quote_with_line_items" size="unknown" status="success" time="0.181062"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_defaults_title_to_client_name_when_not_provided" size="unknown" status="success" time="0.160577"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_adds_a_line_item_to_a_quote" size="unknown" status="success" time="0.173643"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_stores_line_item_amount_from_calculated_total" size="unknown" status="success" time="0.170151"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_updates_a_draft_quote_title_and_notes" size="unknown" status="success" time="0.177907"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_throws_when_updating_a_non_draft_quote" size="unknown" status="success" time="0.158548"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_transitions_draft_quote_to_sent_status" size="unknown" status="success" time="0.171183"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_throws_when_sending_a_non_draft_revised_quote" size="unknown" status="success" time="0.156541"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_approves_a_sent_quote_and_creates_a_contract" size="unknown" status="success" time="0.173724"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_throws_when_approving_a_draft_quote__not_yet_sent_" size="unknown" status="success" time="0.155260"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_throws_when_approving_an_already_approved_quote__double_approval_guard_" size="unknown" status="success" time="0.159116"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_rejects_a_quote_and_updates_status" size="unknown" status="success" time="0.160450"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_rejects_without_reason__null_is_acceptable_" size="unknown" status="success" time="0.160225"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_duplicates_a_quote_preserving_structure" size="unknown" status="success" time="0.203286"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\QuoteServicePestTest::__pest_evaluable_it_duplicates_to_a_different_client" size="unknown" status="success" time="0.172349"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\RentToOwnEdgeGuardsTest::__pest_evaluable_it_keeps_ownership_pending_when_a_cancelled_rent_to_own_contract_receives_buyout_payment" size="unknown" status="success" time="0.180785"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\RentToOwnEdgeGuardsTest::__pest_evaluable_it_rejects_a_second_active_rent_to_own_contract_for_the_same_client_asset" size="unknown" status="success" time="0.160481"/>
+      <test name="P\Modules\ContractManager\Tests\Integration\RentToOwnEdgeGuardsTest::__pest_evaluable_it_rejects_activating_a_draft_rent_to_own_contract_when_a_duplicate_active_asset_exists" size="unknown" status="success" time="0.161080"/>
+      <test name="P\Modules\ContractManager\Tests\Unit\QuoteServiceMathPestTest::__pest_evaluable_it_calculates_line_total_with_percentage_discount_applied" size="unknown" status="success" time="0.004648"/>
+      <test name="P\Modules\ContractManager\Tests\Unit\QuoteServiceMathPestTest::__pest_evaluable_it_preserves_subtotal_when_discount_is_zero" size="unknown" status="success" time="0.001504"/>
+      <test name="P\Modules\ContractManager\Tests\Unit\QuoteServiceMathPestTest::__pest_evaluable_it_rounds_line_totals_to_two_decimals_after_discount" size="unknown" status="success" time="0.001473"/>
+      <test name="P\Modules\ContractManager\Tests\Unit\QuoteServiceMathPestTest::__pest_evaluable_it_zeroes_line_total_at_full_discount" size="unknown" status="success" time="0.001451"/>
+      <test name="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_payment_creates_credit_and_ledger" size="unknown" status="success" time="0.173808"/>
+      <test name="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_credit_application_scenarios" size="unknown" status="success" time="0.218455"/>
+      <test name="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_negative_balance_prevention" size="unknown" status="success" time="0.163209"/>
+      <test name="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_complete_audit_trail" size="unknown" status="success" time="0.168729"/>
+      <test name="P\Modules\Payment\Tests\Feature\CreditSystemPestTest::__pest_evaluable_concurrent_credit_operations" size="unknown" status="success" time="0.187029"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_marks_payment_declined_and_preserves_invoice_unpaid_invariant_on_gateway_decline" size="unknown" status="success" time="0.438375"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_marks_payment_failed_on_gateway_network_timeout_exception" size="unknown" status="success" time="0.436813"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_rejects_partial_authorization_and_keeps_invoice_unpaid" size="unknown" status="success" time="0.212513"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_applies_webhook_idempotency_for_duplicate_provider_event_ids" size="unknown" status="success" time="0.193643"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_maintains_refund_lifecycle_consistency_from_paid_to_partial_and_full_refunded_states" size="unknown" status="success" time="0.222807"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_process_due_invoices_exits_cleanly_when_no_invoices_are_due" size="unknown" status="success" time="0.181515"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_records_declined_payment_when_gateway_returns_DECLINE_error_payload" size="unknown" status="success" time="0.423592"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentGatewayFailurePathsPestTest::__pest_evaluable_it_throws_HelcimException_and_keeps_invoice_unchanged_when_gateway_customer_is_not_found" size="unknown" status="success" time="0.453288"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_vaults_payment_method_securely" size="unknown" status="success" time="0.204851"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_charges_vaulted_card_successfully" size="unknown" status="success" time="0.196887"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_prevents_duplicate_invoice_charges_via_idempotency" size="unknown" status="success" time="0.191070"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_records_failed_payments_properly" size="unknown" status="success" time="0.438790"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_processes_refunds_correctly" size="unknown" status="success" time="0.204422"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_tracks_partial_refunds_correctly" size="unknown" status="success" time="0.183356"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_calculates_convenience_fees_correctly" size="unknown" status="success" time="0.198168"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_skips_convenience_fees_for_debit_cards" size="unknown" status="success" time="0.194046"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_detects_expired_payment_methods" size="unknown" status="success" time="0.197108"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_dispatches_batch_invoice_processing_jobs" size="unknown" status="success" time="1.248635"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_process_invoice_payment_job_is_idempotent_when_executed_twice_for_same_invoice" size="unknown" status="success" time="0.229389"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_releases_process_invoice_payment_job_on_gateway_rate_limit_and_keeps_invoice_unpaid" size="unknown" status="success" time="0.430029"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_releases_process_invoice_payment_job_on_gateway_service_unavailable_and_keeps_invoice_unpaid" size="unknown" status="success" time="0.462881"/>
+      <test name="P\Modules\Payment\Tests\Feature\PaymentProcessingPestTest::__pest_evaluable_it_marks_invoice_metadata_as_error_and_creates_no_payment_on_malformed_gateway_success_payload" size="unknown" status="success" time="0.208205"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_accepts_valid_webhook_signature" size="unknown" status="success" time="0.167773"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_rejects_invalid_webhook_signature" size="unknown" status="success" time="0.158634"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_updates_payment_status_on_transaction_approved_webhook" size="unknown" status="success" time="0.190083"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_updates_payment_status_on_transaction_declined_webhook" size="unknown" status="success" time="0.194879"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_updates_payment_method_on_card_expiring_webhook" size="unknown" status="success" time="0.169485"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_has_accessible_webhook_test_endpoint" size="unknown" status="success" time="0.160049"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_duplicate_transaction_approved_webhook_id_is_idempotent__invariant_" size="unknown" status="success" time="0.178551"/>
+      <test name="P\Modules\Payment\Tests\Feature\WebhookHandlingPestTest::__pest_evaluable_it_transaction_declined_webhook_does_not_downgrade_a_payment_already_successful__invariant_" size="unknown" status="success" time="0.165600"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_issues_credit_and_records_ledger_entry" size="unknown" status="success" time="0.163855"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_accumulates_credits_correctly" size="unknown" status="success" time="0.161107"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_deducts_credit_and_records_negative_ledger_entry" size="unknown" status="success" time="0.162646"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_allows_deduction_below_zero__no_floor_enforcement_" size="unknown" status="success" time="0.157808"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_records_positive_adjustment" size="unknown" status="success" time="0.160635"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_records_negative_adjustment" size="unknown" status="success" time="0.159380"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_returns_zero_for_client_with_no_ledger_entries" size="unknown" status="success" time="0.159126"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_returns_correct_dollar_balance_from_cents" size="unknown" status="success" time="0.194450"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_issue_then_deduct_same_amount_returns_to_original_balance" size="unknown" status="success" time="0.163608"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditManagementServicePestTest::__pest_evaluable_it_handles_fractional_dollar_amounts_with_correct_cent_conversion" size="unknown" status="success" time="0.159043"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(0.01)" size="unknown" status="success" time="0.168945"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(0.5)" size="unknown" status="success" time="0.161275"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(1.0)" size="unknown" status="success" time="0.162428"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(10.0)" size="unknown" status="success" time="0.176702"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(99.99)" size="unknown" status="success" time="0.177042"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(500.0)" size="unknown" status="success" time="0.160505"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_then_deductCredit_of_the_same_amount_returns_to_original_balance#(9999.99)" size="unknown" status="success" time="0.163604"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_balance_for_a_fresh_client_is_zero" size="unknown" status="success" time="0.156807"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_sequential_credits_accumulate_to_the_exact_sum" size="unknown" status="success" time="0.169577"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(0.01)" size="unknown" status="success" time="0.158381"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(0.5)" size="unknown" status="success" time="0.161014"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(1.0)" size="unknown" status="success" time="0.158756"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(10.0)" size="unknown" status="success" time="0.159824"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(99.99)" size="unknown" status="success" time="0.159286"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(500.0)" size="unknown" status="success" time="0.160632"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_issueCredit_always_increases_the_balance#(9999.99)" size="unknown" status="success" time="0.159230"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(0.01)" size="unknown" status="success" time="0.165875"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(0.5)" size="unknown" status="success" time="0.157378"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(1.0)" size="unknown" status="success" time="0.162341"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(10.0)" size="unknown" status="success" time="0.159903"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(99.99)" size="unknown" status="success" time="0.161903"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(500.0)" size="unknown" status="success" time="0.163601"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_deductCredit_always_decreases_the_balance#(9999.99)" size="unknown" status="success" time="0.165400"/>
+      <test name="P\Modules\Payment\Tests\Integration\CreditServicePropertyPestTest::__pest_evaluable_it_each_credit_and_debit_operation_creates_exactly_one_ledger_entry" size="unknown" status="success" time="0.180844"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_client_belongs_to_company" size="unknown" status="success" time="0.174226"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_contact_belongs_to_client" size="unknown" status="success" time="0.157164"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_asset_belongs_to_client" size="unknown" status="success" time="0.158954"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_invoice_belongs_to_client" size="unknown" status="success" time="0.161054"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_payment_method_belongs_to_company" size="unknown" status="success" time="0.162544"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_company_client_asset_chain" size="unknown" status="success" time="0.158438"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_company_client_invoice_chain" size="unknown" status="success" time="0.168986"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_company_data_isolation" size="unknown" status="success" time="0.157610"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_client_data_isolation" size="unknown" status="success" time="0.164721"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_company_id_consistency" size="unknown" status="success" time="0.163540"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_company_scope_query" size="unknown" status="success" time="0.174764"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_transaction_rollback_consistency" size="unknown" status="success" time="0.156989"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\DataConsistencyTest::test_client_aggregate_relationships" size="unknown" status="success" time="0.163415"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_invoice_factory_creates_valid_records" size="unknown" status="success" time="0.173382"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_invoice_belongs_to_client" size="unknown" status="success" time="0.161879"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_payment_relates_to_invoice" size="unknown" status="success" time="0.168685"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_payment_method_belongs_to_company" size="unknown" status="success" time="0.161613"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_company_has_multiple_payment_methods" size="unknown" status="success" time="0.169356"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_invoice_status_tracking" size="unknown" status="success" time="0.192218"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_client_has_multiple_invoices" size="unknown" status="success" time="0.184579"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_invoice_amount_calculation" size="unknown" status="success" time="0.162864"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_billing_template_factory" size="unknown" status="success" time="0.159000"/>
+      <test name="Modules\Payment\Tests\Integration\CrossModule\PaymentBillingIntegrationTest::test_invoice_company_isolation" size="unknown" status="success" time="0.188721"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_charges_a_vaulted_card_successfully_and_records_payment" size="unknown" status="success" time="0.180196"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_throws_on_gateway_failure_and_marks_payment_as_declined" size="unknown" status="success" time="0.411303"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_throws_when_no_payment_method_exists" size="unknown" status="success" time="0.182333"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_rejects_partial_authorization" size="unknown" status="success" time="0.169544"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_processes_a_full_refund_successfully" size="unknown" status="success" time="0.174763"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_processes_a_partial_refund_correctly" size="unknown" status="success" time="0.173939"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_throws_when_refund_exceeds_remaining_refundable_amount" size="unknown" status="success" time="0.161222"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_verifies_a_valid_webhook_signature" size="unknown" status="success" time="0.149869"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_rejects_a_tampered_webhook_payload" size="unknown" status="success" time="0.153179"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_rejects_when_webhook_secret_is_empty" size="unknown" status="success" time="0.149221"/>
+      <test name="P\Modules\Payment\Tests\Integration\HelcimServiceContractPestTest::__pest_evaluable_it_rejects_a_completely_invalid_signature" size="unknown" status="success" time="0.154504"/>
+      <test name="P\Modules\Payment\Tests\Integration\PaymentModuleCorePestTest::__pest_evaluable_it_generates_transaction_id_and_idempotency_key_on_create" size="unknown" status="success" time="0.163659"/>
+      <test name="P\Modules\Payment\Tests\Integration\PaymentModuleCorePestTest::__pest_evaluable_it_detects_expired_payment_methods" size="unknown" status="success" time="0.170168"/>
+      <test name="P\Modules\Payment\Tests\Integration\PaymentModuleCorePestTest::__pest_evaluable_it_detects_valid_payment_methods" size="unknown" status="success" time="0.175846"/>
+      <test name="P\Modules\Payment\Tests\Integration\PaymentModuleCorePestTest::__pest_evaluable_it_has_working_payment_query_scopes" size="unknown" status="success" time="0.174910"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDisputeGuardPestTest::__pest_evaluable_it_blocks_refund_when_payment_has_an_active_dispute" size="unknown" status="success" time="0.164851"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDisputeGuardPestTest::__pest_evaluable_it_permits_refund_when_no_dispute_is_present" size="unknown" status="success" time="0.156806"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDisputeGuardPestTest::__pest_evaluable_it_blocks_refund_when_dispute__status_is_non_null_regardless_of_value" size="unknown" status="success" time="0.170518"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDisputeGuardPestTest::__pest_evaluable_it_dispute_guard_is_independent_of_the_180_day_window_check" size="unknown" status="success" time="0.166065"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_reports_payment_status_helpers_from_in_memory_attributes" size="unknown" status="success" time="0.168321"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_calculates_remaining_refundable_amount_without_persistence" size="unknown" status="success" time="0.159132"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_evaluates_refundability_based_on_status_age_and_refunded_amount" size="unknown" status="success" time="0.168865"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_detects_near_card_expiration_based_on_expires__at_date" size="unknown" status="success" time="0.162930"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_formats_masked_card_labels_and_currency_values_in_memory" size="unknown" status="success" time="0.160217"/>
+      <test name="P\Modules\Payment\Tests\Unit\PaymentDomainLogicPestTest::__pest_evaluable_it_persists_reconciliation_metadata_when_marking_payment_as_reconciled" size="unknown" status="success" time="0.167764"/>
+    </tests>
+    <directory name="/">
+      <totals>
+        <lines total="9502" comments="2266" code="7236" executable="3977" executed="1827" percent="45.94"/>
+        <methods count="275" tested="102" percent="37.09"/>
+        <functions count="0" tested="0" percent="0"/>
+        <classes count="42" tested="3" percent="7.14"/>
+        <traits count="0" tested="0" percent="0"/>
+      </totals>
+      <directory name="Modules">
+        <totals>
+          <lines total="4115" comments="987" code="3128" executable="1817" executed="1220" percent="67.14"/>
+          <methods count="111" tested="52" percent="46.85"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="15" tested="1" percent="6.67"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <directory name="ContractManager">
+          <totals>
+            <lines total="1203" comments="268" code="935" executable="581" executed="284" percent="48.88"/>
+            <methods count="37" tested="15" percent="40.54"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="3" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <directory name="Services">
+            <totals>
+              <lines total="1203" comments="268" code="935" executable="581" executed="284" percent="48.88"/>
+              <methods count="37" tested="15" percent="40.54"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="3" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="BillingTemplateService.php" href="Modules/ContractManager/Services/BillingTemplateService.php.xml" hash="1e2775f1b0eb0e9287506fc2c8d5e7de8d68b15b">
+              <totals>
+                <lines total="315" comments="80" code="235" executable="134" executed="6" percent="4.48"/>
+                <methods count="11" tested="1" percent="9.09"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ContractService.php" href="Modules/ContractManager/Services/ContractService.php.xml" hash="865e5293d9c2b4249fe881a8ac8e13f4333c671f">
+              <totals>
+                <lines total="464" comments="99" code="365" executable="237" executed="138" percent="58.23"/>
+                <methods count="12" tested="5" percent="41.67"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="QuoteService.php" href="Modules/ContractManager/Services/QuoteService.php.xml" hash="16ee353f522ee964e69974abf60dc3f77805af7c">
+              <totals>
+                <lines total="424" comments="89" code="335" executable="210" executed="140" percent="66.67"/>
+                <methods count="14" tested="9" percent="64.29"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+        </directory>
+        <directory name="PIB">
+          <totals>
+            <lines total="1886" comments="506" code="1380" executable="723" executed="556" percent="76.90"/>
+            <methods count="53" tested="27" percent="50.94"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="9" tested="1" percent="11.11"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <directory name="Services">
+            <totals>
+              <lines total="1886" comments="506" code="1380" executable="723" executed="556" percent="76.90"/>
+              <methods count="53" tested="27" percent="50.94"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="9" tested="1" percent="11.11"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <directory name="Examples">
+              <totals>
+                <lines total="136" comments="48" code="88" executable="39" executed="0" percent="0.00"/>
+                <methods count="5" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+              <file name="CreditBalanceReportService.php" href="Modules/PIB/Services/Examples/CreditBalanceReportService.php.xml" hash="a46502cd37d29f54976bf24cef22abe55a41d05e">
+                <totals>
+                  <lines total="136" comments="48" code="88" executable="39" executed="0" percent="0.00"/>
+                  <methods count="5" tested="0" percent="0.00"/>
+                  <functions count="0" tested="0" percent="0"/>
+                  <classes count="1" tested="0" percent="0.00"/>
+                  <traits count="0" tested="0" percent="0"/>
+                </totals>
+              </file>
+            </directory>
+            <file name="BillingAnalysisService.php" href="Modules/PIB/Services/BillingAnalysisService.php.xml" hash="cd00433c2162f8b00ea5a1b7d4356245d2575331">
+              <totals>
+                <lines total="100" comments="14" code="86" executable="35" executed="32" percent="91.43"/>
+                <methods count="5" tested="3" percent="60.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="BillingService.php" href="Modules/PIB/Services/BillingService.php.xml" hash="5c866106e822b21243c95c0d3e58d7120e327586">
+              <totals>
+                <lines total="33" comments="8" code="25" executable="6" executed="0" percent="0.00"/>
+                <methods count="2" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ClientCreditService.php" href="Modules/PIB/Services/ClientCreditService.php.xml" hash="19e573eff62f8199eda4cadb22a0b82dbb038a0a">
+              <totals>
+                <lines total="258" comments="82" code="176" executable="97" executed="95" percent="97.94"/>
+                <methods count="7" tested="5" percent="71.43"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EntitlementEngineService.php" href="Modules/PIB/Services/EntitlementEngineService.php.xml" hash="198c0caa9ceba3640b2c5c23173d54b2c60a993c">
+              <totals>
+                <lines total="77" comments="35" code="42" executable="8" executed="6" percent="75.00"/>
+                <methods count="4" tested="2" percent="50.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="EntitlementService.php" href="Modules/PIB/Services/EntitlementService.php.xml" hash="c6c959a1775a5e451aed129c35afa21880394d00">
+              <totals>
+                <lines total="105" comments="21" code="84" executable="37" executed="36" percent="97.30"/>
+                <methods count="4" tested="3" percent="75.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="InvoiceGenerator.php" href="Modules/PIB/Services/InvoiceGenerator.php.xml" hash="33e9f984e641142958396e647c5fe0be3e04b843">
+              <totals>
+                <lines total="893" comments="222" code="671" executable="410" executed="302" percent="73.66"/>
+                <methods count="14" tested="4" percent="28.57"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="ProrationService.php" href="Modules/PIB/Services/ProrationService.php.xml" hash="b31841bf2af9fa05832cf2a305e199c10e60ade2">
+              <totals>
+                <lines total="68" comments="27" code="41" executable="10" executed="10" percent="100.00"/>
+                <methods count="4" tested="4" percent="100.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="1" percent="100.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="TimeEntryService.php" href="Modules/PIB/Services/TimeEntryService.php.xml" hash="ecd40f0f396e7384750e9100f041dd2ba03b9aa0">
+              <totals>
+                <lines total="216" comments="49" code="167" executable="81" executed="75" percent="92.59"/>
+                <methods count="8" tested="6" percent="75.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+        </directory>
+        <directory name="Payment">
+          <totals>
+            <lines total="1026" comments="213" code="813" executable="513" executed="380" percent="74.07"/>
+            <methods count="21" tested="10" percent="47.62"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="3" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <directory name="Services">
+            <totals>
+              <lines total="1026" comments="213" code="813" executable="513" executed="380" percent="74.07"/>
+              <methods count="21" tested="10" percent="47.62"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="3" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="ClientCreditService.php" href="Modules/Payment/Services/ClientCreditService.php.xml" hash="23293f1b3c665311c75d0b9e6ac49a11d612a1a1">
+              <totals>
+                <lines total="169" comments="38" code="131" executable="77" executed="76" percent="98.70"/>
+                <methods count="4" tested="3" percent="75.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="CreditManagementService.php" href="Modules/Payment/Services/CreditManagementService.php.xml" hash="77e76ec5822460140485f4ca736bc27dbf4a6d22">
+              <totals>
+                <lines total="135" comments="29" code="106" executable="54" executed="53" percent="98.15"/>
+                <methods count="5" tested="4" percent="80.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="HelcimService.php" href="Modules/Payment/Services/HelcimService.php.xml" hash="bfa0277e9af255499323df3189e56cedbada4c4e">
+              <totals>
+                <lines total="722" comments="146" code="576" executable="382" executed="251" percent="65.71"/>
+                <methods count="12" tested="3" percent="25.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+        </directory>
+      </directory>
+      <directory name="app">
+        <totals>
+          <lines total="5387" comments="1279" code="4108" executable="2160" executed="607" percent="28.10"/>
+          <methods count="164" tested="50" percent="30.49"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="27" tested="2" percent="7.41"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <directory name="Actions">
+          <totals>
+            <lines total="1508" comments="390" code="1118" executable="558" executed="53" percent="9.50"/>
+            <methods count="48" tested="1" percent="2.08"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="11" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <directory name="Conversations">
+            <totals>
+              <lines total="178" comments="36" code="142" executable="64" executed="0" percent="0.00"/>
+              <methods count="6" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="2" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="ReplyToConversationAction.php" href="app/Actions/Conversations/ReplyToConversationAction.php.xml" hash="6f6dbc6ac4adf43ff143c52b3ef8b4f3549b2630">
+              <totals>
+                <lines total="129" comments="28" code="101" executable="45" executed="0" percent="0.00"/>
+                <methods count="5" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+            <file name="UpdateFollowUpDateAction.php" href="app/Actions/Conversations/UpdateFollowUpDateAction.php.xml" hash="af6b4e1aa88d381e82f91f2c748114a445add5a1">
+              <totals>
+                <lines total="49" comments="8" code="41" executable="19" executed="0" percent="0.00"/>
+                <methods count="1" tested="0" percent="0.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+          <file name="BulkConversationsAction.php" href="app/Actions/BulkConversationsAction.php.xml" hash="571d978b1ffacd4ba301ac99eb38a5b67a7f2804">
+            <totals>
+              <lines total="183" comments="60" code="123" executable="47" executed="0" percent="0.00"/>
+              <methods count="8" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="CreateConversationAction.php" href="app/Actions/CreateConversationAction.php.xml" hash="b89855d3e9f44b23cfbd7859359f9860eb2f999a">
+            <totals>
+              <lines total="205" comments="45" code="160" executable="80" executed="0" percent="0.00"/>
+              <methods count="7" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="DisputeInvoiceAction.php" href="app/Actions/DisputeInvoiceAction.php.xml" hash="d48e21a1f8253c4a3556b8f1c8f793eeadd8ee10">
+            <totals>
+              <lines total="139" comments="44" code="95" executable="55" executed="53" percent="96.36"/>
+              <methods count="2" tested="1" percent="50.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ForwardConversationAction.php" href="app/Actions/ForwardConversationAction.php.xml" hash="0412a62f3757bcad7cd01113eef275f2dcf608e1">
+            <totals>
+              <lines total="135" comments="39" code="96" executable="57" executed="0" percent="0.00"/>
+              <methods count="4" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="MergeConversationsAction.php" href="app/Actions/MergeConversationsAction.php.xml" hash="9872b5c668b8150c2888eedd6624adefd4de8cf8">
+            <totals>
+              <lines total="178" comments="40" code="138" executable="75" executed="0" percent="0.00"/>
+              <methods count="6" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="MergeCustomersAction.php" href="app/Actions/MergeCustomersAction.php.xml" hash="58482dc21c51baab33d4c86b4858f5c8a5853a88">
+            <totals>
+              <lines total="110" comments="28" code="82" executable="31" executed="0" percent="0.00"/>
+              <methods count="5" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ReplyToConversationAction.php" href="app/Actions/ReplyToConversationAction.php.xml" hash="41fcbd04d6abe81d04478a21565e417827ebced2">
+            <totals>
+              <lines total="123" comments="35" code="88" executable="47" executed="0" percent="0.00"/>
+              <methods count="2" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="SaveDraftAction.php" href="app/Actions/SaveDraftAction.php.xml" hash="d0f434cd0ca0b7bb10d82d2c24248db09ddaf593">
+            <totals>
+              <lines total="129" comments="30" code="99" executable="53" executed="0" percent="0.00"/>
+              <methods count="5" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="UpdateCustomerAction.php" href="app/Actions/UpdateCustomerAction.php.xml" hash="3ac9acd1f0407f5eb0e80019d068a19aebb24939">
+            <totals>
+              <lines total="128" comments="33" code="95" executable="49" executed="0" percent="0.00"/>
+              <methods count="3" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Services">
+          <totals>
+            <lines total="3879" comments="889" code="2990" executable="1602" executed="554" percent="34.58"/>
+            <methods count="116" tested="49" percent="42.24"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="16" tested="2" percent="12.50"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <directory name="Navigation">
+            <totals>
+              <lines total="62" comments="10" code="52" executable="23" executed="23" percent="100.00"/>
+              <methods count="4" tested="4" percent="100.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="1" percent="100.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="NavigationService.php" href="app/Services/Navigation/NavigationService.php.xml" hash="1e60d43c6a0eeaa7e5326be2203d3a04fff20a30">
+              <totals>
+                <lines total="62" comments="10" code="52" executable="23" executed="23" percent="100.00"/>
+                <methods count="4" tested="4" percent="100.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="1" percent="100.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+          <directory name="Ui">
+            <totals>
+              <lines total="70" comments="21" code="49" executable="21" executed="13" percent="61.90"/>
+              <methods count="2" tested="1" percent="50.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+            <file name="WidgetRegistryService.php" href="app/Services/Ui/WidgetRegistryService.php.xml" hash="61c179cdda9349d3184ec587166d4a78675f9acd">
+              <totals>
+                <lines total="70" comments="21" code="49" executable="21" executed="13" percent="61.90"/>
+                <methods count="2" tested="1" percent="50.00"/>
+                <functions count="0" tested="0" percent="0"/>
+                <classes count="1" tested="0" percent="0.00"/>
+                <traits count="0" tested="0" percent="0"/>
+              </totals>
+            </file>
+          </directory>
+          <file name="AtomicCounterService.php" href="app/Services/AtomicCounterService.php.xml" hash="a826e1ee86bc4679b7b784b4fbe50576825b1b00">
+            <totals>
+              <lines total="181" comments="76" code="105" executable="38" executed="23" percent="60.53"/>
+              <methods count="8" tested="3" percent="37.50"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="AuditLogService.php" href="app/Services/AuditLogService.php.xml" hash="148f1df44c554f6dd28c49da0c8465563c9ea32e">
+            <totals>
+              <lines total="160" comments="44" code="116" executable="58" executed="0" percent="0.00"/>
+              <methods count="5" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="CacheService.php" href="app/Services/CacheService.php.xml" hash="6c0626f1b69bfd854c640a5d754188baad85a65e">
+            <totals>
+              <lines total="369" comments="102" code="267" executable="101" executed="98" percent="97.03"/>
+              <methods count="14" tested="12" percent="85.71"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="CachedMailboxService.php" href="app/Services/CachedMailboxService.php.xml" hash="c476d0da3e2067d188f53d55294479d6703de5a3">
+            <totals>
+              <lines total="104" comments="32" code="72" executable="28" executed="0" percent="0.00"/>
+              <methods count="7" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="CircuitBreakerService.php" href="app/Services/CircuitBreakerService.php.xml" hash="986f24b45ec32a9bf29c525d9b961f18713eb7a4">
+            <totals>
+              <lines total="241" comments="77" code="164" executable="74" executed="57" percent="77.03"/>
+              <methods count="11" tested="7" percent="63.64"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="EntitlementEngine.php" href="app/Services/EntitlementEngine.php.xml" hash="2845ff97dd11e39f988ca6b9550b9da4bf650fc0">
+            <totals>
+              <lines total="16" comments="8" code="8" executable="0" executed="0" percent="0"/>
+              <methods count="0" tested="0" percent="0"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="0" tested="0" percent="0"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ImapService.php" href="app/Services/ImapService.php.xml" hash="ea8c1c9ed37b6001c988f3331bc8479d45f93ca8">
+            <totals>
+              <lines total="1473" comments="231" code="1242" executable="784" executed="81" percent="10.33"/>
+              <methods count="20" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="MetricsService.php" href="app/Services/MetricsService.php.xml" hash="dcae5d1910214f1dc905c19db84d23137d8be752">
+            <totals>
+              <lines total="262" comments="79" code="183" executable="112" executed="0" percent="0.00"/>
+              <methods count="11" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="ModuleSourceService.php" href="app/Services/ModuleSourceService.php.xml" hash="9565de5942fafcdd050e5d0ca3903067b04c3ab5">
+            <totals>
+              <lines total="104" comments="22" code="82" executable="39" executed="39" percent="100.00"/>
+              <methods count="4" tested="4" percent="100.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="1" percent="100.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="RateLimiterService.php" href="app/Services/RateLimiterService.php.xml" hash="e92d5825ef9bbc9c526d681040820e305bf3c7dd">
+            <totals>
+              <lines total="222" comments="69" code="153" executable="79" executed="67" percent="84.81"/>
+              <methods count="8" tested="6" percent="75.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="SentryBeforeBreadcrumb.php" href="app/Services/SentryBeforeBreadcrumb.php.xml" hash="bb22dc8176d151d8b2ac1d188a02be55651e8f0d">
+            <totals>
+              <lines total="30" comments="7" code="23" executable="5" executed="0" percent="0.00"/>
+              <methods count="1" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="SentryBeforeSend.php" href="app/Services/SentryBeforeSend.php.xml" hash="bd38533897a987b747bd7da446756f6e395bdaa3">
+            <totals>
+              <lines total="47" comments="8" code="39" executable="16" executed="0" percent="0.00"/>
+              <methods count="1" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="SmtpService.php" href="app/Services/SmtpService.php.xml" hash="f9349eac55851888ba00211f073df7e157a6c2a1">
+            <totals>
+              <lines total="282" comments="40" code="242" executable="151" executed="114" percent="75.50"/>
+              <methods count="6" tested="3" percent="50.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="SystemDiagnosticsService.php" href="app/Services/SystemDiagnosticsService.php.xml" hash="323fce53ac72aefe67f2b3fda70e1d52e9b947db">
+            <totals>
+              <lines total="211" comments="55" code="156" executable="63" executed="38" percent="60.32"/>
+              <methods count="12" tested="8" percent="66.67"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+          <file name="UserDirectoryRegistryService.php" href="app/Services/UserDirectoryRegistryService.php.xml" hash="fe17aefb7b245b12d50ad314af4cbb19c11a2822">
+            <totals>
+              <lines total="45" comments="8" code="37" executable="10" executed="1" percent="10.00"/>
+              <methods count="2" tested="1" percent="50.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+      </directory>
+    </directory>
+  </project>
+</phpunit>

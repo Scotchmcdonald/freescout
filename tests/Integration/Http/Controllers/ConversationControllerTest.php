@@ -33,7 +33,7 @@ class ConversationControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->controller = new ConversationController;
+        $this->controller = app(ConversationController::class);
         $this->user = User::factory()->create();
         $this->mailbox = Mailbox::factory()->create();
 

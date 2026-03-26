@@ -20,6 +20,7 @@ const DEFAULT_MIN_COVERAGE     = 70.0;
 const DEFAULT_MIN_MSI          = 70.0;
 const DEFAULT_MIN_BOUNDARY     = 50;
 const DEFAULT_MIN_ARCH_FILES   = 3;
+const DEFAULT_MIN_TYPE_COVERAGE = 80.0;
 
 $root        = dirname(__DIR__, 2);
 $reportsDir  = $root . '/reports';
@@ -30,6 +31,7 @@ $minCoverage   = envFloat('TEST_MIN_COVERAGE',           DEFAULT_MIN_COVERAGE);
 $minMsi        = envFloat('TEST_MIN_MSI',                DEFAULT_MIN_MSI);
 $minBoundary   = envInt('TEST_MIN_BOUNDARY_MATCHES',     DEFAULT_MIN_BOUNDARY);
 $minArchFiles  = envInt('TEST_MIN_ARCH_FILES',           DEFAULT_MIN_ARCH_FILES);
+$minTypeCov    = envFloat('TEST_MIN_TYPE_COVERAGE',      DEFAULT_MIN_TYPE_COVERAGE);
 
 // Optional timing context: env vars first, then JSON side-channel fallback
 $phaseTimes = loadPhaseTimes($reportsDir);
@@ -40,6 +42,7 @@ $msi       = parseMsi($reportsDir);
 $boundary  = boundaryInventory($root . '/tests');
 $arch      = archInventory($root . '/tests/Architecture');
 $archSuite = parseArchSuite($reportsDir);
+$typeCov   = parseTypeCoverage($reportsDir);
 
 // ── Gate Checks ────────────────────────────────────────────────────────────
 $checks = [
@@ -84,15 +87,26 @@ $checks = [
         'detail'  => 'PHP arch-test files in tests/Architecture/',
     ],
     [
-        'name'    => 'Architecture suite pass',
-        'actual'  => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
-        'minimum' => 1.0,
-        'unit'    => ' (1=pass)',
+        'name'     => 'Architecture suite pass',
+        'actual'   => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
+        'minimum'  => 1.0,
+        'unit'     => ' (1=pass)',
         'optional' => false,
-        'status'  => $archSuite['passed'] === true,
-        'detail'  => $archSuite['passed'] === null
+        'status'   => $archSuite['passed'] === true,
+        'detail'   => $archSuite['passed'] === null
             ? 'No arch artifact. Run: bash scripts/ci/check-arch-suite.sh'
             : 'source: ' . $archSuite['source'],
+    ],
+    [
+        'name'     => 'Type declaration coverage',
+        'actual'   => $typeCov['value'],
+        'minimum'  => $minTypeCov,
+        'unit'     => '%',
+        'optional' => true,   // optional gate — warn when no artifact
+        'status'   => $typeCov['value'] === null || $typeCov['value'] >= $minTypeCov,
+        'detail'   => $typeCov['value'] === null
+            ? 'No artifact — run: bash scripts/ci/check-type-coverage.sh'
+            : 'source: ' . $typeCov['source'],
     ],
 ];
 
@@ -438,4 +452,26 @@ function parseArchSuite(string $reportsDir): array
     }
 
     return ['passed' => (bool) $data['passed'], 'source' => 'arch-suite-latest.json'];
+}
+
+/**
+ * Read type-coverage-summary.json written by check-type-coverage.php.
+ *
+ * @return array{value:float|null,source:string}
+ */
+function parseTypeCoverage(string $reportsDir): array
+{
+    $path = $reportsDir . '/type-coverage-summary.json';
+
+    if (! is_file($path)) {
+        return ['value' => null, 'source' => 'none'];
+    }
+
+    $data = json_decode((string) file_get_contents($path), true);
+
+    if (isset($data['type_coverage'])) {
+        return ['value' => (float) $data['type_coverage'], 'source' => 'type-coverage-summary.json'];
+    }
+
+    return ['value' => null, 'source' => 'type-coverage-summary.json (unreadable)'];
 }

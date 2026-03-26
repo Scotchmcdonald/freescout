@@ -22,7 +22,7 @@ class ConversationControllerTest extends IntegrationTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->assertInstanceOf(ConversationController::class, $controller);
     }
@@ -36,7 +36,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->index($request, $mailbox);
 
         $this->assertEquals('conversations.index', $view->name());
@@ -50,7 +50,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->index($request, $mailbox);
@@ -68,7 +68,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->index($request, $mailbox);
 
         $conversations = $view->getData()['conversations'];
@@ -85,7 +85,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->show($request, $conversation);
 
         $this->assertEquals('conversations.show', $view->name());
@@ -100,7 +100,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->show($request, $conversation);
@@ -117,7 +117,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->show($request, $conversation);
 
         $loadedConversation = $view->getData()['conversation'];
@@ -134,7 +134,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->create($request, $mailbox);
 
         $this->assertEquals('conversations.create', $view->name());
@@ -149,7 +149,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $view = $controller->create($request, $mailbox);
 
         $this->assertEquals('conversations.create', $view->name());
@@ -163,7 +163,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->create($request, $mailbox);
@@ -249,7 +249,7 @@ class ConversationControllerTest extends IntegrationTestCase
             []
         )->bind($request)->setParameter('conversation', $conversation));
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->update($request, $conversation);
@@ -273,7 +273,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->shouldReceive('filled')->with('resolution_notes')->andReturn(false);
         $request->shouldReceive('input')->with('status_text', '')->andReturn('');
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $controller->update($request, $conversation);
 
         $this->assertEquals($assignee->id, $conversation->fresh()->user_id);
@@ -298,7 +298,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->shouldReceive('filled')->with('resolution_notes')->andReturn(false);
         $request->shouldReceive('input')->with('status_text', '')->andReturn('');
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $controller->update($request, $conversation);
 
         $this->assertEquals($folder2->id, $conversation->fresh()->folder_id);
@@ -321,7 +321,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $action = \Mockery::mock(ReplyToConversationAction::class);
         $action->shouldReceive('execute')->once();
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->reply($request, $conversation, $action);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -365,7 +365,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/conversations/'.$conversation->id, 'DELETE');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->destroy($request, $conversation);
@@ -381,7 +381,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['action' => 'change_status']);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->status());
@@ -403,7 +403,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'status' => 2,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->status());
@@ -427,7 +427,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'user_id' => $assignee->id,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->status());
@@ -452,7 +452,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'folder_id' => $folder2->id,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->status());
@@ -474,7 +474,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'conversation_id' => $conversation->id,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->status());
@@ -496,7 +496,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'conversation_id' => $conversation->id,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->status());
@@ -517,7 +517,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'status' => 2,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(403, $response->status());
@@ -538,7 +538,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'status' => 2,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->status());
@@ -557,7 +557,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'conversation_id' => $conversation->id,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         // This will fail if view doesn't exist - that's OK for testing
         try {
@@ -585,7 +585,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['customer_id' => $customer2->id]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->changeCustomer($request, $conversation);
 
         $this->assertEquals($customer2->id, $conversation->fresh()->customer_id);
@@ -618,7 +618,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'new_customer_last_name' => 'Doe',
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->changeCustomer($request, $conversation);
 
         $this->assertTrue($response->isSuccessful() || $response->isRedirection());
@@ -650,7 +650,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['customer_id' => $customer->id]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->changeCustomer($request, $conversation);
@@ -667,7 +667,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['new_customer_email' => 'invalid-email']);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->changeCustomer($request, $conversation);
@@ -690,7 +690,7 @@ class ConversationControllerTest extends IntegrationTestCase
             'keep_threads' => true,
         ]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->merge($request, $conversation1);
 
         $this->assertEquals($conversation2->id, $thread1->fresh()->conversation_id);
@@ -709,7 +709,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['target_conversation_id' => $conversation->id]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
         $response = $controller->merge($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -726,7 +726,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['target_conversation_id' => $conversation2->id]);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->merge($request, $conversation1);
@@ -739,7 +739,7 @@ class ConversationControllerTest extends IntegrationTestCase
         $request = Request::create('/conversations/upload', 'POST');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController;
+        $controller = app(ConversationController::class);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);

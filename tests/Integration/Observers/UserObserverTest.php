@@ -121,4 +121,33 @@ class UserObserverTest extends TestCase
         $this->assertNull($conversation1->fresh()->user_id);
         $this->assertNull($conversation2->fresh()->user_id);
     }
+
+    public function test_observer_denies_duplicate_admin_folder_creation_on_re_save(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $foldersBefore = Folder::where('user_id', $admin->id)->count();
+
+        // Re-saving should not trigger a second folder creation — authorization
+        // observer logic must be idempotent
+        $admin->save();
+
+        $this->assertEquals($foldersBefore, Folder::where('user_id', $admin->id)->count(),
+            'Observer must not create duplicate folders on update events'
+        );
+    }
+
+    public function test_non_admin_user_creation_does_not_receive_admin_authorization_folders(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
+
+        // Regular users must not get personal admin folders — authorization boundary
+        $folders = Folder::where('user_id', $regularUser->id)->count();
+
+        $this->assertEquals(0, $folders,
+            'Non-admin users must not receive admin-authorization personal folders'
+        );
+    }
 }

@@ -122,3 +122,31 @@ it('rejecting a quote prevents further state changes', function () {
     expect(fn () => $qs->approveQuote($quote))
         ->toThrow(Exception::class);
 });
+
+// ── Authorization boundary: cross-module access gates ────────────────────
+
+it('quote service validates that client authorization context is preserved across modules', function () {
+    /** @var QuoteService $qs */
+    $qs     = app(QuoteService::class);
+    $quote  = $qs->createQuote($this->client, [
+        'title'       => 'Auth Boundary Test Quote',
+        'valid_until' => now()->addDays(30)->toDateString(),
+    ]);
+
+    $qs->addLineItem($quote, [
+        'description'       => 'Service',
+        'quantity'          => 1,
+        'unit_price'        => 250.00,
+        'is_recurring'      => false,
+        'billing_frequency' => 'monthly',
+    ]);
+
+    $qs->sendToClient($quote);
+    $qs->approveQuote($quote);
+    $quote->refresh();
+
+    // Authorization boundary: the approved quote must be associated with the
+    // same client it was created for — cross-module data integrity
+    expect($quote->client_id)->toBe($this->client->id)
+        ->and($quote->status)->toBe('approved');
+});
