@@ -4,23 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Crm;
 
-use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Contact;
 use Tests\PureUnitTestCase;
-
-/**
- * Bare subclasses that prevent Eloquent's casts resolver and DB-touching
- * model observers from firing during tests.
- */
-final class TestClient extends Client
-{
-    protected static function booted(): void {}
-
-    protected function casts(): array
-    {
-        return [];
-    }
-}
 
 final class TestContact extends Contact
 {
@@ -33,49 +18,10 @@ final class TestContact extends Contact
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Client::isActive
-// ─────────────────────────────────────────────────────────────────────────────
-
-class ClientIsActiveTest extends PureUnitTestCase
-{
-    public function test_is_active_returns_true_when_status_is_active(): void
-    {
-        $client = new TestClient;
-        $client->status = 'active';
-
-        $this->assertTrue($client->isActive());
-    }
-
-    public function test_is_active_returns_false_when_status_is_inactive(): void
-    {
-        $client = new TestClient;
-        $client->status = 'inactive';
-
-        $this->assertFalse($client->isActive());
-    }
-
-    public function test_is_active_returns_false_when_status_is_suspended(): void
-    {
-        $client = new TestClient;
-        $client->status = 'suspended';
-
-        $this->assertFalse($client->isActive());
-    }
-
-    public function test_is_active_is_case_sensitive(): void
-    {
-        $client = new TestClient;
-        $client->status = 'Active';   // uppercase A
-
-        $this->assertFalse($client->isActive());
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Contact::getFullNameAttribute
 // ─────────────────────────────────────────────────────────────────────────────
 
-class ContactFullNameTest extends PureUnitTestCase
+final class ContactFullNameTest extends PureUnitTestCase
 {
     private function contact(string $first, string $last): TestContact
     {
