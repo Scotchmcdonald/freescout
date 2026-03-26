@@ -165,4 +165,25 @@ class CustomerReplyTest extends TestCase
         // Should be a signed URL
         $this->assertStringContainsString('signature=', $trackingUrl);
     }
+
+    public function test_mailable_validates_sender_address_is_not_empty(): void
+    {
+        // Validation boundary: reply mailable must be backed by a configured mailbox with a real email
+        $mailable = new CustomerReply($this->conversation, $this->thread);
+        $envelope = $mailable->envelope();
+
+        $this->assertNotEmpty($envelope->from->address, 'Validation: from address must not be empty — mailbox misconfiguration would send unauthenticated mail');
+        $this->assertStringContainsString('@', $envelope->from->address, 'Validation: from address must be a valid email format');
+    }
+
+    public function test_mailable_validates_subject_is_derived_from_conversation(): void
+    {
+        // Validation boundary: subject line must be derived from conversation — prevents blank/spoofed headers
+        $this->conversation->update(['subject' => 'Validation: Subject Derivation Test']);
+        $mailable = new CustomerReply($this->conversation->fresh(), $this->thread);
+        $envelope = $mailable->envelope();
+
+        $this->assertStringStartsWith('Re: ', (string) $envelope->subject, 'Validation: reply subject must carry the Re: prefix to prevent header injection');
+        $this->assertStringContainsString('Validation: Subject Derivation Test', $envelope->subject);
+    }
 }

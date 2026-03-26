@@ -43,11 +43,11 @@ class ClientPolicyTest extends PureUnitTestCase
 
     private function makeClient(int $id, ?int $companyId = null, bool $isActive = true): Client
     {
-        /** @var Client&\Mockery\MockInterface $client */
-        $client = Mockery::mock(Client::class)->makePartial();
-        $client->id = $id;
+        // Client::isActive() simply checks $this->status === 'active', so no mock needed.
+        $client             = new Client;
+        $client->id         = $id;
         $client->company_id = $companyId;
-        $client->shouldReceive('isActive')->andReturn($isActive);
+        $client->status     = $isActive ? 'active' : 'archived';
 
         return $client;
     }

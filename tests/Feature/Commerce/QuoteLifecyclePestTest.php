@@ -22,3 +22,21 @@ it('quote detail page loads for admin', function () {
         ->assertOk()
         ->assertSee($quote->title);
 });
+
+it('redirects unauthenticated guest accessing quote detail', function () {
+    $client = Client::factory()->create(['name' => 'Auth Guard Client']);
+    $quote = Quote::factory()->draft()->create([
+        'client_id' => $client->id,
+        'title' => 'Authorization Boundary Quote',
+    ]);
+
+    // Authorization boundary: auth middleware must redirect guests to login
+    $this->get("/contracts/quotes/{$quote->id}")
+        ->assertRedirect();
+});
+
+it('redirects unauthenticated guest accessing quote list', function () {
+    // Authorization boundary: the quote index is protected by the auth middleware
+    $this->get('/contracts/quotes')
+        ->assertRedirect();
+});

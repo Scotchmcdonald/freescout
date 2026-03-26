@@ -79,6 +79,16 @@ COVERAGE_DURATION=$((COVERAGE_END - COVERAGE_START))
 if [ -f "$ROOT_DIR/reports/coverage-final.txt" ]; then
     echo ""
     head -20 "$ROOT_DIR/reports/coverage-final.txt"
+
+    # Write machine-readable coverage-summary.json consumed by check-testing-quality-gate.php
+    LINE_COVERAGE=$(grep -E "^\s+Lines:" "$ROOT_DIR/reports/coverage-final.txt" | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    if [ -n "$LINE_COVERAGE" ]; then
+        cat > "$ROOT_DIR/reports/coverage-summary.json" << JSON
+{"line_coverage": $LINE_COVERAGE, "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)", "source": "coverage-final.txt"}
+JSON
+        echo ""
+        echo "  📊 Line coverage written to reports/coverage-summary.json: ${LINE_COVERAGE}%"
+    fi
 fi
 
 echo ""

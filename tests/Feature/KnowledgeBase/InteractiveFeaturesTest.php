@@ -29,3 +29,15 @@ it('knowledge base filters tours appropriately', function () {
     // Single-page Knowledge Base Tour should not be in results
     $response->assertDontSee('Knowledge Base Tour', escape: false);
 });
+
+it('redirects unauthenticated guest accessing knowledge base explore', function () {
+    // Authorization boundary: knowledge base routes require authentication
+    $this->get('/knowledgebase/explore')
+        ->assertRedirect();
+});
+
+it('redirects unauthenticated guest accessing knowledge base tour view', function () {
+    // Authorization boundary: tour view also requires authentication
+    $this->get('/knowledgebase/explore?view=tour')
+        ->assertRedirect();
+});

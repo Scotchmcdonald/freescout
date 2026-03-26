@@ -285,6 +285,10 @@ function parseCoverage(string $reportsDir): array
         if (isset($data['totals']['lines']['percent'])) {
             return ['value' => (float) $data['totals']['lines']['percent'], 'source' => $f];
         }
+        // Custom format written by check-line-coverage.sh and test-with-coverage-and-mutation.sh
+        if (isset($data['line_coverage'])) {
+            return ['value' => (float) $data['line_coverage'], 'source' => $f];
+        }
     }
 
     // 2. Plain text coverage report

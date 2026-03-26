@@ -5,6 +5,9 @@
             "Modules/PIB/Services",
             "Modules/ContractManager/Services",
             "Modules/Payment/Services",
+            "Modules/CaseManager/Services",
+            "Modules/SoftwareSubscriptions/Services",
+            "Modules/Crm/Services",
             "app/Services",
             "app/Actions"
         ]

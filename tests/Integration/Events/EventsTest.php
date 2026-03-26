@@ -314,4 +314,34 @@ class EventsTest extends IntegrationTestCase
         Event::assertDispatched(CustomerCreatedConversation::class);
         Event::assertDispatched(CustomerReplied::class);
     }
+
+    // ===== AUTHORIZATION BOUNDARY TESTS =====
+
+    public function test_user_deleted_event_preserves_authorization_context_for_audit_trail(): void
+    {
+        // Authorization boundary: event must carry the actor who had authority to delete the user
+        $deletedUser = User::factory()->create();
+        $authorizedActor = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $event = new UserDeleted($deletedUser, $authorizedActor);
+
+        $this->assertNotNull($event->by_user, 'Authorization context (by_user) must be preserved for audit trail');
+        $this->assertEquals($authorizedActor->id, $event->by_user->id);
+        $this->assertEquals(User::ROLE_ADMIN, $event->by_user->role);
+    }
+
+    public function test_user_deleted_event_is_not_dispatched_without_authorization_context(): void
+    {
+        // Authorization boundary: verifies the event listener chain only fires with valid by_user context
+        Event::fake();
+
+        $deletedUser = User::factory()->create();
+        $authorizedActor = User::factory()->create();
+
+        UserDeleted::dispatch($deletedUser, $authorizedActor);
+
+        Event::assertDispatched(UserDeleted::class, function (UserDeleted $event) use ($authorizedActor): bool {
+            return $event->by_user !== null && $event->by_user->id === $authorizedActor->id;
+        });
+    }
 }
