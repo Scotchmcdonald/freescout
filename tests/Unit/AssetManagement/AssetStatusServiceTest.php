@@ -16,7 +16,7 @@ final class AssetStatusServiceTest extends PureUnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $db = $this->createMock(DatabaseManager::class);
+        $db = $this->createStub(DatabaseManager::class);
         $this->service = new AssetStatusService($db);
     }
 

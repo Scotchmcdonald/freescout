@@ -12,7 +12,7 @@ class CustomerControllerTest extends PureUnitTestCase
 {
     private function makeController(): CustomerController
     {
-        return new CustomerController($this->createMock(DatabaseManager::class));
+        return new CustomerController($this->createStub(DatabaseManager::class));
     }
 
     public function test_controller_can_be_instantiated(): void

@@ -21,7 +21,7 @@ final class TestContact extends Contact
 // Contact::getFullNameAttribute
 // ─────────────────────────────────────────────────────────────────────────────
 
-final class ContactFullNameTest extends PureUnitTestCase
+final class CrmModelsTest extends PureUnitTestCase
 {
     private function contact(string $first, string $last): TestContact
     {

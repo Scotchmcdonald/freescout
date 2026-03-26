@@ -11,7 +11,7 @@ use Tests\PureUnitTestCase;
 // AlertType: constant / category correctness (pure, no DB)
 // ─────────────────────────────────────────────────────────────────────────────
 
-final class AlertTypeConstantsTest extends PureUnitTestCase
+final class AlertModelsTest extends PureUnitTestCase
 {
     public function test_severity_constants_are_distinct(): void
     {
