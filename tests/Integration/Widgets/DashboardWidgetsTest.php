@@ -147,3 +147,18 @@ test('widget metadata contracts are stable', function () {
         ->and($finance->getId())->toBe('dashboard.finance_overview')
         ->and($reporter->getId())->toBe('dashboard.reporter_overview');
 });
+test('widgets enforce authorization by rendering only for appropriate roles', function () {
+    // Authorization boundary: admin widget must return null for non-admin users,
+    // enforcing role-based authorization at the render layer
+    $admin    = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $nonAdmin = User::factory()->create(['role' => User::ROLE_USER]);
+
+    $adminWidget = new AdminDashboardWidget;
+
+    expect($adminWidget->render(['user' => $nonAdmin]))->toBeNull(
+        'Authorization must deny admin widget rendering for non-admin roles'
+    )
+        ->and($adminWidget->render(['user' => $admin]))->not->toBeNull(
+            'Authorization must allow admin widget rendering for admin role'
+        );
+});

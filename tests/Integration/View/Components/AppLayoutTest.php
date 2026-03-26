@@ -51,4 +51,18 @@ class AppLayoutTest extends IntegrationTestCase
 
         $this->assertInstanceOf(\Illuminate\View\Component::class, $component);
     }
+
+    public function test_app_layout_is_distinct_from_unauthenticated_guest_layout(): void
+    {
+        // Authorization boundary: authenticated users get the app layout;
+        // the view name must differ from the guest/unauthenticated layout
+        // to ensure authorization state drives the correct UI shell.
+        $component = new AppLayout;
+        $view = $component->render();
+
+        $this->assertNotEquals('layouts.guest', $view->name(),
+            'Authenticated app layout must not serve the unauthenticated shell'
+        );
+        $this->assertEquals('layouts.app', $view->name());
+    }
 }

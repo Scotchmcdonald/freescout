@@ -131,4 +131,19 @@ class AdvancedPolicyTest extends PureUnitTestCase
         $this->assertFalse($userPolicy->viewAny(null));
         $this->assertFalse($userPolicy->view(null, $user));
     }
+
+    public function test_authorization_boundary_non_admin_cannot_delete_other_user(): void
+    {
+        // Authorization validation: the UserPolicy must deny deletion of other
+        // accounts when the acting user has no admin role
+        $actor  = $this->makeUser();
+        $target = $this->makeUser();
+
+        $policy = new UserPolicy;
+
+        // Non-admin acting on another account must be denied
+        $this->assertFalse($policy->delete($actor, $target),
+            'Authorization must deny non-admin deletion of other user accounts'
+        );
+    }
 }

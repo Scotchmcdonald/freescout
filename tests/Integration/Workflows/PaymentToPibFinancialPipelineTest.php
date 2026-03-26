@@ -351,4 +351,17 @@ class PaymentToPibFinancialPipelineTest extends IntegrationTestCase
 
         $this->creditService->applyToInvoice($this->client, $invoice, 200.00);
     }
+
+    public function test_credit_deduction_validation_rejects_insufficient_balance(): void
+    {
+        // Validation boundary: deducting more credit than the client holds
+        // must throw an exception — the service must validate available balance
+        // before committing any ledger entries.
+        $this->creditService->addCredit($this->client, 50.00, 'Small credit balance');
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessageMatches('/insufficient/i');
+
+        $this->creditService->deductCredit($this->client, 200.00, 'Attempted over-deduction');
+    }
 }

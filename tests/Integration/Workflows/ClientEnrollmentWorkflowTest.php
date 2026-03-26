@@ -89,4 +89,27 @@ class ClientEnrollmentWorkflowTest extends TestCase
 
         $this->assertEquals($expectedTotal, $invoice->total_amount, 'Invoice total should be $560.00');
     }
+
+    public function test_enrollment_workflow_validates_client_authorization_context_is_preserved(): void
+    {
+        // Authorization boundary: the enrollment workflow must attach every
+        // generated invoice to the authorized client — cross-module authorization
+        // context must survive the Contract → PIB chain.
+        $client           = Client::factory()->create(['name' => 'Auth Context Client']);
+        $billingTemplate  = BillingTemplate::factory()->create([
+            'client_id'      => $client->id,
+            'status'         => 'active',
+            'billing_cycle'  => 'monthly',
+            'product_type'   => 'service_plan',
+            'product_config' => ['plan_name' => 'Auth Test Plan', 'base_price' => 200.00],
+        ]);
+
+        $generator = app(InvoiceGenerator::class);
+        $invoice   = $generator->generateFromTemplate($billingTemplate);
+
+        // Validation: generated invoice must be scoped to the authorized client
+        $this->assertEquals($client->id, $invoice->client_id,
+            'Authorization context: invoice client_id must match the authorizing client'
+        );
+    }
 }

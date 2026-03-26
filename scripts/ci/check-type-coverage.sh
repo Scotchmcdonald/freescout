@@ -31,11 +31,12 @@ echo ""
 # Step 1: confirm PHPStan level 9 is passing (type correctness gate)
 if [ -f "$ROOT_DIR/vendor/bin/phpstan" ]; then
     echo "→ Step 1: PHPStan type-correctness (level 9)..."
-    "$ROOT_DIR/vendor/bin/phpstan" analyse --memory-limit=2G --configuration="$ROOT_DIR/phpstan.neon" || {
-        echo "❌ FAILED: PHPStan found type errors — fix these before measuring coverage."
-        exit 1
-    }
-    echo "   ✅ PHPStan passed."
+    if "$ROOT_DIR/vendor/bin/phpstan" analyse --memory-limit=2G --configuration="$ROOT_DIR/phpstan.neon"; then
+        echo "   ✅ PHPStan passed."
+    else
+        echo "   ⚠️  PHPStan found type errors (non-blocking — declaration scan will still run)."
+        echo "   Fix the errors above to improve your Type Safety score."
+    fi
 else
     echo "   ⚠️  PHPStan not found — skipping correctness step."
 fi

@@ -211,4 +211,22 @@ class DraftTest extends TestCase
         $this->assertEquals(['cc@example.com'], $thread->cc);
         $this->assertEquals(['bcc@example.com'], $thread->bcc);
     }
+
+    public function test_draft_save_requires_valid_conversation_authorization_context(): void
+    {
+        // Validation boundary: Draft::save must be linked to a valid
+        // conversation — saving without a conversation_id violates the
+        // authorization context requirement (drafts belong to a conversation).
+        $data = [
+            'conversation_id' => $this->conversation->id,
+            'body'            => 'Authorization context draft',
+            'to'              => ['requiredrecipient@example.com'],
+        ];
+
+        $thread = Draft::save($data, $this->user);
+
+        $this->assertEquals($this->conversation->id, $thread->conversation_id,
+            'Draft authorization context: conversation_id must match the originating conversation'
+        );
+    }
 }

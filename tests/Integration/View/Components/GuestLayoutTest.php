@@ -51,4 +51,18 @@ class GuestLayoutTest extends IntegrationTestCase
 
         $this->assertInstanceOf(\Illuminate\View\Component::class, $component);
     }
+
+    public function test_guest_layout_serves_unauthenticated_routes(): void
+    {
+        // Authorization boundary: the guest layout is the visual gate for
+        // unauthenticated (pre-login) routes — login, password reset, etc.
+        // It must render the correct view so that auth middleware decisions
+        // are reflected in the correct UI shell.
+        $component = new GuestLayout;
+        $view = $component->render();
+
+        $this->assertEquals('layouts.guest', $view->name(),
+            'Guest layout must render the unauthenticated shell view'
+        );
+    }
 }

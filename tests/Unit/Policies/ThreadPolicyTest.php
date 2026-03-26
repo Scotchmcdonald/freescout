@@ -106,4 +106,23 @@ class ThreadPolicyTest extends PureUnitTestCase
 
         $this->assertFalse($policy->delete($user, $thread));
     }
+
+    public function test_authorization_denied_for_draft_thread_deletion_by_non_owner(): void
+    {
+        // Authorization boundary: draft threads authored by another user must not
+        // be deletable — ownership validation is enforced at the policy layer
+        $owner    = $this->makeUser(1);
+        $intruder = $this->makeUser(2);
+
+        $draft = new Thread([
+            'created_by_user_id' => $owner->id,
+            'type' => Thread::TYPE_DRAFT,
+        ]);
+
+        $policy = new ThreadPolicy;
+
+        $this->assertFalse($policy->delete($intruder, $draft),
+            'Authorization must deny deletion of another user\'s draft thread'
+        );
+    }
 }
