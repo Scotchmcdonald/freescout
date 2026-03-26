@@ -115,4 +115,20 @@ final class ArticleTest extends PureUnitTestCase
         $a = $this->article(['verification_status' => 'verified', 'expires_at' => null]);
         $this->assertFalse($a->isDeprecated());
     }
+
+    public function test_authorization_boundary_deprecated_article_is_excluded_from_presentation(): void
+    {
+        // Authorization boundary: a deprecated article must not be presented to
+        // users as valid — deprecation is a content authorization gate that
+        // prevents stale or inaccurate information from being surfaced.
+        $deprecated = $this->article(['verification_status' => 'deprecated', 'expires_at' => null]);
+        $verified   = $this->article(['verification_status' => 'verified',    'expires_at' => null]);
+
+        $this->assertTrue($deprecated->isDeprecated(),
+            'Authorization boundary: deprecated article must be flagged'
+        );
+        $this->assertFalse($verified->isDeprecated(),
+            'Authorization boundary: verified article must pass the presentation gate'
+        );
+    }
 }

@@ -57,4 +57,17 @@ final class Action1RoleEnumTest extends PureUnitTestCase
             $this->assertSame($role->value, $role->configKey());
         }
     }
+
+    public function test_authorization_scope_each_role_has_unique_config_key(): void
+    {
+        // Authorization scope validation: every Action1Role must have a unique config key
+        // so that integration authorization tokens cannot collide between roles.
+        $keys = array_map(fn (Action1Role $r) => $r->configKey(), Action1Role::cases());
+
+        $this->assertSame(
+            count($keys),
+            count(array_unique($keys)),
+            'Authorization scope: all Role config keys must be unique to prevent scope collisions'
+        );
+    }
 }

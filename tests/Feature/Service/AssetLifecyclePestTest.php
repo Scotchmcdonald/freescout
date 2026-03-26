@@ -28,3 +28,13 @@ it('asset inventory shows for multiple asset types', function () {
         ->assertOk()
         ->assertSee('Fleet Inventory');
 });
+
+it('asset inventory returns 403 for non-admin users', function () {
+    // Authorization boundary: asset inventory is admin-only;
+    // external (type=0) users without admin privileges must be denied with 403.
+    $externalUser = User::factory()->create(['role' => User::ROLE_USER, 'type' => 0]);
+
+    $this->actingAs($externalUser)
+        ->get('/assets/inventory')
+        ->assertForbidden(); // 403 — authorization boundary enforced by admin middleware
+});

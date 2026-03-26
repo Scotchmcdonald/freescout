@@ -65,6 +65,18 @@ class ApprovalRequestHelperTest extends PureUnitTestCase
         $this->assertFalse($this->request(['status' => ApprovalRequest::STATUS_APPROVED])->canBeActioned());
     }
 
+    public function test_authorization_boundary_signed_request_cannot_be_actioned(): void
+    {
+        // Authorization boundary: a signed (completed) approval request must not
+        // accept further actions — signing is a terminal authorization gate that
+        // prevents any loophole re-submission.
+        $signed = $this->request(['status' => ApprovalRequest::STATUS_SIGNED]);
+
+        $this->assertFalse($signed->canBeActioned(),
+            'Authorization boundary: signed requests are finalized and must not be re-actionable'
+        );
+    }
+
     public function test_status_badge_mappings_include_default(): void
     {
         $this->assertSame('warning', $this->request(['status' => ApprovalRequest::STATUS_PENDING])->status_badge);

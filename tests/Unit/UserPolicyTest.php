@@ -177,4 +177,21 @@ class UserPolicyTest extends PureUnitTestCase
 
         $this->assertFalse($this->policy->view($user, $otherUser));
     }
+
+    public function test_authorization_boundary_unauthenticated_guest_is_denied_all_user_access(): void
+    {
+        // Authorization boundary: an unauthenticated (null) user must be denied
+        // all policy actions — no implicit guest privileges are permitted.
+        $target = $this->makeUser(1, false);
+
+        $this->assertFalse($this->policy->view(null, $target),
+            'Authorization boundary: guest must not view any user'
+        );
+        $this->assertFalse($this->policy->create(null),
+            'Authorization boundary: guest must not create users'
+        );
+        $this->assertFalse($this->policy->delete(null, $target),
+            'Authorization boundary: guest must not delete users'
+        );
+    }
 }

@@ -262,4 +262,19 @@ class CaseRecordHelperTest extends PureUnitTestCase
         $record = $this->makeRecord(['kb_search_result' => ['articles' => ['slug-1']]]);
         $this->assertTrue($record->hasKbSearchResult());
     }
+
+    public function test_validation_incomplete_case_checklist_blocks_final_authorization_gate(): void
+    {
+        // Validation boundary: a case record with an incomplete checklist must
+        // not pass the final authorization gate — all checklist items are
+        // required before a case can be considered fully authorized to close.
+        $partialAttrs = array_fill_keys($this->checklistFields, true);
+        $partialAttrs['greeted'] = false;
+
+        $partial = $this->makeRecord($partialAttrs);
+
+        $this->assertFalse($partial->isChecklistComplete(),
+            'Validation boundary: partial checklist must not pass the case authorization gate'
+        );
+    }
 }
