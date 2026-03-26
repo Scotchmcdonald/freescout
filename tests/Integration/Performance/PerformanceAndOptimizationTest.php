@@ -289,4 +289,23 @@ class PerformanceAndOptimizationTest extends IntegrationTestCase
 
         DB::disableQueryLog();
     }
+
+    public function test_validation_pagination_enforces_bounded_result_sets(): void
+    {
+        // Validation boundary: ALL collection queries must use pagination to
+        // validate that result sets are bounded. Unbounded full-table scans
+        // are a validation failure that can cause resource exhaustion or
+        // unintentional data exposure.
+        Mailbox::factory()->count(15)->create();
+
+        // Pagination enforces a bounded result — it's a validation gate on set size
+        $paginated = Mailbox::paginate(5);
+
+        $this->assertLessThanOrEqual(5, $paginated->count(),
+            'Validation boundary: paginated result must not exceed the declared page limit'
+        );
+        $this->assertGreaterThan(1, $paginated->lastPage(),
+            'Validation boundary: paginator must confirm that multiple pages exist for 15+ records'
+        );
+    }
 }
