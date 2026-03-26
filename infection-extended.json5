@@ -9,7 +9,14 @@
             "Modules/SoftwareSubscriptions/Services",
             "Modules/Crm/Services",
             "app/Services",
-            "app/Actions"
+            "app/Actions",
+            // Phase 6: extend mutation to queue layer (Jobs for modules with Service coverage)
+            // These share the same test suites that already achieve 100% MSI for Services.
+            // Controllers are excluded pending dedicated integration test expansion (tracked separately).
+            "app/Jobs",
+            "Modules/PIB/Jobs",
+            "Modules/Payment/Jobs",
+            "Modules/CaseManager/Jobs"
         ]
     },
     "mutators": {

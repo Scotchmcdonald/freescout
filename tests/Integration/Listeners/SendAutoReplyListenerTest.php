@@ -201,4 +201,34 @@ class SendAutoReplyListenerTest extends TestCase
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
     }
+
+    public function test_skips_auto_reply_for_auto_responder_thread(): void
+    {
+        Queue::fake();
+
+        // Threads with auto-responder headers must not trigger a reply (prevents infinite loops)
+        $this->thread->update(['headers' => 'x-autoreply: yes']);
+
+        $listener = new SendAutoReply;
+        $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
+
+        $listener->handle($event);
+
+        Queue::assertNotPushed(SendAutoReplyJob::class);
+    }
+
+    public function test_skips_auto_reply_for_bounce_thread(): void
+    {
+        Queue::fake();
+
+        // Bounce messages must not trigger a reply (prevents infinite notification storms)
+        $this->thread->update(['meta' => ['send_status' => ['is_bounce' => true]]]);
+
+        $listener = new SendAutoReply;
+        $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
+
+        $listener->handle($event);
+
+        Queue::assertNotPushed(SendAutoReplyJob::class);
+    }
 }

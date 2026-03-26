@@ -24,3 +24,18 @@ test('controllers cannot call DB facade directly')
     ->expect('App\Http\Controllers')
     ->not->toUse('Illuminate\Support\Facades\DB');
 
+test('modules use strict types')
+    ->expect('Modules')
+    ->toUseStrictTypes();
+
+test('app jobs implement ShouldQueue')
+    ->expect('App\Jobs')
+    ->toImplement('Illuminate\Contracts\Queue\ShouldQueue');
+
+test('jobs do not use HTTP request or response facades')
+    ->expect('App\Jobs')
+    ->not->toUse([
+        'Illuminate\Support\Facades\Request',
+        'Illuminate\Http\Request',
+    ]);
+
