@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\SyncOperation;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubSyncOperation extends SyncOperation
 {
@@ -17,7 +17,7 @@ final class StubSyncOperation extends SyncOperation
     }
 }
 
-final class SyncOperationTest extends TestCase
+final class SyncOperationTest extends PureUnitTestCase
 {
     private function op(array $attrs): StubSyncOperation
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\SoftwareSubscriptions;
 
 use Modules\SoftwareSubscriptions\Models\SoftwareAssignment;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubSoftwareAssignment extends SoftwareAssignment
 {
@@ -17,7 +17,7 @@ final class StubSoftwareAssignment extends SoftwareAssignment
     }
 }
 
-final class SoftwareAssignmentTest extends TestCase
+final class SoftwareAssignmentTest extends PureUnitTestCase
 {
     private function assignment(array $attrs): StubSoftwareAssignment
     {

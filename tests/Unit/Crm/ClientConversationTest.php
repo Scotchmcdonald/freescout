@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Crm;
 
 use Modules\Crm\Models\ClientConversation;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubClientConversation extends ClientConversation
 {
@@ -17,7 +17,7 @@ final class StubClientConversation extends ClientConversation
     }
 }
 
-final class ClientConversationTest extends TestCase
+final class ClientConversationTest extends PureUnitTestCase
 {
     // ── LINKED_VIA and CATEGORY constants ─────────────────────────────
 

@@ -6,7 +6,7 @@ namespace Tests\Unit\Crm;
 
 use Modules\Crm\Models\CustomField;
 use Modules\Crm\Models\FieldDefinition;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Stub to avoid DB dependency for pure attribute logic.
@@ -29,7 +29,7 @@ final class StubCustomField extends CustomField
  * - FieldDefinition.getValidationRules()
  * - CustomField.getParsedValueAttribute()
  */
-final class CrmModelHelpersTest extends TestCase
+final class CrmModelHelpersTest extends PureUnitTestCase
 {
     // ── FieldDefinition::getValidationRules ───────────────────────────────
 

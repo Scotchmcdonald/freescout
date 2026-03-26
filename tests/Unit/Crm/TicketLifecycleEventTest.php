@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Crm;
 
 use Modules\Crm\Models\TicketLifecycleEvent;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubTicketLifecycleEvent extends TicketLifecycleEvent
 {
@@ -17,7 +17,7 @@ final class StubTicketLifecycleEvent extends TicketLifecycleEvent
     }
 }
 
-final class TicketLifecycleEventTest extends TestCase
+final class TicketLifecycleEventTest extends PureUnitTestCase
 {
     private function event(string $type, ?int $timeSinceOpen = null): StubTicketLifecycleEvent
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\PIB;
 
 use Modules\PIB\Models\TimeEntry;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubTimeEntry extends TimeEntry
 {
@@ -17,7 +17,7 @@ final class StubTimeEntry extends TimeEntry
     }
 }
 
-final class TimeEntryTest extends TestCase
+final class TimeEntryTest extends PureUnitTestCase
 {
     private function entry(int $durationMinutes, ?float $billingRate = null, ?int $serviceUsageId = null): StubTimeEntry
     {

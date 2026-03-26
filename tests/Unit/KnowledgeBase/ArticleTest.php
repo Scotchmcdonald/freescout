@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\KnowledgeBase;
 
 use Modules\KnowledgeBase\Models\Article;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubArticle extends Article
 {
@@ -30,7 +30,7 @@ final class StubClientUser
     }
 }
 
-final class ArticleTest extends TestCase
+final class ArticleTest extends PureUnitTestCase
 {
     private function article(array $attrs): StubArticle
     {

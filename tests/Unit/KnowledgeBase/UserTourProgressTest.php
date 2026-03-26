@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit\KnowledgeBase;
 
 use Modules\KnowledgeBase\Models\UserTourProgress;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubTourProgress extends UserTourProgress
 {
     protected static function booted(): void {}
 }
 
-final class UserTourProgressTest extends TestCase
+final class UserTourProgressTest extends PureUnitTestCase
 {
     public function test_is_outdated_returns_true_when_versions_differ(): void
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\User;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubUser extends User
 {
@@ -22,7 +22,7 @@ final class StubUser extends User
  * Only methods whose logic branches on raw attributes (exists=false path
  * or simple property checks) are tested here.
  */
-final class UserModelTest extends TestCase
+final class UserModelTest extends PureUnitTestCase
 {
     private function user(array $attrs = []): StubUser
     {

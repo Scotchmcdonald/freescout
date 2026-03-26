@@ -6,14 +6,14 @@ namespace Tests\Unit;
 
 use App\ValueObjects\Money;
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Pure-unit tests for the Money value object.
  *
  * All maths operations are deterministic — no DB or framework needed.
  */
-final class MoneyTest extends TestCase
+final class MoneyTest extends PureUnitTestCase
 {
     // ── Constructors / factories ──────────────────────────────────────────
 

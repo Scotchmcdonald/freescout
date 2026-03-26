@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\PIB;
 
 use Modules\PIB\Models\InvoiceLineItem;
-use PHPUnit\Framework\TestCase;
+use Tests\PureUnitTestCase;
 
 final class StubInvoiceLineItem extends InvoiceLineItem
 {
@@ -17,7 +17,7 @@ final class StubInvoiceLineItem extends InvoiceLineItem
     }
 }
 
-final class InvoiceLineItemTest extends TestCase
+final class InvoiceLineItemTest extends PureUnitTestCase
 {
     private function lineItem(float $quantity, float $unitPrice): StubInvoiceLineItem
     {
