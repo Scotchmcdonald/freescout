@@ -16,9 +16,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Services\SystemDiagnosticsService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -26,6 +26,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemController extends Controller
 {
+    public function __construct(private readonly SystemDiagnosticsService $diagnostics) {}
+
     /**
      * Display system status and tools.
      */
@@ -42,19 +44,7 @@ class SystemController extends Controller
         ];
 
         // Get database version based on driver
-        $dbVersion = 'Unknown';
-        try {
-            $driver = DB::connection()->getDriverName();
-            if ($driver === 'mysql') {
-                $dbVersion = DB::select('SELECT VERSION() as version')[0]->version ?? 'Unknown';
-            } elseif ($driver === 'sqlite') {
-                $dbVersion = DB::select('SELECT sqlite_version() as version')[0]->version ?? 'Unknown';
-            } elseif ($driver === 'pgsql') {
-                $dbVersion = DB::select('SELECT version()')[0]->version ?? 'Unknown';
-            }
-        } catch (\Exception $e) {
-            $dbVersion = 'Unknown';
-        }
+        $dbVersion = $this->diagnostics->getDatabaseVersion();
 
         // PHP extensions check
         $phpExtensions = $this->checkRequiredExtensions();
@@ -272,12 +262,7 @@ class SystemController extends Controller
         ];
 
         // Database connection
-        try {
-            DB::connection()->getPdo();
-            $checks['database'] = ['status' => 'ok', 'message' => 'Database connection successful'];
-        } catch (\Throwable $e) {
-            $checks['database'] = ['status' => 'error', 'message' => $e->getMessage()];
-        }
+        $checks['database'] = $this->diagnostics->checkDatabaseConnection();
 
         // Redis Health
         try {
@@ -288,21 +273,7 @@ class SystemController extends Controller
         }
 
         // Queue Health
-        try {
-            // Check if failed_jobs table exists
-            if (DB::getSchemaBuilder()->hasTable('failed_jobs')) {
-                $failedJobs = DB::table('failed_jobs')->count();
-                if ($failedJobs > 0) {
-                    $checks['queue'] = ['status' => 'warning', 'message' => "$failedJobs failed jobs found"];
-                } else {
-                    $checks['queue'] = ['status' => 'ok', 'message' => 'Queue is healthy'];
-                }
-            } else {
-                $checks['queue'] = ['status' => 'info', 'message' => 'Queue tables not found'];
-            }
-        } catch (\Throwable $e) {
-            $checks['queue'] = ['status' => 'warning', 'message' => 'Could not check queue health: '.$e->getMessage()];
-        }
+        $checks['queue'] = $this->diagnostics->checkQueueHealth();
 
         // Cron Health
         $lastRunFetch = cache()->get('last_run_fetch');
@@ -579,7 +550,7 @@ class SystemController extends Controller
             case 'cancel_job':
                 try {
                     $jobId = $request->input('job_id');
-                    DB::table('jobs')->where('id', $jobId)->delete();
+                    $this->diagnostics->cancelJob((string) $jobId);
 
                     return response()->json([
                         'success' => true,
@@ -595,7 +566,7 @@ class SystemController extends Controller
             case 'retry_job':
                 try {
                     $jobId = $request->input('job_id');
-                    DB::table('jobs')->where('id', $jobId)->update(['available_at' => time()]);
+                    $this->diagnostics->retryJob((string) $jobId);
 
                     return response()->json([
                         'success' => true,
@@ -938,7 +909,7 @@ class SystemController extends Controller
      */
     public function failedJobs(): View|Factory
     {
-        $failedJobs = DB::table('failed_jobs')->orderBy('failed_at', 'desc')->paginate(50);
+        $failedJobs = $this->diagnostics->getFailedJobs(50);
 
         return view('system.failed_jobs', compact('failedJobs'));
     }
@@ -990,7 +961,7 @@ class SystemController extends Controller
     {
         try {
             $queue = $request->input('queue');
-            DB::table('failed_jobs')->where('queue', $queue)->delete();
+            $this->diagnostics->deleteFailedJobsByQueue((string) $queue);
 
             return response()->json([
                 'success' => true,
@@ -1011,11 +982,7 @@ class SystemController extends Controller
     {
         try {
             $queue = $request->input('queue');
-            $jobs = DB::table('failed_jobs')->where('queue', $queue)->get();
-
-            foreach ($jobs as $job) {
-                Artisan::call('queue:retry', ['id' => [$job->uuid]]);
-            }
+            $this->diagnostics->retryFailedJobsByQueue((string) $queue);
 
             return response()->json([
                 'success' => true,

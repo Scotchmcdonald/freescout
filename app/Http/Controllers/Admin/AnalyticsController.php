@@ -6,10 +6,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\View\View;
 
 class AnalyticsController extends Controller
+{
+    public function __construct(private readonly DatabaseManager $db) {}
 {
     /**
      * Display predictive analytics dashboard
@@ -48,13 +50,13 @@ class AnalyticsController extends Controller
     private function calculateMetrics(): array
     {
         // Monthly Recurring Revenue (last 30 days)
-        $mrr = DB::table('pib_invoices')
+        $mrr = $this->db->table('pib_invoices')
             ->where('invoice_date', '>=', now()->subDays(30))
             ->where('status', 'paid')
             ->sum('total_amount');
 
         // MRR 30 days ago for growth calculation
-        $mrrPrevious = DB::table('pib_invoices')
+        $mrrPrevious = $this->db->table('pib_invoices')
             ->where('invoice_date', '>=', now()->subDays(60))
             ->where('invoice_date', '<', now()->subDays(30))
             ->where('status', 'paid')
@@ -63,17 +65,17 @@ class AnalyticsController extends Controller
         $mrrGrowth = $mrrPrevious > 0 ? (($mrr - $mrrPrevious) / $mrrPrevious) * 100 : 0;
 
         // Active clients
-        $activeClients = DB::table('customers')
+        $activeClients = $this->db->table('customers')
             ->whereNull('deleted_at')
             ->count();
 
         // New clients this month
-        $newClients = DB::table('customers')
+        $newClients = $this->db->table('customers')
             ->where('created_at', '>=', now()->startOfMonth())
             ->count();
 
         // Total revenue (all time)
-        $totalRevenue = DB::table('pib_invoices')
+        $totalRevenue = $this->db->table('pib_invoices')
             ->where('status', 'paid')
             ->sum('total_amount');
 
@@ -81,7 +83,7 @@ class AnalyticsController extends Controller
         $arpc = $activeClients > 0 ? $totalRevenue / $activeClients : 0;
 
         // Unbilled service usage value
-        $unbilledValue = DB::table('pib_service_usage')
+        $unbilledValue = $this->db->table('pib_service_usage')
             ->where('status', 'approved')
             ->whereNull('invoice_id')
             ->selectRaw('SUM(hours * COALESCE(hourly_rate, 150)) as total')
@@ -105,7 +107,7 @@ class AnalyticsController extends Controller
      */
     private function getRevenueTrends(): array
     {
-        $trends = DB::table('pib_invoices')
+        $trends = $this->db->table('pib_invoices')
             ->selectRaw('DATE_FORMAT(invoice_date, "%Y-%m") as month, SUM(total_amount) as revenue, COUNT(*) as invoice_count')
             ->where('invoice_date', '>=', now()->subMonths(12))
             ->where('status', 'paid')
@@ -133,7 +135,7 @@ class AnalyticsController extends Controller
 
         for ($i = 11; $i >= 0; $i--) {
             $month = now()->subMonths($i);
-            $count = DB::table('customers')
+            $count = $this->db->table('customers')
                 ->where('created_at', '<=', $month->endOfMonth())
                 ->whereNull('deleted_at')
                 ->count();

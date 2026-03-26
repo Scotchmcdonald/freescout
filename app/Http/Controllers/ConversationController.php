@@ -17,13 +17,15 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ConversationController extends Controller
 {
+    public function __construct(private readonly DatabaseManager $db) {}
+
     /**
      * Display a listing of conversations.
      */
@@ -163,7 +165,7 @@ class ConversationController extends Controller
         $validated = $request->validated();
 
         try {
-            return DB::transaction(function () use ($mailbox, $user, $validated) {
+            return $this->db->transaction(function () use ($mailbox, $user, $validated) {
                 // Find or create customer
                 if (! empty($validated['customer_id'])) {
                     /** @var \App\Models\Customer $customer */
@@ -243,7 +245,7 @@ class ConversationController extends Controller
                 // Link conversation to CRM client if client_id was provided
                 $clientId = request()->integer('client_id');
                 if ($clientId > 0 && \Illuminate\Support\Facades\Schema::hasTable('client_conversations')) {
-                    \Illuminate\Support\Facades\DB::table('client_conversations')->insert([
+                    $this->db->table('client_conversations')->insert([
                         'client_id' => $clientId,
                         'conversation_id' => (int) $conversation->id,
                         'created_at' => now(),
@@ -1137,7 +1139,7 @@ class ConversationController extends Controller
             'new_customer_last_name' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
+        $this->db->beginTransaction();
 
         try {
             $customerId = $validated['customer_id'] ?? null;
@@ -1162,7 +1164,7 @@ class ConversationController extends Controller
                 ]);
             }
 
-            DB::commit();
+            $this->db->commit();
 
             if ($request->expectsJson()) {
                 return response()->json(['success' => true]);
@@ -1172,7 +1174,7 @@ class ConversationController extends Controller
                 ->route('conversations.show', $conversation)
                 ->with('success', 'Customer changed successfully.');
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->db->rollBack();
 
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -1213,7 +1215,7 @@ class ConversationController extends Controller
             return back()->withErrors(['error' => 'Cannot merge a conversation into itself']);
         }
 
-        DB::beginTransaction();
+        $this->db->beginTransaction();
 
         try {
             // Move threads if requested
@@ -1236,7 +1238,7 @@ class ConversationController extends Controller
             // Mark source conversation as merged/deleted
             $conversation->update(['state' => 3]); // Deleted state
 
-            DB::commit();
+            $this->db->commit();
 
             if ($request->expectsJson()) {
                 return response()->json(['success' => true]);
@@ -1246,7 +1248,7 @@ class ConversationController extends Controller
                 ->route('conversations.show', $targetConversation)
                 ->with('success', 'Conversations merged successfully.');
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->db->rollBack();
 
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -1682,7 +1684,7 @@ class ConversationController extends Controller
         /** @var \App\Models\Mailbox $mailbox */
         $mailbox = Mailbox::findOrFail($validated['mailbox_id']);
 
-        DB::beginTransaction();
+        $this->db->beginTransaction();
 
         try {
             // Find or create customer
@@ -1737,7 +1739,7 @@ class ConversationController extends Controller
                 'source_type' => Conversation::SOURCE_TYPE_WEB,
             ]);
 
-            DB::commit();
+            $this->db->commit();
 
             return response()->json([
                 'success' => true,
@@ -1746,7 +1748,7 @@ class ConversationController extends Controller
                 'redirect_url' => route('conversations.show', $conversation),
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->db->rollBack();
 
             return response()->json([
                 'success' => false,
@@ -1783,7 +1785,7 @@ class ConversationController extends Controller
             return response()->json(['success' => false, 'message' => 'Cannot merge conversation into itself'], 400);
         }
 
-        DB::beginTransaction();
+        $this->db->beginTransaction();
 
         try {
             // Move threads to target conversation
@@ -1796,14 +1798,14 @@ class ConversationController extends Controller
             // Mark source as deleted
             $conversation->update(['state' => Conversation::STATE_DELETED]);
 
-            DB::commit();
+            $this->db->commit();
 
             return response()->json([
                 'success' => true,
                 'redirect_url' => route('conversations.show', $targetConversation),
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->db->rollBack();
 
             return response()->json([
                 'success' => false,

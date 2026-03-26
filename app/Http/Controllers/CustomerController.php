@@ -10,13 +10,15 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
+    public function __construct(private readonly DatabaseManager $db) {}
+
     /**
      * Display a listing of customers.
      */
@@ -118,7 +120,7 @@ class CustomerController extends Controller
             'target_id' => 'required|exists:customers,id|different:source_id',
         ]);
 
-        DB::beginTransaction();
+        $this->db->beginTransaction();
 
         try {
             /** @var \App\Models\Customer $source */
@@ -142,14 +144,14 @@ class CustomerController extends Controller
             // Delete source customer
             $source->delete();
 
-            DB::commit();
+            $this->db->commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Customers merged successfully.',
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->db->rollBack();
 
             return response()->json([
                 'success' => false,

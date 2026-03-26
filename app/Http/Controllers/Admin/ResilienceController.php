@@ -11,7 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Services\SystemDiagnosticsService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Modules\Action1\Contracts\Action1ManageClient;
@@ -31,6 +31,8 @@ use Nwidart\Modules\Facades\Module as ModuleFacade;
  */
 class ResilienceController extends Controller
 {
+    public function __construct(private readonly SystemDiagnosticsService $diagnostics) {}
+
     /**
      * Combined Resilience Dashboard - Circuit Breakers & Rate Limiters
      */
@@ -171,38 +173,12 @@ class ResilienceController extends Controller
      */
     public function eventsAudit(\Illuminate\Http\Request $request): View
     {
-        $query = DB::table('polycast_events');
-
-        // Apply filters
-        if ($request->filled('search')) {
-            $search = $request->string('search')->toString();
-            $query->where(function ($q) use ($search) {
-                $q->where('event', 'like', "%{$search}%")
-                    ->orWhere('payload', 'like', "%{$search}%")
-                    ->orWhere('channel', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('event_type')) {
-            $eventType = $request->string('event_type')->toString();
-            $query->where('event', 'like', "%{$eventType}%");
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->input('date_from'));
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->string('date_to')->toString().' 23:59:59');
-        }
-
-        $events = $query->orderBy('created_at', 'desc')
-            ->paginate(20)
-            ->withQueryString();
+        $filters = $request->only(['search', 'event_type', 'date_from', 'date_to']);
+        $events = $this->diagnostics->getPolycastEvents($filters);
 
         return view('admin.resilience.events-audit', [
             'events' => $events,
-            'filters' => $request->only(['search', 'event_type', 'date_from', 'date_to']),
+            'filters' => $filters,
         ]);
     }
 
@@ -211,47 +187,23 @@ class ResilienceController extends Controller
      */
     public function exportEvents(\Illuminate\Http\Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        return response()->streamDownload(function () use ($request) {
-            $query = DB::table('polycast_events');
+        $filters = $request->only(['search', 'event_type', 'date_from', 'date_to']);
 
-            if ($request->filled('search')) {
-                $search = $request->string('search')->toString();
-                $query->where(function ($q) use ($search) {
-                    $q->where('event', 'like', "%{$search}%")
-                        ->orWhere('payload', 'like', "%{$search}%")
-                        ->orWhere('channel', 'like', "%{$search}%");
-                });
-            }
-
-            if ($request->filled('event_type')) {
-                $eventType = $request->string('event_type')->toString();
-                $query->where('event', 'like', "%{$eventType}%");
-            }
-
-            if ($request->filled('date_from')) {
-                $query->where('created_at', '>=', $request->input('date_from'));
-            }
-
-            if ($request->filled('date_to')) {
-                $query->where('created_at', '<=', $request->string('date_to')->toString().' 23:59:59');
-            }
-
+        return response()->streamDownload(function () use ($filters) {
             $handle = fopen('php://output', 'w');
             if ($handle === false) {
                 return;
             }
             fputcsv($handle, ['ID', 'Channel', 'Event', 'Payload', 'Timestamp']);
 
-            $query->orderBy('created_at', 'desc')->chunk(1000, function ($events) use ($handle) {
-                foreach ($events as $event) {
-                    fputcsv($handle, [
-                        $event->id,
-                        $event->channel,
-                        $event->event,
-                        $event->payload,
-                        $event->created_at,
-                    ]);
-                }
+            $this->diagnostics->streamPolycastEventsCsv($filters, function (object $event) use ($handle): void {
+                fputcsv($handle, [
+                    $event->id,
+                    $event->channel,
+                    $event->event,
+                    $event->payload,
+                    $event->created_at,
+                ]);
             });
 
             fclose($handle);

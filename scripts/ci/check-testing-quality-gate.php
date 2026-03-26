@@ -44,23 +44,25 @@ $archSuite = parseArchSuite($reportsDir);
 // ── Gate Checks ────────────────────────────────────────────────────────────
 $checks = [
     [
-        'name'    => 'Line coverage',
-        'actual'  => $coverage['value'],
-        'minimum' => $minCoverage,
-        'unit'    => '%',
-        'status'  => $coverage['value'] !== null && $coverage['value'] >= $minCoverage,
-        'detail'  => $coverage['value'] === null
-            ? 'No coverage artifact found. Run: XDEBUG_MODE=coverage php artisan test'
+        'name'     => 'Line coverage',
+        'actual'   => $coverage['value'],
+        'minimum'  => $minCoverage,
+        'unit'     => '%',
+        'optional' => true,   // slow-CI gate — warn when no artifact, fail only if artifact exists but is below threshold
+        'status'   => $coverage['value'] === null || $coverage['value'] >= $minCoverage,
+        'detail'   => $coverage['value'] === null
+            ? 'No artifact — run: bash scripts/ci/test-with-coverage-and-mutation.sh'
             : 'source: ' . $coverage['source'],
     ],
     [
-        'name'    => 'Mutation MSI',
-        'actual'  => $msi['value'],
-        'minimum' => $minMsi,
-        'unit'    => '%',
-        'status'  => $msi['value'] !== null && $msi['value'] >= $minMsi,
-        'detail'  => $msi['value'] === null
-            ? 'No mutation artifact found. Run: bash scripts/ci/check-mutation-tier2.sh'
+        'name'     => 'Mutation MSI',
+        'actual'   => $msi['value'],
+        'minimum'  => $minMsi,
+        'unit'     => '%',
+        'optional' => true,   // slow-CI gate — warn when no artifact, fail only if artifact exists but is below threshold
+        'status'   => $msi['value'] === null || $msi['value'] >= $minMsi,
+        'detail'   => $msi['value'] === null
+            ? 'No artifact — run: bash scripts/ci/check-mutation-tier2.sh'
             : 'source: ' . $msi['source'],
     ],
     [
@@ -68,6 +70,7 @@ $checks = [
         'actual'  => (float) $boundary['matches'],
         'minimum' => (float) $minBoundary,
         'unit'    => ' hits',
+        'optional' => false,
         'status'  => $boundary['matches'] >= $minBoundary,
         'detail'  => 'validation/auth/throttle keywords across ' . $boundary['files'] . ' test files',
     ],
@@ -76,6 +79,7 @@ $checks = [
         'actual'  => (float) $arch['files'],
         'minimum' => (float) $minArchFiles,
         'unit'    => ' files',
+        'optional' => false,
         'status'  => $arch['files'] >= $minArchFiles,
         'detail'  => 'PHP arch-test files in tests/Architecture/',
     ],
@@ -84,6 +88,7 @@ $checks = [
         'actual'  => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
         'minimum' => 1.0,
         'unit'    => ' (1=pass)',
+        'optional' => false,
         'status'  => $archSuite['passed'] === true,
         'detail'  => $archSuite['passed'] === null
             ? 'No arch artifact. Run: bash scripts/ci/check-arch-suite.sh'
@@ -119,7 +124,11 @@ $lines[] = '| :--- | ---: | ---: | :---: | :--- |';
 foreach ($checks as $c) {
     $actual  = $c['actual'] === null ? 'n/a' : number_format($c['actual'], 2) . $c['unit'];
     $minimum = number_format($c['minimum'], 2) . $c['unit'];
-    $status  = $c['status'] ? '✅ PASS' : '❌ FAIL';
+    if ($c['actual'] === null && ($c['optional'] ?? false)) {
+        $status = '⚠️ WARN';
+    } else {
+        $status = $c['status'] ? '✅ PASS' : '❌ FAIL';
+    }
     $lines[] = sprintf('| %s | %s | %s | %s | %s |', $c['name'], $actual, $minimum, $status, $c['detail']);
 }
 

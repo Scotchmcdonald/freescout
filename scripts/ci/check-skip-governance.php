@@ -37,19 +37,19 @@ final class SkipGovernanceGuard
                 'rationale' => 'PIB workflow integration remains optional in non-PIB environments.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/SmokeTest.php:23' => [
+            'tests/Feature/SmokeTest.php:25' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Smoke test depends on runtime class presence across install modes.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Security/SecurityAuthorizationPestTest.php:150' => [
+            'tests/Feature/Security/SecurityAuthorizationPestTest.php:152' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Authorization scenario is environment-sensitive when SavedSearch model is absent.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/System/SystemHealthPestTest.php:47' => [
+            'tests/Feature/System/SystemHealthPestTest.php:49' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Queue listener trigger is unstable in test runtime and tracked for remediation.',
@@ -61,37 +61,37 @@ final class SkipGovernanceGuard
                 'rationale' => 'Contract test path depends on optional credit report service binding.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/SoftwareSubscriptions/AtomicCounterPestTest.php:51' => [
+            'tests/Feature/Modules/SoftwareSubscriptions/AtomicCounterPestTest.php:53' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Scenario requires both SoftwareSubscriptions and CRM modules enabled.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/ModulesManagementPestTest.php:32' => [
+            'tests/Feature/Modules/ModulesManagementPestTest.php:34' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/ModulesManagementPestTest.php:57' => [
+            'tests/Feature/Modules/ModulesManagementPestTest.php:59' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/ModulesManagementPestTest.php:83' => [
+            'tests/Feature/Modules/ModulesManagementPestTest.php:85' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/ModulesManagementPestTest.php:115' => [
+            'tests/Feature/Modules/ModulesManagementPestTest.php:117' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
-            'tests/Feature/Modules/ModulesManagementPestTest.php:147' => [
+            'tests/Feature/Modules/ModulesManagementPestTest.php:149' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
                 'rationale' => 'Module management test requires nwidart package in runtime container.',
