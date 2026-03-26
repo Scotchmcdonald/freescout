@@ -130,4 +130,28 @@ final class DeploymentActivationTest extends PureUnitTestCase
         $a->setRawAttributes(['used_at' => null, 'expires_at' => now()->addDay()->format('Y-m-d H:i:s')]);
         $this->assertSame('success', $a->statusColor());
     }
+
+    public function test_authorization_boundary_expired_activation_key_is_invalid(): void
+    {
+        // Authorization boundary: an expired activation key must be refused —
+        // time-limited credentials enforce a time-based authorization window.
+        $a = new StubDeploymentActivation();
+        $a->setRawAttributes(['used_at' => null, 'expires_at' => now()->subDay()->format('Y-m-d H:i:s')]);
+
+        $this->assertFalse($a->isValid(),
+            'Authorization boundary: expired activation must not be valid for deployment'
+        );
+    }
+
+    public function test_authorization_boundary_already_used_activation_key_is_invalid(): void
+    {
+        // Authorization boundary: a previously used activation key must not be
+        // re-usable — single-use activation enforces a one-time authorization gate.
+        $a = new StubDeploymentActivation();
+        $a->setRawAttributes(['used_at' => now()->subHour()->format('Y-m-d H:i:s'), 'expires_at' => now()->addDay()->format('Y-m-d H:i:s')]);
+
+        $this->assertFalse($a->isValid(),
+            'Authorization boundary: already-used activation must not be valid for deployment'
+        );
+    }
 }

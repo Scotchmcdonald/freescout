@@ -248,3 +248,17 @@ test('CreditBalanceReportService depends on CreditReader only', function () {
     expect($params)->toHaveCount(1);
     expect($params[0]->getType()->getName())->toBe(CreditReader::class);
 });
+
+test('authorization boundary: hasSufficientCredit denies deduction when balance is zero', function () {
+    // Authorization boundary: a client with zero balance must be refused any
+    // credit deduction — hasSufficientCredit acts as the authorization gate
+    // that must return false before any withdrawal is permitted.
+    $client = Client::factory()->create();
+    $reader = app(CreditReader::class);
+
+    // New client starts with 0 balance — must not be authorized for any deduction
+    $authorized = $reader->hasSufficientCredit($client->id, 50.0);
+    expect($authorized)->toBeFalse(
+        'Authorization boundary: zero-balance client must not pass the credit sufficiency gate'
+    );
+});

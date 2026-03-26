@@ -324,4 +324,19 @@ class AutoReplyEnhancedTest extends PureUnitTestCase
         // Should handle header values with colons
         $this->assertInstanceOf(AutoReply::class, $result);
     }
+
+    public function test_validation_auto_reply_subject_preserves_conversation_context(): void
+    {
+        // Validation boundary: the auto-reply subject must always contain the
+        // original conversation subject so recipients can validate the thread context
+        // and the message is not mistaken for a phishing/spam attempt.
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Urgent Help Request']);
+        $mailbox = new Mailbox(['id' => 1]); // no custom auto_reply_subject
+
+        $envelope = (new AutoReply($conversation, $mailbox))->envelope();
+
+        $this->assertStringContainsString('Urgent Help Request', $envelope->subject,
+            'Validation boundary: auto-reply subject must contain the original conversation subject'
+        );
+    }
 }

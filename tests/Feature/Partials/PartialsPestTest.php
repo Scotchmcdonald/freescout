@@ -169,3 +169,14 @@ test('editor partial renders with custom placeholder', function () {
     // The placeholder is configured in JavaScript which is pushed to the scripts stack
     expect($html)->toContain($placeholder);
 });
+
+test('flash messages partial renders authorization error message', function () {
+    // Authorization boundary: 403 and other authorization failure messages
+    // must be surfaced to users clearly via the flash messages partial.
+    Session::flash('flash_error', 'You are not authorized to perform this action.');
+
+    $html = view('partials.flash_messages')->render();
+
+    expect($html)->toContain('not authorized');
+    expect($html)->toContain('--theme-status-error-bg');
+});

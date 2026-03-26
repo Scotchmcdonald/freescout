@@ -47,3 +47,13 @@ it('client can view portal invoices if authenticated', function () {
         ->get('/portal/invoices')
         ->assertOk();
 });
+
+it('portal dashboard enforces authorization by redirecting unauthenticated visitors', function () {
+    // Authorization boundary: the client portal requires authentication;
+    // unauthenticated visitors must be redirected to the login page.
+    $response = $this->get('/portal/dashboard');
+
+    // 302 redirect — authorization boundary enforced by the auth middleware
+    $response->assertRedirect();
+    $response->assertRedirectContains('login');
+});
