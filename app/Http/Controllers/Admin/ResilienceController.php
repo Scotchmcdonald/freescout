@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Services\SystemDiagnosticsService;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Modules\Action1\Contracts\Action1ManageClient;
@@ -31,7 +32,10 @@ use Nwidart\Modules\Facades\Module as ModuleFacade;
  */
 class ResilienceController extends Controller
 {
-    public function __construct(private readonly SystemDiagnosticsService $diagnostics) {}
+    public function __construct(
+        private readonly SystemDiagnosticsService $diagnostics,
+        private readonly DatabaseManager $db,
+    ) {}
 
     /**
      * Combined Resilience Dashboard - Circuit Breakers & Rate Limiters
@@ -714,7 +718,7 @@ class ResilienceController extends Controller
      */
     private function buildRateLimitStatus(array $apiIntegrations): array
     {
-        $rows = DB::table('api_rate_limit_tracking')
+        $rows = $this->db->table('api_rate_limit_tracking')
             ->select(['key', 'attempts', 'reset_at'])
             ->get();
 

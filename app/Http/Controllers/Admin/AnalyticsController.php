@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AnalyticsController extends Controller
 {
     public function __construct(private readonly DatabaseManager $db) {}
-{
+
     /**
      * Display predictive analytics dashboard
      */
