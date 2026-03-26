@@ -17,7 +17,7 @@ declare(strict_types=1);
  */
 
 const DEFAULT_MIN_COVERAGE     = 70.0;
-const DEFAULT_MIN_MSI          = 40.0;
+const DEFAULT_MIN_MSI          = 70.0;
 const DEFAULT_MIN_BOUNDARY     = 50;
 const DEFAULT_MIN_ARCH_FILES   = 3;
 
@@ -35,10 +35,11 @@ $minArchFiles  = envInt('TEST_MIN_ARCH_FILES',           DEFAULT_MIN_ARCH_FILES)
 $phaseTimes = loadPhaseTimes($reportsDir);
 
 // ── Metric Collection ──────────────────────────────────────────────────────
-$coverage = parseCoverage($reportsDir);
-$msi      = parseMsi($reportsDir);
-$boundary = boundaryInventory($root . '/tests');
-$arch     = archInventory($root . '/tests/Architecture');
+$coverage  = parseCoverage($reportsDir);
+$msi       = parseMsi($reportsDir);
+$boundary  = boundaryInventory($root . '/tests');
+$arch      = archInventory($root . '/tests/Architecture');
+$archSuite = parseArchSuite($reportsDir);
 
 // ── Gate Checks ────────────────────────────────────────────────────────────
 $checks = [
@@ -77,6 +78,16 @@ $checks = [
         'unit'    => ' files',
         'status'  => $arch['files'] >= $minArchFiles,
         'detail'  => 'PHP arch-test files in tests/Architecture/',
+    ],
+    [
+        'name'    => 'Architecture suite pass',
+        'actual'  => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
+        'minimum' => 1.0,
+        'unit'    => ' (1=pass)',
+        'status'  => $archSuite['passed'] === true,
+        'detail'  => $archSuite['passed'] === null
+            ? 'No arch artifact. Run: bash scripts/ci/check-arch-suite.sh'
+            : 'source: ' . $archSuite['source'],
     ],
 ];
 
@@ -392,4 +403,26 @@ function archInventory(string $archDir): array
     sort($list);
 
     return ['files' => count($list), 'list' => $list];
+}
+
+/**
+ * Read the arch-suite-latest.json artifact written by check-arch-suite.sh.
+ *
+ * @return array{passed:bool|null,source:string}
+ */
+function parseArchSuite(string $reportsDir): array
+{
+    $path = $reportsDir . '/arch-suite-latest.json';
+
+    if (! is_file($path)) {
+        return ['passed' => null, 'source' => 'none'];
+    }
+
+    $data = json_decode((string) file_get_contents($path), true);
+
+    if (! is_array($data) || ! array_key_exists('passed', $data)) {
+        return ['passed' => null, 'source' => 'arch-suite-latest.json (unreadable)'];
+    }
+
+    return ['passed' => (bool) $data['passed'], 'source' => 'arch-suite-latest.json'];
 }

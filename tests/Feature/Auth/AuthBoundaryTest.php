@@ -87,6 +87,9 @@ test('inactive user is redirected when accessing protected routes', function () 
     // guards or redirects may apply. Assert the route is not fully served (2xx).
     $response = $this->actingAs($user)->get('/dashboard');
 
+    // Verify the user record was not mutated by the blocked access attempt.
+    expect($user->fresh()->status)->toBe(User::STATUS_INACTIVE);
+
     // STATUS_INACTIVE users should either be redirected or get 403
     expect(in_array($response->status(), [200, 302, 403]))->toBeTrue();
 });

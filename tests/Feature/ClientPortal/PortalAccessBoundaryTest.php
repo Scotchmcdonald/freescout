@@ -46,6 +46,9 @@ test('internal admin user cannot access portal dashboard', function () {
     $this->actingAs($admin)
         ->get('/portal/dashboard')
         ->assertRedirect(); // middleware redirects non-client users
+
+    // Verify the admin record was not mutated by the blocked portal access attempt.
+    expect($admin->fresh()->role)->toBe(User::ROLE_ADMIN);
 });
 
 // ── Client user with active company passes through ─────────────────────────
