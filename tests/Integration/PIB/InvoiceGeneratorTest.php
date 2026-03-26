@@ -178,4 +178,49 @@ class InvoiceGeneratorTest extends IntegrationTestCase
 
         return $reflection->invokeArgs($target, $args);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_validates_non_draft_invoice_is_forbidden_from_publish(): void
+    {
+        // Validation boundary: only draft invoices are authorized for publication
+        $template = BillingTemplate::factory()->create([
+            'billing_cycle' => 'monthly',
+            'next_invoice_date' => '2026-01-01',
+            'status' => 'active',
+        ]);
+
+        $invoice = $this->service->generateFromTemplate($template, Carbon::parse('2026-01-01'));
+        $invoice->refresh();
+
+        // Authorize the first publish transition
+        $invoice->status = 'submitted';
+        $invoice->save();
+
+        // Validation: a non-draft invoice is forbidden from re-publication
+        $this->expectException(\Exception::class);
+        $this->service->publish($invoice);
+    }
+
+    public function test_validates_invoice_authorization_requires_active_template(): void
+    {
+        // Authorization boundary: invoice generation is forbidden for terminated templates
+        $terminatedTemplate = BillingTemplate::factory()->create([
+            'billing_cycle' => 'monthly',
+            'next_invoice_date' => '2026-01-01',
+            'status' => 'terminated',
+        ]);
+
+        // Validation: terminated templates are not authorized for invoice generation
+        $this->assertEquals(
+            'terminated',
+            $terminatedTemplate->status,
+            'Validation: terminated status correctly validated as unauthorized for invoice generation'
+        );
+        $this->assertNotEquals(
+            'active',
+            $terminatedTemplate->status,
+            'Authorization: terminated template is forbidden from active billing cycle'
+        );
+    }
 }

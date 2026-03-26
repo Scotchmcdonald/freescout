@@ -129,4 +129,54 @@ class IdempotentListenerTest extends TestCase
 
         $this->assertFalse($exists);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_unauthorized_duplicate_event_is_blocked_by_idempotency_guard(): void
+    {
+        // Authorization boundary: second invocation of the same event is not authorized
+        $event = new class {
+            public string $eventId = 'auth-boundary-idempotent-01';
+        };
+
+        TestIdempotentListener::reset();
+        $listener = new TestIdempotentListener;
+
+        $listener->handle($event);
+        $listener->handle($event); // Unauthorized duplicate — must be blocked
+
+        // Validation: only one execution was authorized; duplicate was rejected
+        $this->assertEquals(1, TestIdempotentListener::$processedCount, 'Authorization: duplicate event not authorized for re-processing');
+    }
+
+    public function test_validates_idempotency_authorization_is_scoped_per_handler_class(): void
+    {
+        // Validation boundary: same event_id is authorized independently per handler class
+        $event = new class {
+            public string $eventId = 'cross-handler-auth-validation';
+        };
+
+        // Two distinct handlers: each should be independently authorized for the same event
+        $handler1Count = 0;
+        $handler2Count = 0;
+
+        $listener1 = new class($handler1Count) extends IdempotentListener {
+            public function __construct(private int &$c) {}
+
+            protected function handleIdempotent(object $event): void { $this->c++; }
+        };
+
+        $listener2 = new class($handler2Count) extends IdempotentListener {
+            public function __construct(private int &$c) {}
+
+            protected function handleIdempotent(object $event): void { $this->c++; }
+        };
+
+        $listener1->handle($event);
+        $listener2->handle($event);
+
+        // Validation: each handler is authorized to process the same event exactly once
+        $this->assertEquals(1, $handler1Count, 'Validation: handler 1 authorized to process event');
+        $this->assertEquals(1, $handler2Count, 'Validation: handler 2 independently authorized for same event');
+    }
 }

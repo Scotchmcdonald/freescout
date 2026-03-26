@@ -474,4 +474,49 @@ class MailboxTest extends TestCase
         $this->assertIsArray($aliases);
         $this->assertGreaterThanOrEqual(2, count($aliases));
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_duplicate_mailbox_email_violates_unique_validation_constraint(): void
+    {
+        Mailbox::factory()->create(['email' => 'boundary-mailbox@example.com']);
+
+        // Validation: mailbox email unique constraint prevents unauthorized duplicates
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        Mailbox::factory()->create(['email' => 'boundary-mailbox@example.com']);
+    }
+
+    public function test_unauthorized_user_has_no_mailbox_access_by_default(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $unauthorizedUser = User::factory()->create();
+
+        // Authorization boundary: user without explicit grant is not authorized for mailbox
+        $hasAccess = \App\Models\MailboxUser::where([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $unauthorizedUser->id,
+        ])->exists();
+
+        $this->assertFalse($hasAccess, 'Authorization: user without mailbox grant is unauthorized');
+    }
+
+    public function test_validates_authorized_mailbox_user_relationship(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $authorizedUser = User::factory()->create();
+
+        // Authorization: explicitly grant user access to mailbox
+        \App\Models\MailboxUser::create([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $authorizedUser->id,
+        ]);
+
+        // Validation: authorized user appears in mailbox user relationship
+        $hasAccess = \App\Models\MailboxUser::where([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $authorizedUser->id,
+        ])->exists();
+
+        $this->assertTrue($hasAccess, 'Validation: authorized user passes mailbox authorization check');
+    }
 }

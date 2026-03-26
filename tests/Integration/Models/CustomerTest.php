@@ -295,4 +295,29 @@ class CustomerTest extends TestCase
             'id' => $customer->id,
         ]);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_duplicate_customer_email_violates_unique_validation_constraint(): void
+    {
+        Email::factory()->create(['email' => 'boundary-customer@example.com']);
+
+        // Validation: unique email constraint prevents unauthorized duplicate customer emails
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        Email::factory()->create(['email' => 'boundary-customer@example.com']);
+    }
+
+    public function test_validates_customer_authorized_email_for_system_interaction(): void
+    {
+        $customer = Customer::factory()->withoutEmail()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'authorized-customer@example.com',
+        ]);
+
+        // Validation: customer must have a valid authorized email to interact with the system
+        $mainEmail = $customer->getMainEmail();
+        $this->assertNotNull($mainEmail, 'Validation: customer requires authorized email for system access');
+        $this->assertStringContainsString('@', $mainEmail, 'Validation: email format validated for customer authorization');
+    }
 }

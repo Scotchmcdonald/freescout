@@ -131,4 +131,52 @@ class CommandErrorHandlingTest extends IntegrationTestCase
         $command = new CreateUser;
         $this->assertNotNull($command);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_command_validates_email_format_rejecting_unauthorized_input(): void
+    {
+        // Validation boundary: CreateUser command must validate email format
+        // Invalid email format is unauthorized input that must be rejected with exit code != 0
+        $this->artisan('freescout:create-user', [
+            '--role' => 'admin',
+            '--firstName' => 'Boundary',
+            '--lastName' => 'Test',
+            '--email' => 'not-a-valid-email',
+            '--password' => 'password123',
+        ])->assertExitCode(1);
+
+        // Validation: unauthorized (invalid) email was not persisted
+        $this->assertDatabaseMissing('users', ['email' => 'not-a-valid-email']);
+    }
+
+    public function test_command_validates_password_length_as_authorization_gate(): void
+    {
+        // Validation boundary: passwords below minimum length are unauthorized credentials
+        $this->artisan('freescout:create-user', [
+            '--role' => 'admin',
+            '--firstName' => 'Boundary',
+            '--lastName' => 'Validation',
+            '--email' => 'boundary-pass-validation@example.com',
+            '--password' => 'short',
+        ])->assertExitCode(1);
+
+        // Validation: unauthorized (too short) password means user is not created
+        $this->assertDatabaseMissing('users', ['email' => 'boundary-pass-validation@example.com']);
+    }
+
+    public function test_command_validates_invalid_role_is_rejected_as_unauthorized(): void
+    {
+        // Authorization boundary: unrecognized role is unauthorized
+        $this->artisan('freescout:create-user', [
+            '--role' => 'superuser',
+            '--firstName' => 'Boundary',
+            '--lastName' => 'Role',
+            '--email' => 'boundary-role@example.com',
+            '--password' => 'password123',
+        ])->assertExitCode(1);
+
+        // Validation: unauthorized role prevents user creation
+        $this->assertDatabaseMissing('users', ['email' => 'boundary-role@example.com']);
+    }
 }

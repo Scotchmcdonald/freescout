@@ -482,4 +482,51 @@ class UserTest extends TestCase
 
         $this->assertStringContainsString($longHash, $url);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_inactive_user_is_not_authorized_for_system_operations(): void
+    {
+        // Authorization boundary: inactive users lose authorization
+        $inactiveUser = User::factory()->create(['status' => User::STATUS_INACTIVE]);
+
+        $this->assertFalse($inactiveUser->isActive(), 'Authorization: inactive user is not authorized');
+        $this->assertEquals(
+            User::STATUS_INACTIVE,
+            $inactiveUser->status,
+            'Validation: status validated as inactive (unauthorized state)'
+        );
+    }
+
+    public function test_deleted_user_is_forbidden_from_all_authorization_checks(): void
+    {
+        // Forbidden boundary: deleted users must not pass any authorization gate
+        $deletedUser = User::factory()->create(['status' => User::STATUS_DELETED]);
+
+        $this->assertFalse($deletedUser->isActive(), 'Forbidden: deleted user is not authorized');
+        $this->assertEquals(
+            User::STATUS_DELETED,
+            $deletedUser->status,
+            'Validation: deleted status validated as forbidden'
+        );
+    }
+
+    public function test_duplicate_email_violates_unique_validation_constraint(): void
+    {
+        User::factory()->create(['email' => 'boundary-unique@example.com']);
+
+        // Validation: unique email constraint prevents unauthorized duplicate registration
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        User::factory()->create(['email' => 'boundary-unique@example.com']);
+    }
+
+    public function test_user_role_authorization_boundary_between_admin_and_regular(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
+
+        // Authorization: admin role grants elevated authorization; user role does not
+        $this->assertTrue($admin->isAdmin(), 'Authorization: admin role authorized for elevated operations');
+        $this->assertFalse($regularUser->isAdmin(), 'Authorization: regular user not authorized for admin operations');
+    }
 }

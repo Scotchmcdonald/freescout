@@ -296,4 +296,57 @@ class ListenersComprehensiveTest extends IntegrationTestCase
 
         $this->assertTrue($user->called);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_send_auto_reply_listener_validates_auto_reply_disabled_is_forbidden(): void
+    {
+        Queue::fake();
+
+        // Validation boundary: auto_reply_enabled=false is a forbidden gate for auto-reply
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => false]);
+        $conversation = Conversation::factory()->for($mailbox)->create(['imported' => false]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $customer = Customer::factory()->create();
+
+        (new \App\Listeners\SendAutoReply)->handle(
+            new \App\Events\CustomerCreatedConversation($conversation, $thread, $customer)
+        );
+
+        // Authorization: disabled auto-reply means listener is forbidden from dispatching
+        Queue::assertNotPushed(\App\Jobs\SendAutoReplyJob::class);
+    }
+
+    public function test_send_auto_reply_listener_validates_imported_conversation_is_forbidden(): void
+    {
+        Queue::fake();
+
+        // Validation boundary: imported conversations are forbidden from auto-reply authorization
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $conversation = Conversation::factory()->for($mailbox)->create(['imported' => true]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $customer = Customer::factory()->create();
+
+        (new \App\Listeners\SendAutoReply)->handle(
+            new \App\Events\CustomerCreatedConversation($conversation, $thread, $customer)
+        );
+
+        // Validation: imported conversations are not authorized for auto-reply
+        Queue::assertNotPushed(\App\Jobs\SendAutoReplyJob::class);
+    }
+
+    public function test_update_mailbox_counters_validates_null_mailbox_is_forbidden(): void
+    {
+        // Validation boundary: null mailbox is forbidden — listener must guard against it
+        $conversation = Conversation::factory()->make();
+        $conversation->setRelation('mailbox', null);
+
+        $listener = new UpdateMailboxCounters;
+
+        // Validation: null mailbox must not throw — forbidden state is handled gracefully
+        $this->expectNotToPerformAssertions();
+        $listener->handle(
+            new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED)
+        );
+    }
 }

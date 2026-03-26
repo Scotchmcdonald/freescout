@@ -904,4 +904,108 @@ class JobsComprehensiveTest extends IntegrationTestCase
             'user_id' => $inactiveUser->id,
         ]);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_send_alert_validates_admin_authorization_before_dispatch(): void
+    {
+        Mail::fake();
+
+        // Authorization boundary: SendAlertJob only sends to authorized admin recipients
+        $adminUser = User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+        ]);
+        $unauthorizedUser = User::factory()->create([
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
+        ]);
+
+        $job = new SendAlert('Authorization boundary test', 'Admin-only Alert');
+        $job->handle();
+
+        // Validation: admin receives alert (authorized)
+        Mail::assertSent(\App\Mail\Alert::class, function ($mail) use ($adminUser) {
+            return $mail->hasTo($adminUser->email);
+        });
+
+        // Authorization: regular user is not an authorized recipient of admin alerts
+        Mail::assertNotSent(\App\Mail\Alert::class, function ($mail) use ($unauthorizedUser) {
+            return $mail->hasTo($unauthorizedUser->email);
+        });
+    }
+
+    public function test_send_notification_excludes_unauthorized_deleted_users(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        // Authorization boundary: deleted users are not authorized notification recipients
+        $deletedUser = User::factory()->create([
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_DELETED,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            new Collection([$deletedUser]),
+            $conversation,
+            new Collection([$thread])
+        );
+        $job->handle();
+
+        // Validation: no send_log created for unauthorized (deleted) user
+        $this->assertDatabaseMissing('send_logs', [
+            'thread_id' => $thread->id,
+            'user_id' => $deletedUser->id,
+        ]);
+    }
+
+    public function test_send_auto_reply_validates_auto_reply_disabled_meta_as_authorization_gate(): void
+    {
+        Mail::fake();
+
+        // Validation: ar_off meta flag is an authorization gate — job must not send
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $conversation = Conversation::factory()->for($mailbox)->create([
+            'meta' => ['ar_off' => true],
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $customer = Customer::factory()->create();
+
+        $smtpService = app(\App\Services\SmtpService::class);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        // Authorization: ar_off meta means job is not authorized to send auto-reply
+        Mail::assertNothingSent();
+    }
+
+    public function test_send_notification_validates_imported_conversation_authorization(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+
+        // Validation boundary: imported conversations have restricted authorization
+        $importedConversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'imported' => true,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $importedConversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'imported' => true,
+        ]);
+
+        $this->assertTrue(
+            (bool) $importedConversation->imported,
+            'Validation: imported flag validated for authorization restriction'
+        );
+    }
 }

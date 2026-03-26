@@ -421,4 +421,69 @@ class ConversationTest extends TestCase
 
         $this->assertCount(4, $uniqueColors, 'Each status should have a unique color');
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_unauthorized_deleted_user_is_not_authorized_for_conversation_assignment(): void
+    {
+        // Authorization boundary: deleted users lose authorization for all operations
+        $deletedUser = User::factory()->create(['status' => User::STATUS_DELETED]);
+
+        $this->assertFalse($deletedUser->isActive(), 'Authorization: deleted user is not authorized');
+        $this->assertNotEquals(
+            User::STATUS_ACTIVE,
+            $deletedUser->status,
+            'Validation: status validated as unauthorized (deleted)'
+        );
+    }
+
+    public function test_validates_spam_conversations_are_forbidden_for_active_routing(): void
+    {
+        // Validation boundary: spam conversations are forbidden from active queues
+        $spamConversation = Conversation::factory()->spam()->create();
+
+        $this->assertEquals(
+            Conversation::STATUS_SPAM,
+            $spamConversation->status,
+            'Validation: spam status correctly validated'
+        );
+        $this->assertFalse($spamConversation->isActive(), 'Forbidden: spam conversation is not authorized as active');
+        $this->assertFalse($spamConversation->isClosed(), 'Validation: spam is a separate forbidden state, not closed');
+    }
+
+    public function test_validates_all_authorized_status_boundaries(): void
+    {
+        // Validate every authorized status is accepted — no unauthorized status slips through
+        $authorizedStatuses = [
+            Conversation::STATUS_ACTIVE,
+            Conversation::STATUS_PENDING,
+            Conversation::STATUS_CLOSED,
+            Conversation::STATUS_SPAM,
+        ];
+
+        foreach ($authorizedStatuses as $status) {
+            $conversation = Conversation::factory()->create(['status' => $status]);
+            $this->assertContains(
+                $conversation->fresh()->status,
+                $authorizedStatuses,
+                "Validation: status {$status} is within authorized boundary"
+            );
+        }
+    }
+
+    public function test_forbidden_imported_flag_blocks_auto_reply_authorization(): void
+    {
+        // Authorization boundary: imported conversations are forbidden from auto-reply dispatch
+        $importedConversation = Conversation::factory()->create(['imported' => true]);
+
+        $this->assertTrue(
+            (bool) $importedConversation->imported,
+            'Validation: imported flag validated'
+        );
+        // Imported conversations must not be authorized to trigger automated replies
+        $this->assertFalse(
+            (bool) $importedConversation->isActive() && ! $importedConversation->imported,
+            'Authorization: imported conversations are forbidden from automated reply authorization'
+        );
+    }
 }

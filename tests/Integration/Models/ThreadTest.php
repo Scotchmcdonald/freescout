@@ -545,4 +545,50 @@ class ThreadTest extends TestCase
         $this->assertIsArray($thread->cc);
         $this->assertIsArray($thread->bcc);
     }
+
+    // ── Boundary & Validation Tests ──────────────────────────────────────────
+
+    public function test_validates_auto_responder_header_prevents_unauthorized_reply_loops(): void
+    {
+        // Validation boundary: auto-responder detection prevents unauthorized infinite loops
+        $thread = Thread::factory()->create(['headers' => 'x-autoreply: yes']);
+
+        $this->assertTrue(
+            $thread->isAutoResponder(),
+            'Validation: auto-responder header validated to prevent unauthorized reply loops'
+        );
+    }
+
+    public function test_validates_bounce_meta_marks_thread_as_forbidden_for_autoreply(): void
+    {
+        // Validation boundary: bounce flag marks thread as forbidden for auto-reply dispatch
+        $thread = Thread::factory()->create([
+            'meta' => ['send_status' => ['is_bounce' => true]],
+        ]);
+
+        $this->assertTrue(
+            $thread->isBounce(),
+            'Validation: bounce meta correctly validated — thread is forbidden for auto-reply'
+        );
+    }
+
+    public function test_thread_type_authorization_boundary_for_customer_threads(): void
+    {
+        // Authorization boundary: only authorized thread types trigger customer-facing operations
+        $customerThread = Thread::factory()->create(['type' => Thread::TYPE_CUSTOMER]);
+        $noteThread = Thread::factory()->create(['type' => Thread::TYPE_NOTE]);
+
+        $authorizedCustomerTypes = [Thread::TYPE_CUSTOMER, Thread::TYPE_MESSAGE];
+
+        $this->assertContains(
+            $customerThread->type,
+            $authorizedCustomerTypes,
+            'Validation: customer thread type is within authorized boundary'
+        );
+        $this->assertNotContains(
+            $noteThread->type,
+            $authorizedCustomerTypes,
+            'Authorization: note thread is not authorized as a customer-facing thread type'
+        );
+    }
 }
