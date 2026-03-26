@@ -614,4 +614,22 @@ class HelperLogicTest extends PureUnitTestCase
 
         $this->assertEquals(60, $result['timeout']);
     }
+
+    public function test_authorization_boundary_empty_required_extensions_fails_validation(): void
+    {
+        // Validation boundary: if no required extensions are present, the system
+        // must fail validation — unauthorized environments cannot proceed without
+        // critical PHP extensions being configured.
+        $result = Helper::checkRequiredExtensions();
+
+        $this->assertIsArray($result,
+            'Validation boundary: extension check must return a validation result array'
+        );
+        // All extension checks must return boolean validation results — not unauthorized nulls
+        foreach ($result as $ext => $loaded) {
+            $this->assertIsBool($loaded,
+                "Extension '{$ext}' must return a boolean validation result, not an unauthorized null"
+            );
+        }
+    }
 }

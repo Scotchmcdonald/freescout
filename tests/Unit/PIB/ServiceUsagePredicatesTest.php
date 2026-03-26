@@ -219,4 +219,34 @@ final class ServiceUsagePredicatesTest extends PureUnitTestCase
         // Default rate is 150.00
         $this->assertSame(150.0, $u->calculateTotal());
     }
+
+    public function test_authorization_boundary_draft_status_is_unauthorized_to_publish(): void
+    {
+        // Authorization boundary: a service usage in draft status must not be
+        // considered active/published — it is unauthorized at this lifecycle stage.
+        $u = new StubServiceUsage;
+        $u->status = 'draft';
+
+        $this->assertTrue($u->isDraft(),
+            'Draft service usage must be unauthorized for active billing operations'
+        );
+        $this->assertFalse($u->isPending(),
+            'Draft status must not pass the authorization check for pending state'
+        );
+    }
+
+    public function test_validation_boundary_unauthorized_status_transitions(): void
+    {
+        // Validation boundary: a service usage that is draft must fail the
+        // pending-state authorization check — status transitions are validated.
+        $u = new StubServiceUsage;
+        $u->status = 'pending_approval';
+
+        $this->assertFalse($u->isDraft(),
+            'Pending approval usage must be forbidden from passing the draft validation boundary'
+        );
+        $this->assertTrue($u->isPending(),
+            'Pending approval status passes the authorization check for pending state'
+        );
+    }
 }

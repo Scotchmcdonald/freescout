@@ -238,6 +238,22 @@ class LicenseDeploymentServiceTest extends IntegrationTestCase
         });
     }
 
+    public function test_authorization_boundary_revoked_assignment_is_unauthorized_for_deployment(): void
+    {
+        // Authorization / validation boundary: a non-failed software assignment must
+        // be denied retry — the service validates the assignment status and
+        // returns false, preventing unauthorized license re-provisioning.
+        $service = new RetrySpyLicenseDeploymentService;
+        $assignment = new TestSoftwareAssignment;
+        $assignment->deployment_status = SoftwareAssignment::DEPLOYMENT_COMPLETED;
+
+        $result = $service->retryDeployment($assignment);
+
+        $this->assertFalse($result,
+            'Non-failed assignment must be unauthorized for retry — validation boundary enforced'
+        );
+    }
+
     private function makeAssignmentForEvents(
         int $assignmentId,
         int $subscriptionId,

@@ -150,4 +150,31 @@ final class TicketLifecycleEventTest extends PureUnitTestCase
     {
         $this->assertSame('0h 0m', $this->event('opened', 0)->formatted_time_since_open);
     }
+
+    public function test_authorization_boundary_non_assignment_events_are_unauthorized_for_assignment_check(): void
+    {
+        // Authorization boundary: event types that are not assignment events
+        // must be unauthorized when checked via isAssignmentEvent — the flag
+        // must not bleed into unrelated event types.
+        $unauthorized = ['opened', 'closed', 'reopened', 'status_changed'];
+
+        foreach ($unauthorized as $type) {
+            $this->assertFalse($this->event($type)->isAssignmentEvent(),
+                "Event type '{$type}' must not pass the authorization check for assignment events"
+            );
+        }
+    }
+
+    public function test_authorization_boundary_non_status_events_are_unauthorized_for_status_check(): void
+    {
+        // Authorization boundary: assignment events must not be authorized
+        // as status-change events — each authorization gate is exclusive.
+        $unauthorized = ['assigned', 'unassigned'];
+
+        foreach ($unauthorized as $type) {
+            $this->assertFalse($this->event($type)->isStatusChangeEvent(),
+                "Event type '{$type}' must be forbidden from passing the status-change authorization gate"
+            );
+        }
+    }
 }

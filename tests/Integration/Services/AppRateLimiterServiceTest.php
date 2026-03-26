@@ -132,4 +132,37 @@ class RateLimiterTest extends TestCase
 
         $this->assertEquals(3, $remaining);
     }
+
+    public function test_throttle_boundary_blocks_excess_requests_with_429_semantics(): void
+    {
+        // Boundary: once the rate limit is exhausted, all further requests must be
+        // throttled — enforcing 429 Too Many Requests semantics at the service layer.
+        $key = 'throttle_boundary';
+        $maxAttempts = 2;
+
+        $this->limiter->attempt($key, $maxAttempts, 60, fn () => 'ok');
+        $this->limiter->attempt($key, $maxAttempts, 60, fn () => 'ok');
+
+        // third request must be throttled (429)
+        $this->expectException(ThrottleRequestsException::class);
+        $this->limiter->attempt($key, $maxAttempts, 60, fn () => 'must not run — throttled');
+    }
+
+    public function test_rate_limit_boundary_remaining_hits_zero_when_exhausted(): void
+    {
+        // Boundary: after exhausting the rate limit budget, remaining attempts must be
+        // zero — the rate-limiter must not authorize any additional requests past its limit.
+        $key = 'ratelimit_zero_boundary';
+        $maxAttempts = 3;
+
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $this->limiter->attempt($key, $maxAttempts, 60, fn () => 'ok');
+        }
+
+        $remaining = $this->limiter->remaining($key, $maxAttempts);
+
+        $this->assertSame(0, $remaining,
+            'Rate-limit boundary must report zero remaining — no further requests are authorized'
+        );
+    }
 }

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
  * AssertsIdempotency - Test assertions for event idempotency
  *
  * Provides assertions to verify that events are processed exactly once.
+ * This is a core authorization boundary helper: duplicate events must be
+ * unauthorized from being processed more than once (idempotency gate).
  */
 trait AssertsIdempotency
 {

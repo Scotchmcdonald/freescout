@@ -198,4 +198,39 @@ class UserPermissionLogicTest extends PureUnitTestCase
 
         $this->assertSame([User::PERM_EDIT_USERS], User::getGlobalUserPermissions());
     }
+
+    public function test_authorization_boundary_user_without_permission_is_unauthorized(): void
+    {
+        // Authorization boundary: a user without a granted permission must be
+        // unauthorized — hasPermission must return false, not silently allow.
+        $user = new User(['role' => User::ROLE_USER]);
+
+        $this->assertFalse($user->hasPermission(User::PERM_EDIT_USERS),
+            'Unauthorized user must not pass the permission authorization check'
+        );
+    }
+
+    public function test_authorization_boundary_admin_bypasses_permission_checks(): void
+    {
+        // Authorization boundary: admin role bypasses per-permission authorization.
+        // This is by design but must be explicitly validated as a boundary case.
+        $user = new User(['role' => User::ROLE_ADMIN]);
+
+        $this->assertTrue($user->hasPermission(User::PERM_EDIT_USERS),
+            'Admin authorization must grant all permission checks without explicit assignment'
+        );
+    }
+
+    public function test_authorization_boundary_forbidden_permission_not_in_global_config(): void
+    {
+        // Authorization boundary: if a permission is not in the global config,
+        // the user must be forbidden from that action (authorization returns false).
+        app('config')->set('app.user_permissions', base64_encode(json_encode([], JSON_THROW_ON_ERROR)));
+
+        $user = new User(['role' => User::ROLE_USER]);
+
+        $this->assertFalse($user->hasPermission(User::PERM_EDIT_USERS),
+            'User must be forbidden when permission is absent from the authorization config'
+        );
+    }
 }

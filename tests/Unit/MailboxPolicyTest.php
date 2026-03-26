@@ -101,4 +101,42 @@ class MailboxPolicyTest extends PureUnitTestCase
 
         $this->assertFalse($policy->delete($user, $mailbox));
     }
+
+    public function test_authorization_boundary_non_admin_is_unauthorized_for_create(): void
+    {
+        // Authorization boundary: a user without manage_settings permission is
+        // unauthorized to create a mailbox — policy must return false.
+        $user = $this->makeUser(false);
+        $policy = new MailboxPolicy;
+
+        $this->assertFalse($policy->create($user),
+            'Unauthorized user must be forbidden from mailbox creation'
+        );
+    }
+
+    public function test_authorization_boundary_non_admin_is_unauthorized_for_update(): void
+    {
+        // Authorization boundary: unauthorized users must not be allowed to
+        // modify mailbox settings — any such attempt must be forbidden.
+        $user = $this->makeUser(false);
+        $mailbox = $this->makeMailbox(99);
+        $policy = new MailboxPolicy;
+
+        $this->assertFalse($policy->update($user, $mailbox),
+            'Unauthorized user must be forbidden from mailbox update'
+        );
+    }
+
+    public function test_authorization_boundary_non_admin_is_unauthorized_for_delete(): void
+    {
+        // Authorization boundary: only admins may delete mailboxes.
+        // Non-admin users must be unauthorized (forbidden) from deletion.
+        $user = $this->makeUser(false);
+        $mailbox = $this->makeMailbox(99);
+        $policy = new MailboxPolicy;
+
+        $this->assertFalse($policy->delete($user, $mailbox),
+            'Unauthorized user must be forbidden from mailbox deletion'
+        );
+    }
 }

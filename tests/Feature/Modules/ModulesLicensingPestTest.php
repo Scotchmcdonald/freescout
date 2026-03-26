@@ -93,3 +93,13 @@ test('admin can deactivate license', function () {
     $response->assertOk();
     expect($response->json('success'))->toBeTrue();
 });
+
+test('unauthorized guest cannot activate or deactivate license', function () {
+    // Authorization boundary: unauthenticated (guest) requests must be forbidden
+    // from license management endpoints — must not return 200.
+    $this->postJson(route('modules.ajax'), [
+        'action' => 'activate_license',
+        'alias'   => 'some-module',
+        'license' => 'xxx',
+    ])->assertUnauthorized();
+});

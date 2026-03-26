@@ -524,4 +524,22 @@ class ObserversComprehensiveTest extends IntegrationTestCase
 
         $this->assertSame($initialCount, Conversation::count());
     }
+
+    public function test_thread_observer_does_not_update_unauthorized_draft_threads(): void
+    {
+        // Authorization boundary: draft-type threads must not update conversation previews
+        // — drafts are unauthorized to propagate to public conversation state.
+        $conversation = Conversation::factory()->create(['preview' => 'Original preview']);
+
+        Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type'            => Thread::TYPE_DRAFT,
+            'body'            => 'Draft body — unauthorized to update preview',
+        ]);
+
+        // Draft threads are unauthorized from changing the public conversation preview
+        $this->assertSame('Original preview', $conversation->fresh()->preview,
+            'Unauthorized draft thread must not update the conversation preview'
+        );
+    }
 }

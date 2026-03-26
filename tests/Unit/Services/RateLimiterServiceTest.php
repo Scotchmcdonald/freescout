@@ -133,4 +133,31 @@ class RateLimiterServiceTest extends PureUnitTestCase
         $this->assertSame('Now', $stats[3]['reset_in_human']);
         $this->assertSame(0, $stats[3]['remaining']);
     }
+
+    public function test_throttle_boundary_returns_429_status_when_rate_limit_exhausted(): void
+    {
+        // Boundary: when the rate limit is exhausted, the service must throttle
+        // the request — callers should receive HTTP 429 Too Many Requests semantics.
+        $this->service->attempts['api:sync'] = 5;
+        $this->service->availableAt['api:sync'] = time() + 30;
+
+        $this->expectException(ThrottleRequestsException::class);
+
+        // ThrottleRequestsException maps to 429 Too Many Requests — this is the
+        // throttle boundary that prevents API abuse.
+        $this->service->attempt('api:sync', 5, 60, fn () => 'should not execute');
+    }
+
+    public function test_rate_limit_boundary_zero_limit_always_throttles(): void
+    {
+        // Boundary: a rate limit of zero means every request must be throttled.
+        // No request should pass through — this validates the 429 enforcement gate.
+        $this->service->attempts['api:zero'] = 0;
+        $this->service->availableAt['api:zero'] = time() + 60;
+
+        $this->expectException(ThrottleRequestsException::class);
+
+        // rate limit = 0 → always throttle boundary, returns 429 equivalent
+        $this->service->attempt('api:zero', 0, 60, fn () => 'blocked by throttle');
+    }
 }
