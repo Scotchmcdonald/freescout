@@ -44,12 +44,13 @@ class HelcimServiceTest extends IntegrationTestCase
         $rateLimiter = $this->createMock(RateLimiterService::class);
         $circuitBreaker = $this->createMock(CircuitBreakerService::class);
 
+        $envDetector = $this->createMock(\App\Services\EnvironmentDetectorService::class);
+        $envDetector->method('runningInConsole')->willReturn(false);
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Helcim API token is not configured');
 
-        $this->withNonConsoleContainer(function () use ($rateLimiter, $circuitBreaker): void {
-            new HelcimService($rateLimiter, $circuitBreaker);
-        });
+        new HelcimService($rateLimiter, $circuitBreaker, $envDetector);
     }
 
     public function test_make_api_call_uses_company_key_with_rate_limiter_and_circuit_breaker(): void
@@ -256,23 +257,6 @@ class HelcimServiceTest extends IntegrationTestCase
         return new HelcimService($rateLimiter, $circuitBreaker);
     }
 
-    private function withNonConsoleContainer(callable $callback): void
-    {
-        $originalApp = app();
-        $appMock = \Mockery::mock($originalApp)->makePartial();
-        $appMock->shouldReceive('runningInConsole')->andReturn(false);
-
-        \Illuminate\Container\Container::setInstance($appMock);
-        \Illuminate\Support\Facades\App::swap($appMock);
-
-        try {
-            $callback();
-        } finally {
-            \Illuminate\Container\Container::setInstance($originalApp);
-            \Illuminate\Support\Facades\App::swap($originalApp);
-            \Illuminate\Support\Facades\Facade::clearResolvedInstances();
-        }
-    }
 
     private function readProperty(object $target, string $property): mixed
     {
