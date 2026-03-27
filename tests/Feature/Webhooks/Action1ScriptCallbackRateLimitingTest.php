@@ -55,3 +55,47 @@ test('action1 script callback endpoint is rate limited to 30 requests per minute
     expect($recordAfterThrottle)->toBeArray();
     expect($recordAfterThrottle['status'] ?? null)->toBe('received');
 })->group('boundary');
+
+test('action1 script callback rejects malformed tokens before touching cache', function () {
+    $response = $this->postJson('/api/action1/script-callback/bad-token!!', [
+        'status' => 'ok',
+        'output' => 'ignored',
+    ]);
+
+    $response->assertStatus(400)
+        ->assertJson([
+            'ok' => false,
+            'message' => 'Invalid token format.',
+        ]);
+
+    expect(Cache::get(Action1ScriptCallbackController::CACHE_PREFIX.'bad-token!!'))->toBeNull();
+})->group('boundary');
+
+test('action1 script callback truncates oversized output payloads and preserves token metadata', function () {
+    $token = str_repeat('b', 40);
+    $cacheKey = Action1ScriptCallbackController::CACHE_PREFIX.$token;
+    $oversizedOutput = str_repeat('x', 70000);
+
+    Cache::put($cacheKey, [
+        'status' => 'pending',
+        'script_id' => 444,
+        'org_id' => 555,
+        'minted_at' => now()->toIso8601String(),
+    ], Action1ScriptCallbackController::TOKEN_TTL);
+
+    $this->postJson("/api/action1/script-callback/{$token}", [
+        'status' => 'ok',
+        'output' => $oversizedOutput,
+        'host' => 'endpoint-2',
+        'user' => 'system',
+    ])->assertOk();
+
+    $record = Cache::get($cacheKey);
+
+    expect($record)->toBeArray()
+        ->and($record['status'] ?? null)->toBe('received')
+        ->and($record['script_id'] ?? null)->toBe(444)
+        ->and($record['org_id'] ?? null)->toBe(555)
+        ->and($record['output'] ?? null)->toEndWith('…[truncated]')
+        ->and(strlen((string) ($record['output'] ?? '')))->toBeGreaterThan(65536);
+})->group('boundary');

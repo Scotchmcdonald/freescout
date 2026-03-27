@@ -427,9 +427,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Build the permission query used by string permission checks.
      *
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\Permission>
      */
-    protected function permissionQueryForName(string $permission)
+    protected function permissionQueryForName(string $permission): \Illuminate\Database\Eloquent\Builder
     {
         return Permission::where('name', $permission);
     }

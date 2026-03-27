@@ -323,11 +323,35 @@ class CacheServiceTest extends PureUnitTestCase
     public function test_forget_with_tags_returns_true_if_tagged_or_direct_forget_succeeds(): void
     {
         $service = $this->makeService(true);
-        $this->cache->store['crm:client:9:summary'] = 'value';
+        $service->put('crm', 'client', 9, 'summary', 'value', 60);
 
         $result = $service->forget('crm', 'client', 9, 'summary');
 
         $this->assertTrue($result);
+        $this->assertFalse(isset($this->cache->store['crm:client:9:summary']));
+        $this->assertFalse($this->cache->tags(['crm:client:9'])->has('crm:client:9:summary'));
+        $this->assertContains('cache_registry:crm:client:9', $this->cache->forgotten);
+        $this->assertContains('crm:client:9:summary', $this->cache->forgotten);
+    }
+
+    public function test_forget_with_tags_returns_true_when_only_tagged_entry_exists(): void
+    {
+        $service = $this->makeService(true);
+        $this->cache->tags(['crm:client:27'])->put('crm:client:27:summary', 'tagged-only', 60);
+        $this->cache->store['cache_registry:crm:client:27'] = ['crm:client:27:summary'];
+
+        $result = $service->forget('crm', 'client', 27, 'summary');
+
+        $this->assertTrue($result);
+        $this->assertFalse($this->cache->tags(['crm:client:27'])->has('crm:client:27:summary'));
+        $this->assertFalse(isset($this->cache->store['cache_registry:crm:client:27']));
+    }
+
+    public function test_forget_method_is_public_api_contract(): void
+    {
+        $reflection = new \ReflectionMethod(CacheService::class, 'forget');
+
+        $this->assertTrue($reflection->isPublic());
     }
 
     public function test_forget_without_tags_returns_false_when_key_does_not_exist(): void

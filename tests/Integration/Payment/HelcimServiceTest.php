@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Payment;
 
+use Illuminate\Container\Container;
+use Illuminate\Foundation\Application;
 use App\Services\CircuitBreakerService;
 use App\Services\RateLimiterService;
 use Illuminate\Http\Client\Factory as HttpFactory;
@@ -24,6 +26,32 @@ class HelcimServiceTest extends IntegrationTestCase
         config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
         config()->set('services.helcim.api_token', 'unit-test-token');
         config()->set('services.helcim.timeout', 30);
+    }
+
+    public function test_constructor_uses_configured_api_token_and_timeout(): void
+    {
+        config()->set('services.helcim.api_token', 'configured-token');
+        config()->set('services.helcim.timeout', 45);
+
+        $service = $this->makeServiceWithPassThroughGuards();
+
+        $this->assertSame('configured-token', $this->readProperty($service, 'apiToken'));
+        $this->assertSame(45, $this->readProperty($service, 'timeout'));
+    }
+
+    public function test_constructor_throws_when_api_token_is_missing_outside_console(): void
+    {
+        config()->set('services.helcim.api_token', '');
+
+        $rateLimiter = $this->createMock(RateLimiterService::class);
+        $circuitBreaker = $this->createMock(CircuitBreakerService::class);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Helcim API token is not configured');
+
+        $this->withNonConsoleContainer(function () use ($rateLimiter, $circuitBreaker): void {
+            new HelcimService($rateLimiter, $circuitBreaker);
+        });
     }
 
     public function test_make_api_call_uses_company_key_with_rate_limiter_and_circuit_breaker(): void
@@ -228,6 +256,35 @@ class HelcimServiceTest extends IntegrationTestCase
             ->willReturnCallback(fn (string $service, callable $callback) => $callback());
 
         return new HelcimService($rateLimiter, $circuitBreaker);
+    }
+
+    private function withNonConsoleContainer(callable $callback): void
+    {
+        $originalContainer = Container::getInstance();
+        $fakeApp = new class($this->app->basePath()) extends Application
+        {
+            public function runningInConsole(): bool
+            {
+                return false;
+            }
+        };
+
+        $fakeApp->instance('config', $this->app['config']);
+        Container::setInstance($fakeApp);
+
+        try {
+            $callback();
+        } finally {
+            Container::setInstance($originalContainer);
+        }
+    }
+
+    private function readProperty(object $target, string $property): mixed
+    {
+        $reflection = new \ReflectionProperty($target, $property);
+        $reflection->setAccessible(true);
+
+        return $reflection->getValue($target);
     }
 
     /**

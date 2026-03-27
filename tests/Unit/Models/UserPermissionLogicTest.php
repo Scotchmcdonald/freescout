@@ -7,6 +7,7 @@ namespace Tests\Unit\Models;
 use App\Models\User;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Application;
 use Mockery;
 use Tests\PureUnitTestCase;
@@ -31,7 +32,7 @@ final class TestUserPermissionModel extends User
         return $this->roleIds ?? collect();
     }
 
-    protected function permissionQueryForName(string $permission)
+    protected function permissionQueryForName(string $permission): Builder
     {
         if (array_key_exists($permission, $this->permissionQueries)) {
             return $this->permissionQueries[$permission];
@@ -128,7 +129,7 @@ class UserPermissionLogicTest extends PureUnitTestCase
 
     public function test_has_permission_uses_role_fallback_and_cached_rbac_ids_for_string_permissions(): void
     {
-        $legacyQuery = Mockery::mock();
+        $legacyQuery = Mockery::mock(Builder::class);
         $legacyQuery->shouldReceive('whereHas')->once()->with(
             'roles',
             Mockery::on(function ($closure): bool {
@@ -144,7 +145,7 @@ class UserPermissionLogicTest extends PureUnitTestCase
         )->andReturnSelf();
         $legacyQuery->shouldReceive('exists')->once()->andReturn(true);
 
-        $rbacQuery = Mockery::mock();
+        $rbacQuery = Mockery::mock(Builder::class);
         $rbacQuery->shouldReceive('whereHas')->once()->with(
             'roles',
             Mockery::on(function ($closure): bool {

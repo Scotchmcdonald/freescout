@@ -549,7 +549,7 @@ class SystemController extends Controller
 
             case 'cancel_job':
                 try {
-                    $jobId = $request->input('job_id');
+                    $jobId = $request->string('job_id')->toString();
                     $this->diagnostics->cancelJob((string) $jobId);
 
                     return response()->json([
@@ -565,7 +565,7 @@ class SystemController extends Controller
 
             case 'retry_job':
                 try {
-                    $jobId = $request->input('job_id');
+                    $jobId = $request->string('job_id')->toString();
                     $this->diagnostics->retryJob((string) $jobId);
 
                     return response()->json([
@@ -960,7 +960,7 @@ class SystemController extends Controller
     public function deleteFailedJobsForQueue(Request $request): JsonResponse
     {
         try {
-            $queue = $request->input('queue');
+            $queue = $request->string('queue')->toString();
             $this->diagnostics->deleteFailedJobsByQueue((string) $queue);
 
             return response()->json([
@@ -981,7 +981,7 @@ class SystemController extends Controller
     public function retryFailedJobsForQueue(Request $request): JsonResponse
     {
         try {
-            $queue = $request->input('queue');
+            $queue = $request->string('queue')->toString();
             $this->diagnostics->retryFailedJobsByQueue((string) $queue);
 
             return response()->json([

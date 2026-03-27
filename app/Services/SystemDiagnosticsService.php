@@ -83,7 +83,7 @@ final class SystemDiagnosticsService
     /**
      * Paginated list of failed jobs, newest first.
      *
-     * @return LengthAwarePaginator<object>
+     * @return LengthAwarePaginator<int, \stdClass>
      */
     public function getFailedJobs(int $perPage = 50): LengthAwarePaginator
     {
@@ -101,7 +101,7 @@ final class SystemDiagnosticsService
     /**
      * Retrieve all failed jobs for a given queue name.
      *
-     * @return Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
     public function getFailedJobsByQueue(string $queue): Collection
     {
@@ -129,7 +129,7 @@ final class SystemDiagnosticsService
      * search/filter criteria applied.
      *
      * @param  array{search?: string, event_type?: string, date_from?: string, date_to?: string}  $filters
-     * @return LengthAwarePaginator<object>
+     * @return LengthAwarePaginator<int, \stdClass>
      */
     public function getPolycastEvents(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
@@ -204,6 +204,7 @@ final class SystemDiagnosticsService
         $jobs = $this->getFailedJobsByQueue($queue);
 
         foreach ($jobs as $job) {
+            /** @var object{uuid: string} $job */
             Artisan::call('queue:retry', ['id' => [$job->uuid]]);
         }
     }

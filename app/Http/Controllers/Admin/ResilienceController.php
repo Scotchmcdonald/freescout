@@ -200,7 +200,7 @@ class ResilienceController extends Controller
             }
             fputcsv($handle, ['ID', 'Channel', 'Event', 'Payload', 'Timestamp']);
 
-            $this->diagnostics->streamPolycastEventsCsv($filters, function (object $event) use ($handle): void {
+            $this->diagnostics->streamPolycastEventsCsv($filters, function (\stdClass $event) use ($handle): void {
                 fputcsv($handle, [
                     $event->id,
                     $event->channel,

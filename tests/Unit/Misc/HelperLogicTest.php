@@ -466,7 +466,9 @@ class HelperLogicTest extends PureUnitTestCase
 
         $this->assertTrue($result);
 
-        @unlink($zipPath);
+        if (file_exists($zipPath)) {
+            @unlink($zipPath);
+        }
         @rmdir($tmpDir);
     }
 
@@ -479,7 +481,9 @@ class HelperLogicTest extends PureUnitTestCase
         // Returns true with empty zip; the nonexistent file is just skipped.
         $this->assertTrue($result);
 
-        @unlink($zipPath);
+        if (file_exists($zipPath)) {
+            @unlink($zipPath);
+        }
     }
 
     // ── unzip ─────────────────────────────────────────────────────────────
