@@ -6,7 +6,7 @@ namespace Tests\Unit\ContractManager;
 
 use Carbon\Carbon;
 use Modules\ContractManager\Models\Quote;
-use PHPUnit\Framework\TestCase as BaseTestCase;
+use Tests\PureUnitTestCase as BaseTestCase;
 
 /**
  * Stub Quote bypasses DB dependencies for pure-logic tests.

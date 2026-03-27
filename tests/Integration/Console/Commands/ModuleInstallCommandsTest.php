@@ -301,7 +301,7 @@ class TestableModuleInstall extends ModuleInstall
         return parent::installModule($module);
     }
 
-    public function createModulePublicSymlink($module)
+    public function createModulePublicSymlink(\Nwidart\Modules\Module $module): void
     {
         if ($this->throwDuringSymlink !== null) {
             throw new \RuntimeException($this->throwDuringSymlink);

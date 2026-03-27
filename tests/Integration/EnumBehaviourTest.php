@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Integration;
 
 use App\Enums\ConversationStatus;
 use App\Enums\ConversationType;

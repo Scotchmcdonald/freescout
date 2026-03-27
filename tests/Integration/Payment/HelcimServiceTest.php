@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Payment;
 
-use Illuminate\Container\Container;
-use Illuminate\Foundation\Application;
 use App\Services\CircuitBreakerService;
 use App\Services\RateLimiterService;
 use Illuminate\Http\Client\Factory as HttpFactory;
@@ -260,22 +258,19 @@ class HelcimServiceTest extends IntegrationTestCase
 
     private function withNonConsoleContainer(callable $callback): void
     {
-        $originalContainer = Container::getInstance();
-        $fakeApp = new class($this->app->basePath()) extends Application
-        {
-            public function runningInConsole(): bool
-            {
-                return false;
-            }
-        };
+        $originalApp = app();
+        $appMock = \Mockery::mock($originalApp)->makePartial();
+        $appMock->shouldReceive('runningInConsole')->andReturn(false);
 
-        $fakeApp->instance('config', $this->app['config']);
-        Container::setInstance($fakeApp);
+        \Illuminate\Container\Container::setInstance($appMock);
+        \Illuminate\Support\Facades\App::swap($appMock);
 
         try {
             $callback();
         } finally {
-            Container::setInstance($originalContainer);
+            \Illuminate\Container\Container::setInstance($originalApp);
+            \Illuminate\Support\Facades\App::swap($originalApp);
+            \Illuminate\Support\Facades\Facade::clearResolvedInstances();
         }
     }
 
