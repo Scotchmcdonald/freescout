@@ -147,7 +147,7 @@ class ModuleBuildTest extends IntegrationTestCase
 
     public function test_build_vars_catches_exceptions_and_reports_error(): void
     {
-        $module = \Mockery::mock();
+        $module = \Mockery::mock(\Nwidart\Modules\Module::class);
         $module->shouldReceive('getAlias')->andThrow(new \RuntimeException('boom'));
         $module->shouldReceive('getName')->andReturn('Exploding Module');
 
@@ -162,7 +162,7 @@ class ModuleBuildTest extends IntegrationTestCase
 
     private function mockModule(string $name, string $alias)
     {
-        $module = \Mockery::mock();
+        $module = \Mockery::mock(\Nwidart\Modules\Module::class);
         $module->shouldReceive('getName')->byDefault()->andReturn($name);
         $module->shouldReceive('getAlias')->byDefault()->andReturn($alias);
 

@@ -20,7 +20,7 @@ const DEFAULT_MIN_COVERAGE     = 70.0;
 const DEFAULT_MIN_MSI          = 70.0;
 const DEFAULT_MIN_BOUNDARY     = 50;
 const DEFAULT_MIN_ARCH_FILES   = 3;
-const DEFAULT_MIN_TYPE_COVERAGE = 80.0;
+const DEFAULT_MIN_TYPE_COVERAGE = 100.0;
 
 $root        = dirname(__DIR__, 2);
 $reportsDir  = $root . '/reports';

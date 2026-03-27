@@ -79,10 +79,25 @@ foreach ($scanDirs as $dir) {
         $methodsInFile = analyzeMethodSignatures($code);
 
         foreach ($methodsInFile as $method) {
-            $totalMethods++;
-            $hasReturn = $method['hasReturn'];
-            if ($hasReturn) {
-                $typedMethods++;
+            // __construct / __destruct: their return type is implicitly void in PHP.
+            // We already exclude them from the violations list for this reason;
+            // for consistency we also exclude them from the total-methods denominator
+            // so they do not silently depress the coverage percentage.
+            $isConstructorLike = $method['name'] === '__construct' || $method['name'] === '__destruct';
+
+            if (! $isConstructorLike) {
+                $totalMethods++;
+                $hasReturn = $method['hasReturn'];
+                if ($hasReturn) {
+                    $typedMethods++;
+                }
+                if (! $hasReturn) {
+                    $violations[] = [
+                        'file'   => $relPath,
+                        'method' => $method['name'],
+                        'param'  => '(return type)',
+                    ];
+                }
             }
 
             foreach ($method['params'] as $param) {
@@ -96,14 +111,6 @@ foreach ($scanDirs as $dir) {
                         'param'  => $param['name'],
                     ];
                 }
-            }
-
-            if (! $hasReturn && $method['name'] !== '__construct' && $method['name'] !== '__destruct') {
-                $violations[] = [
-                    'file'   => $relPath,
-                    'method' => $method['name'],
-                    'param'  => '(return type)',
-                ];
             }
         }
 

@@ -70,7 +70,7 @@ class ModuleBuild extends Command
      *
      * @param  \Nwidart\Modules\Module  $module
      */
-    protected function buildModule($module): void
+    protected function buildModule(\Nwidart\Modules\Module $module): void
     {
         $this->line("Building module: {$module->getName()}");
 
@@ -91,7 +91,7 @@ class ModuleBuild extends Command
      *
      * @param  \Nwidart\Modules\Module  $module
      */
-    protected function buildVars($module): void
+    protected function buildVars(\Nwidart\Modules\Module $module): void
     {
         try {
             $params = [
