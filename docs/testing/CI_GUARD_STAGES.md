@@ -157,6 +157,8 @@ Other important checks in the CI pipeline:
 | Code Style | `check-code-style.sh` | PHP formatting, naming conventions |
 | Static Analysis | `check-static-analysis.sh` | PHPStan errors |
 | Strict Types | `check-strict-types.sh` | All files must declare(strict_types=1) |
+| Type Coverage | `check-type-coverage.php` | 100% of all params/return types must be declared |
+| Quality Gate | `check-testing-quality-gate.php` | Enforces all testing KPIs (type coverage ≥ 100.0, boundary ≥ 50, arch files ≥ 3) |
 | Migration Safety | `check-migration-safety.sh` | Ensure down() methods exist |
 | Env Parity | `check-env-parity.sh` | .env.example matches config |
 | Folder Structure | `check-folder-structure-capitalization.sh` | Consistent naming |
@@ -308,6 +310,10 @@ bash scripts/ci.sh
 ```bash
 # Architecture & compliance checks (15-30 seconds)
 bash scripts/ci/check-architecture-compliance.sh
+
+# Type coverage gate (must be 100%)
+php scripts/ci/check-type-coverage.php
+php scripts/ci/check-testing-quality-gate.php
 
 # Test isolation guards (5-10 seconds)
 php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php \

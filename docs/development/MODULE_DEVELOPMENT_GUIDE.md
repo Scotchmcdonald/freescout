@@ -484,6 +484,43 @@ Event::listen('validation.company.creating', function ($validator) {
 });
 ```
 
+### 6.4 Type Safety Requirements
+
+All PHP files in your module **must** comply with the project-wide 100% type coverage gate. The CI pipeline enforces this via `scripts/ci/check-type-coverage.php`.
+
+**Every file must open with:**
+```php
+<?php
+
+declare(strict_types=1);
+```
+
+**Every method must carry full type declarations:**
+```php
+// ❌ Rejected by quality gate
+public function handle($event)
+{
+    // ...
+}
+
+// ✅ Required
+public function handle(OrderCreated $event): void
+{
+    // ...
+}
+```
+
+**Note:** `__construct` return types are not required by convention. For parameters whose parent interface is untyped (old framework callbacks, Eloquent override hooks), use `mixed` to preserve LSP compatibility.
+
+### 6.5 Boundary Test Requirements
+
+Every new module endpoint must ship with at minimum:
+
+- One **authorization boundary test** — verifying that non-authorized roles receive a `403 Forbidden` response.
+- One **validation boundary test** — verifying that malformed/empty input receives a `422 Unprocessable Content` response.
+
+These tests contribute to the project-wide boundary hit count (currently 641, minimum enforced is 50). See [TESTING_CONTRIBUTION_GUIDE.md](../testing/TESTING_CONTRIBUTION_GUIDE.md#boundary-test-requirements) for patterns and examples.
+
 ---
 
 ## 9. Quick Reference
@@ -497,6 +534,9 @@ Event::listen('validation.company.creating', function ($validator) {
 - Test module toggle scenarios
 - Place module-specific controllers in module directories
 - Use dynamic class checking for cross-module data access
+- Add `declare(strict_types=1)` to every PHP file in the module
+- Declare explicit types on every method parameter and return value
+- Write at least one authorization boundary test and one validation boundary test per new endpoint
 
 ### ❌ Don't
 - Import Feature module classes in Core modules

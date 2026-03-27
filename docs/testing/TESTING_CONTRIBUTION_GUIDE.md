@@ -199,6 +199,128 @@ php artisan test tests/Architecture --parallel --processes=10
 php artisan test --parallel --processes=10
 ```
 
+After touching any `app/` or `Modules/` PHP file, verify type coverage and the quality gate still pass:
+
+```bash
+php scripts/ci/check-type-coverage.php
+php scripts/ci/check-testing-quality-gate.php
+```
+
+---
+
+## Type Safety Requirements
+
+Type declarations are enforced at **100%** by `scripts/ci/check-type-coverage.php`. The quality gate (`scripts/ci/check-testing-quality-gate.php`) will fail any build that drops below this threshold.
+
+**Every method and function in `app/` and `Modules/` must:**
+- Declare a return type (`:void`, `:string`, `:array`, etc.)
+- Declare a type for every parameter
+
+**All PHP files must open with:**
+```php
+<?php
+
+declare(strict_types=1);
+```
+
+**Allowed exceptions:**
+- `__construct` and `__destruct` are excluded from the return-type denominator (PHP does not allow return types on destructors, and constructors are convention-exempt).
+- Interface methods whose parent signature is untyped (e.g., Eloquent casts, old framework callbacks) — use `mixed` to preserve LSP.
+
+**Examples:**
+
+```php
+// ❌ Missing return type and param type
+public function process($data)
+{
+    return strtoupper($data);
+}
+
+// ✅ Fully typed
+public function process(string $data): string
+{
+    return strtoupper($data);
+}
+```
+
+```php
+// ❌ Missing strict_types declaration
+<?php
+
+namespace App\Services;
+```
+
+```php
+// ✅ Correct file header
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+```
+
+**Enforcing locally — run before every push:**
+```bash
+php scripts/ci/check-type-coverage.php
+```
+
+---
+
+## Boundary Test Requirements
+
+Boundary tests protect against authorization bypass, malformed input, rate-limit exhaustion, and cross-tenant data leakage. The quality gate requires a minimum of **50 boundary hits** across the test suite — currently at **641 hits** across 574 files.
+
+A "boundary hit" is any test that references at least one of: `validation`, `authorize`, `authorization`, `throttle`, `rate limit`, `rate_limiter`, `403`, `422`, `429`.
+
+**When to add a boundary test:**
+
+- A new endpoint is added (must have at least one authorization test and one validation test)
+- Business logic that rejects unauthorized or malformed input
+- Rate-limited routes
+
+**Preferred assertion patterns:**
+
+```php
+// ✅ Authorization boundary
+test('non-admin cannot access module settings', function () {
+    $user = User::factory()->create(); // no admin role
+
+    $this->actingAs($user)
+         ->getJson('/modules/settings')
+         ->assertForbidden(); // 403
+});
+
+// ✅ Validation boundary
+test('rejects empty subject on ticket creation', function () {
+    $this->actingAs(adminUser())
+         ->postJson('/tickets', ['subject' => ''])
+         ->assertUnprocessable(); // 422
+
+    $this->assertDatabaseMissing('tickets', ['subject' => '']);
+});
+
+// ✅ Rate limit boundary
+test('blocks excessive login attempts', function () {
+    for ($i = 0; $i < 6; $i++) {
+        $this->postJson('/login', ['email' => 'x@test.com', 'password' => 'wrong']);
+    }
+
+    $this->postJson('/login', ['email' => 'x@test.com', 'password' => 'wrong'])
+         ->assertStatus(429);
+});
+
+// ✅ Cross-tenant access boundary
+test('cannot access another tenants resource', function () {
+    [$userA, $userB] = User::factory(2)->create();
+
+    $resource = Resource::factory()->for($userA)->create();
+
+    $this->actingAs($userB)
+         ->getJson("/resources/{$resource->id}")
+         ->assertForbidden();
+});
+```
+
 Important:
 - The project already writes test logs to reports/test-results-<timestamp>.log and updates reports/test-results-latest.log.
 - Prefer inspecting reports/test-results-latest.log over rerunning expensive suites.

@@ -15,7 +15,10 @@ All regression prevention work focuses on these six dimensions (from `tests/test
 | **Pyramid Balance** | 55% unit, 25% feature, 15% integration, ≤5% browser | Code review | Count test files by layer |
 | **Module Isolation** | 0 `RefreshDatabase` in unit tests, 0 cross-module coupling | Automated guard | `ModuleUnitIsolationGuardTest` |
 | **Coverage & Mutation** | Critical services ≥85% coverage, ≥80% mutation score | Mutation CI (Phase 8+) | `infection run` |
+| **Type Safety** | 100% param and return-type coverage; `strict_types=1` in all files | `check-type-coverage.php`, quality gate | `php scripts/ci/check-type-coverage.php` |
 | **Developer Experience** | Clear docs, automated guards, mutation CI | This document | All of the above |
+
+> **Type Safety is a blocking gate.** Any PR that introduces untyped params or missing return types will fail `scripts/ci/check-testing-quality-gate.php`. See [TESTING_CONTRIBUTION_GUIDE.md](TESTING_CONTRIBUTION_GUIDE.md#type-safety-requirements) for the full rules.
 
 ---
 
@@ -30,6 +33,10 @@ All regression prevention work focuses on these six dimensions (from `tests/test
   - ❌ Unit tests should NOT import `RefreshDatabase` or cross-module Models
   - ❌ Feature tests should NOT use `makePartial()` to skip key features
   - ❌ Tests should NOT stub out the thing being tested
+- [ ] All new methods and parameters have explicit type declarations
+  - ❌ `public function process($data)` — missing types
+  - ✅ `public function process(string $data): string` — fully typed
+- [ ] New PHP file has `declare(strict_types=1)` at the top
 - [ ] Test name is descriptive and human-readable
   - ✅ `it_prevents_non_admins_from_creating_modules`
   - ❌ `test_permissions` or `testIt`
@@ -74,7 +81,13 @@ Before pushing code:
                 tests/Architecture/
    ```
 
-3. **Inspect the log for warnings:**
+3. **Run the type coverage and quality gate checks:**
+   ```bash
+   php scripts/ci/check-type-coverage.php
+   php scripts/ci/check-testing-quality-gate.php
+   ```
+
+4. **Inspect the log for warnings:**
    ```bash
    tail -n 50 reports/test-results-latest.log
    ```

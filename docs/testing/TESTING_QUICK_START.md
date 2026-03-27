@@ -4,6 +4,8 @@
 ```bash
 # 1-minute check
 bash scripts/ci/check-architecture-compliance.sh
+php scripts/ci/check-type-coverage.php
+php scripts/ci/check-testing-quality-gate.php
 php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php -q
 
 # Full suite (takes ~2 minutes)
@@ -54,7 +56,21 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 2. Test isolation guards (fails if you used RefreshDatabase in unit tests)
+# 2. Type coverage gate (must remain at 100%)
+php scripts/ci/check-type-coverage.php
+if [ $? -ne 0 ]; then
+  echo "❌ Fix missing type declarations before pushing"
+  exit 1
+fi
+
+# 3. Full quality gate (type coverage, boundary hits, arch files)
+php scripts/ci/check-testing-quality-gate.php
+if [ $? -ne 0 ]; then
+  echo "❌ Fix quality gate failures before pushing"
+  exit 1
+fi
+
+# 4. Test isolation guards (fails if you used RefreshDatabase in unit tests)
 php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php \
                  tests/Unit/RefreshDatabaseUsageGuardTest.php -q
 if [ $? -ne 0 ]; then
@@ -62,10 +78,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 3. Updated tests
+# 5. Updated tests
 php artisan test path/to/YourNewTest.php
 
-# 4. Relevant lanes
+# 6. Relevant lanes
 # If you modified a service: run unit tests
 php artisan test tests/Unit --parallel --processes=10
 

@@ -21,6 +21,18 @@ Mocking rules:
 - Fake queues, events, and buses when the test only needs to verify dispatch.
 - Avoid over-mocking business services when a fast, direct assertion on real domain logic is possible.
 
+Type safety rules:
+
+- All PHP files under `app/` and `Modules/` must declare `strict_types=1`.
+- Every method and parameter must carry an explicit type declaration.
+- The quality gate (`scripts/ci/check-testing-quality-gate.php`) enforces 100% type coverage and will fail the build if any untyped methods or parameters are introduced.
+- Use `mixed` when a parent interface or framework contract is untyped; never omit the type declaration entirely.
+
+Boundary rules:
+
+- Every new endpoint needs at least one authorization boundary test (expecting `403`) and one validation boundary test (expecting `422`).
+- The quality gate enforces a minimum of 50 boundary hits across the suite.
+
 Refactoring direction:
 
 - Migrate pure logic out of database-backed unit tests into `Tests\PureUnitTestCase` over time.
