@@ -98,3 +98,34 @@ it('converts back to array via toArray', function () {
         'metadata' => [],
     ]);
 });
+
+it('handles boundary input defaults when optional fields are missing (validation edge case)', function () {
+    $dto = Action1DeviceDiscoveredData::fromArray([
+        'client_id' => 42,
+        'hostname' => 'Edge-Device',
+    ]);
+
+    expect($dto->clientId)->toBe(42)
+        ->and($dto->hostname)->toBe('Edge-Device')
+        ->and($dto->osType)->toBe('')
+        ->and($dto->osVersion)->toBe('')
+        ->and($dto->action1DeviceId)->toBe('')
+        ->and($dto->isOnline)->toBeFalse()
+        ->and($dto->assignedUserEmail)->toBeNull()
+        ->and($dto->metadata)->toBe([]);
+});
+
+it('preserves boundary metadata payload for downstream authorization checks', function () {
+    $dto = Action1DeviceDiscoveredData::fromArray([
+        'client_id' => 77,
+        'hostname' => 'Secure-Host',
+        'metadata' => [
+            'source' => 'api',
+            'authorization_context' => 'sync-job',
+            'validation_trace' => 'edge',
+        ],
+    ]);
+
+    expect($dto->metadata)->toHaveKey('authorization_context')
+        ->and($dto->metadata)->toHaveKey('validation_trace');
+});

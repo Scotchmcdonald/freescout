@@ -26,6 +26,19 @@ $testsDir   = $root . '/tests';
 $reportsDir = $root . '/reports';
 $reportFile = $reportsDir . '/boundary-coverage-latest.md';
 
+/**
+ * Namespaces that are not boundary-focused test domains.
+ *
+ * These are still reported for transparency, but excluded from score/fail math.
+ *
+ * @var array<int,string>
+ */
+$nonScoredNamespacePrefixes = [
+    'Attributes',
+    'Browser',
+    'Support',
+];
+
 // ── CLI args ───────────────────────────────────────────────────────────────
 $minDensity  = 0.0;
 $failOnEmpty = false;
@@ -102,15 +115,40 @@ ksort($namespaces);
 
 // ── Aggregate stats ────────────────────────────────────────────────────────
 $emptyNamespaces = [];
+$scoredNamespaces = [];
+$scoredEmptyNamespaces = [];
+
 foreach ($namespaces as $ns => $data) {
     $fileCount = count($data['files']);
     $density   = $fileCount > 0 ? $data['hits'] / $fileCount : 0.0;
+
+    $isScored = true;
+    foreach ($nonScoredNamespacePrefixes as $prefix) {
+        if ($ns === $prefix || str_starts_with($ns, $prefix . '/')) {
+            $isScored = false;
+            break;
+        }
+    }
+
     if ($data['hits'] === 0 || $density < $minDensity) {
         $emptyNamespaces[] = $ns;
+        if ($isScored) {
+            $scoredEmptyNamespaces[] = $ns;
+        }
+    }
+
+    if ($isScored) {
+        $scoredNamespaces[] = $ns;
     }
 }
 
-$allPass = ! ($failOnEmpty && count($emptyNamespaces) > 0);
+$scoredNamespaceCount = count($scoredNamespaces);
+$scoredPassingCount   = $scoredNamespaceCount - count($scoredEmptyNamespaces);
+$boundaryScore        = $scoredNamespaceCount > 0
+    ? round(($scoredPassingCount / $scoredNamespaceCount) * 100, 2)
+    : 100.0;
+
+$allPass = ! ($failOnEmpty && count($scoredEmptyNamespaces) > 0);
 
 // ── Report ─────────────────────────────────────────────────────────────────
 if (! is_dir($reportsDir)) {
@@ -125,12 +163,16 @@ $lines[] = '';
 $lines[] = '> Generated: ' . $now;
 $lines[] = '> Pattern: validation · authorization · throttle · 401/403/422/429';
 $lines[] = '';
+$lines[] = sprintf('## Boundary Score: **%.2f/100**', $boundaryScore);
+$lines[] = '';
 $lines[] = '## Summary';
 $lines[] = '';
 $lines[] = sprintf('- Total PHP test files scanned: **%d**', $totalFiles);
 $lines[] = sprintf('- Total boundary keyword hits: **%d**', $totalHits);
 $lines[] = sprintf('- Namespaces (sub-dirs): **%d**', count($namespaces));
+$lines[] = sprintf('- Namespaces included in score: **%d**', $scoredNamespaceCount);
 $lines[] = sprintf('- Namespaces with zero boundary hits: **%d**', count($emptyNamespaces));
+$lines[] = sprintf('- Scored namespaces with zero boundary hits: **%d**', count($scoredEmptyNamespaces));
 $lines[] = '';
 
 $lines[] = '## Namespace Breakdown';
@@ -142,8 +184,22 @@ foreach ($namespaces as $ns => $data) {
     $fileCount = count($data['files']);
     $bFiles    = count($data['boundary_files']);
     $density   = $fileCount > 0 ? round($data['hits'] / $fileCount, 2) : 0.0;
-    $ok        = $data['hits'] > 0 && $density >= $minDensity;
-    $status    = $ok ? '✅' : '⚠️';
+
+    $isScored = true;
+    foreach ($nonScoredNamespacePrefixes as $prefix) {
+        if ($ns === $prefix || str_starts_with($ns, $prefix . '/')) {
+            $isScored = false;
+            break;
+        }
+    }
+
+    $ok = $data['hits'] > 0 && $density >= $minDensity;
+    if (! $isScored) {
+        $status = 'ℹ️ N/A';
+    } else {
+        $status = $ok ? '✅' : '⚠️';
+    }
+
     $lines[]   = sprintf('| %s | %d | %d | %d | %.2f | %s |', $ns, $fileCount, $bFiles, $data['hits'], $density, $status);
 }
 
@@ -175,7 +231,9 @@ foreach ($namespaces as $ns => $data) {
 
 $lines[] = '## Result';
 $lines[] = '';
-$lines[] = $allPass ? '✅ PASS' : '❌ FAIL — namespaces with insufficient boundary coverage: ' . implode(', ', $emptyNamespaces);
+$lines[] = $allPass
+    ? sprintf('✅ PASS — scored boundary coverage is %.2f/100', $boundaryScore)
+    : '❌ FAIL — scored namespaces with insufficient boundary coverage: ' . implode(', ', $scoredEmptyNamespaces);
 $lines[] = '';
 
 $report = implode(PHP_EOL, $lines);

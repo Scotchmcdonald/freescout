@@ -32,3 +32,17 @@ it('mailbox settings page loads for admin', function () {
         ->get('/mailbox/'.$mailbox->id.'/settings')
         ->assertOk();
 });
+
+it('requires authorization for mailbox list when unauthenticated', function () {
+    $this->get('/mailboxes')
+        ->assertStatus(302)
+        ->assertRedirect('/login');
+});
+
+it('requires authorization for mailbox settings when unauthenticated', function () {
+    $mailbox = Mailbox::factory()->create();
+
+    $this->get('/mailbox/'.$mailbox->id.'/settings')
+        ->assertStatus(302)
+        ->assertRedirect('/login');
+});

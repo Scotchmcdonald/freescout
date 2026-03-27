@@ -9,19 +9,3 @@
 | **Boundary** | 15/15 | 641 boundary hits across 574 test files covering validation, authorization, throttle, rate limiting, and cross-module access control. |
 | **Type Safety** | 15/15 | 100.0% type coverage (4186/4186 return types, 4723/4723 params) enforced by a quality gate at 100.0%; scanner excludes `__construct`/`__destruct`, strips comments, and handles blade files. |
 | *Previous Score* | *83/100* | *Type Safety 92.81%, Boundary 588 hits, Architecture 10 files* |
-
-### Actionable Roadmap
-
-**Top 3 Constraints and 1-Sentence Fixes:**
-
-1. **`tests/Unit/EnumBehaviourTest.php`** (Architecture/Velocity Penalty)
-   * **Issue:** Fails the "Unit" architectural boundary by booting the entire Laravel framework (`extends TestCase`) just to test enum translations.
-   * **Fix:** Relocated the file to `tests/Integration/EnumBehaviourTest.php` so the pure `tests/Unit` suite remains entirely framework-agnostic.
-
-2. **`Modules/Crm/Tests/Unit/UpdateUserEntitlementCounterListenerTest.php`** (Reliability/Velocity Penalty)
-   * **Issue:** Intermittently fails with `BindingResolutionException` under parallel load because the listener directly invokes the global `logger()` helper, forcing tests to unsafely overwrite `Container::setInstance()`.
-   * **Fix:** Refactored the listener to inject `?Psr\Log\LoggerInterface`, eliminating the need to mutate the global application container in pure unit tests.
-
-3. **`tests/Integration/Payment/HelcimServiceTest.php`** (Reliability Penalty)
-   * **Issue:** Randomly fails asserting `RuntimeException` on `api_token` validation because manually swapping `Container::setInstance(new class extends Application {})` to mock `runningInConsole()` leaves the instance misconfigured for subsequent synchronous assertions.
-   * **Fix:** Tests overriding `app()->runningInConsole()` should leverage proper partial mocks of the Application instance or isolate the environment check behind an injectable `EnvironmentDetector` service to ensure pristine state.

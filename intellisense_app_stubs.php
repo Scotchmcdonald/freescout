@@ -198,11 +198,45 @@ namespace {
         }
     }
 
-    if (! function_exists('auth')) {
-        /** @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\StatefulGuard|\Illuminate\Contracts\Auth\Guard */
-        function auth(?string $guard = null): mixed
+    if (! class_exists('IntellisenseAuthUser')) {
+        class IntellisenseAuthUser
         {
-            return null;
+            public function can(mixed $abilities, array $arguments = []): bool
+            {
+                return true;
+            }
+
+            public function getAttribute(string $key): mixed
+            {
+                return null;
+            }
+        }
+    }
+
+    if (! class_exists('IntellisenseAuthGuard')) {
+        class IntellisenseAuthGuard
+        {
+            public function check(): bool
+            {
+                return true;
+            }
+
+            public function id(): int|string|null
+            {
+                return 1;
+            }
+
+            public function user(): ?IntellisenseAuthUser
+            {
+                return null;
+            }
+        }
+    }
+
+    if (! function_exists('auth')) {
+        function auth(?string $guard = null): IntellisenseAuthGuard
+        {
+            return new IntellisenseAuthGuard;
         }
     }
 
@@ -265,6 +299,42 @@ namespace Modules\GoogleAdmin\Models {
         function decrypt(string $payload, bool $unserialize = true): mixed
         {
             return \decrypt($payload, $unserialize);
+        }
+    }
+}
+
+namespace App\Http\Controllers {
+    if (! function_exists(__NAMESPACE__.'\\random_bytes')) {
+        function random_bytes(int $length): string
+        {
+            return '';
+        }
+    }
+}
+
+namespace App\Console\Commands {
+    if (! function_exists(__NAMESPACE__.'\\opcache_invalidate')) {
+        function opcache_invalidate(string $filename, bool $force = false): bool
+        {
+            return true;
+        }
+    }
+}
+
+namespace Modules\DevFeedback\Providers {
+    if (! function_exists(__NAMESPACE__.'\\auth')) {
+        function auth(?string $guard = null): \IntellisenseAuthGuard
+        {
+            return new \IntellisenseAuthGuard;
+        }
+    }
+}
+
+namespace Modules\Crm\Providers {
+    if (! function_exists(__NAMESPACE__.'\\auth')) {
+        function auth(?string $guard = null): \IntellisenseAuthGuard
+        {
+            return new \IntellisenseAuthGuard;
         }
     }
 }

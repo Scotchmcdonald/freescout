@@ -39,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->registerTestingEventyFallback();
+
         $this->app->singleton(WidgetRegistryService::class, function ($app) {
             return new WidgetRegistryService;
         });
@@ -69,6 +71,44 @@ class AppServiceProvider extends ServiceProvider
         // Register class aliases for backward compatibility
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('Helper', \App\Misc\Helper::class);
+    }
+
+    /**
+     * Provide a null Eventy binding for test subprocesses.
+     *
+     * Some console subprocesses spawned by integration tests do not run
+     * through Tests\TestCase, so they may miss the usual test-only Eventy mock.
+     */
+    protected function registerTestingEventyFallback(): void
+    {
+        if (! $this->app->environment('testing') || $this->app->bound('eventy')) {
+            return;
+        }
+
+        $nullEventy = new class
+        {
+            public function addFilter($tag, $callback, $priority = 10, $accepted_args = 1)
+            {
+                return true;
+            }
+
+            public function addAction($tag, $callback, $priority = 10, $accepted_args = 1)
+            {
+                return true;
+            }
+
+            public function filter($tag, $value)
+            {
+                return $value;
+            }
+
+            public function action($tag, ...$args)
+            {
+                return null;
+            }
+        };
+
+        $this->app->instance('eventy', $nullEventy);
     }
 
     /**

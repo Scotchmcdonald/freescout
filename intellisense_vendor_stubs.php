@@ -1,6 +1,50 @@
 <?php
 
 namespace {
+    if (! class_exists('Artisan')) {
+        class Artisan extends \Illuminate\Support\Facades\Artisan {}
+    }
+
+    if (! class_exists('Cache')) {
+        class Cache extends \Illuminate\Support\Facades\Cache {}
+    }
+
+    if (! class_exists('DB')) {
+        class DB extends \Illuminate\Support\Facades\DB {}
+    }
+
+    if (! class_exists('File')) {
+        class File extends \Illuminate\Support\Facades\File {}
+    }
+
+    if (! class_exists('Log')) {
+        class Log extends \Illuminate\Support\Facades\Log {}
+    }
+
+    if (! class_exists('Route')) {
+        class Route extends \Illuminate\Support\Facades\Route {}
+    }
+
+    if (! class_exists('Response')) {
+        class Response extends \Illuminate\Support\Facades\Response {}
+    }
+
+    if (! class_exists('Session')) {
+        class Session extends \Illuminate\Support\Facades\Session {}
+    }
+
+    if (! class_exists('Str')) {
+        class Str extends \Illuminate\Support\Str {}
+    }
+
+    if (! class_exists('Module')) {
+        class Module extends \Nwidart\Modules\Facades\Module {}
+    }
+
+    if (! class_exists('Eventy')) {
+        class Eventy extends \TorMorten\Eventy\Facades\Events {}
+    }
+
     class View
     {
         public static function make(string $view, array $data = [], array $mergeData = []): object
@@ -155,6 +199,14 @@ namespace Illuminate\Console {
     {
         public const SUCCESS = 0;
         public const FAILURE = 1;
+
+        /** @var \Illuminate\Foundation\Application */
+        protected $laravel;
+
+        public function call(string $command, array $arguments = []): int
+        {
+            return self::SUCCESS;
+        }
 
         public function option(?string $key = null): mixed
         {
