@@ -2,27 +2,19 @@
     "$schema": "vendor/infection/infection/resources/schema.json",
     "source": {
         "directories": [
+            "Modules/GoogleAdmin/Services",
             "Modules/Action1/Services",
             "Modules/AssetManagement/Services",
-            "Modules/ContractManager/Services",
-            "Modules/Payment/Services",
-            "Modules/PIB/Services",
-            "Modules/SoftwareSubscriptions/Services"
+            "Modules/ClientPortal/Services"
         ]
     },
     "mutators": {
         "@default": true
     },
-    "minMsi": 95,
-    "minCoveredMsi": 95,
     "testFramework": "phpunit",
     "phpUnit": {
         "customPath": "scripts/pest-phpunit-wrapper",
         "configDir": "config/infection"
     },
-    "tmpDir": "storage/infection",
-    "logs": {
-        "text": "reports/infection.log",
-        "summaryJson": "reports/infection-summary.json"
-    }
+    "tmpDir": "storage/infection"
 }

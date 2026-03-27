@@ -1,0 +1,17 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "Modules/Action1/Services"
+        ]
+    },
+    "mutators": {
+        "@default": true
+    },
+    "testFramework": "phpunit",
+    "phpUnit": {
+        "customPath": "scripts/pest-phpunit-wrapper",
+        "configDir": "config/infection"
+    },
+    "tmpDir": "storage/infection"
+}

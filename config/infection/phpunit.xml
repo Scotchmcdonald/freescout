@@ -27,12 +27,20 @@
         <testsuite name="Payment">
             <directory>../../Modules/Payment/Tests</directory>
         </testsuite>
+        <testsuite name="SoftwareSubscriptions">
+            <directory>../../Modules/SoftwareSubscriptions/Tests</directory>
+        </testsuite>
+        <testsuite name="CaseManager">
+            <directory>../../Modules/CaseManager/Tests</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>../../Modules/PIB/Services</directory>
             <directory>../../Modules/ContractManager/Services</directory>
             <directory>../../Modules/Payment/Services</directory>
+            <directory>../../Modules/SoftwareSubscriptions/Services</directory>
+            <directory>../../Modules/CaseManager/Services</directory>
             <directory>../../app/Services</directory>
             <directory>../../app/Actions</directory>
         </include>
