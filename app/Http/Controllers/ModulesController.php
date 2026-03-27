@@ -627,7 +627,7 @@ class ModulesController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function installWithProgress(\Illuminate\Http\Request $request)
+    public function installWithProgress(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
     {
         $sessionId = $request->input('session_id');
 

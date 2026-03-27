@@ -44,7 +44,7 @@ class ModuleUpdate extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $install_all = false;
         $modules = [];

@@ -149,7 +149,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @param  int|string|\Modules\Crm\Models\Company  $company
      */
-    public function hasCompanyAccess($company): bool
+    public function hasCompanyAccess(int|string|\Modules\Crm\Models\Company $company): bool
     {
         // MSP Admin has access to all companies (Global Role)
         if ($this->role === self::ROLE_ADMIN) {
@@ -578,7 +578,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  string  $format
      * @param  User|null  $user
      */
-    public static function dateFormat($date, $format = 'M j, Y', $user = null): string
+    public static function dateFormat(\DateTimeInterface|string|int|false|null $date, string $format = 'M j, Y', ?self $user = null): string
     {
         if (! $date) {
             return '';
@@ -616,7 +616,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mailbox>
      */
-    public function mailboxesCanView(bool $checkPermission = false)
+    public function mailboxesCanView(bool $checkPermission = false): \Illuminate\Database\Eloquent\Collection
     {
         if ($this->isAdmin()) {
             return Mailbox::all();
@@ -633,7 +633,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @param  int|string  $permission
      */
-    public function hasPermission($permission, bool $checkOwnPermissions = true): bool
+    public function hasPermission(int|string $permission, bool $checkOwnPermissions = true): bool
     {
         // Super admins bypass all permission checks
         if ($this->isAdmin()) {
@@ -703,7 +703,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  \Illuminate\Database\Eloquent\Builder<User>  $query
      * @return \Illuminate\Database\Eloquent\Builder<User>
      */
-    public function scopeNonDeleted($query)
+    public function scopeNonDeleted(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', '!=', self::STATUS_DELETED);
     }

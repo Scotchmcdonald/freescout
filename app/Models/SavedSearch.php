@@ -74,7 +74,7 @@ class SavedSearch extends Model
      * @param  \Illuminate\Database\Eloquent\Builder<SavedSearch>  $query
      * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser(\Illuminate\Database\Eloquent\Builder $query, int $userId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('user_id', $userId);
     }
@@ -85,7 +85,7 @@ class SavedSearch extends Model
      * @param  \Illuminate\Database\Eloquent\Builder<SavedSearch>  $query
      * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->orderBy('sort_order', 'asc')->orderBy('name', 'asc');
     }

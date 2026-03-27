@@ -56,7 +56,7 @@ class WpApi
      * @param  array<string, mixed>  $params
      * @return \Illuminate\Http\Client\Response
      */
-    public static function httpRequest(string $method, string $url, array $params)
+    public static function httpRequest(string $method, string $url, array $params): \Illuminate\Http\Client\Response
     {
         $options = Helper::setGuzzleDefaultOptions([
             'connect_timeout' => 10,

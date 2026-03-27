@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Usage:
  * class SyncGoogleUserListener extends IdempotentListener {
- *     protected function handleIdempotent($event): void {
+ *     protected function handleIdempotent(object $event): void {
  *         User::updateOrCreate(...);
  *     }
  * }

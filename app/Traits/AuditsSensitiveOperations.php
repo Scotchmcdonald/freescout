@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Auth;
  * class CreditService {
  *     use AuditsSensitiveOperations;
  *
- *     public function addCredit($clientId, $amount, $reason) {
+ *     public function addCredit(int $clientId, float $amount, string $reason): void {
  *         // Perform operation
  *         $this->auditSensitiveOperation(
  *             'credit_added',

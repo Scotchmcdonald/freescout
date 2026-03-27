@@ -23,7 +23,7 @@ if (! function_exists('setting')) {
      * @param  mixed  $default
      * @return mixed
      */
-    function setting($key, $default = null)
+    function setting(string $key, mixed $default = null): mixed
     {
         return $default;
     }
@@ -37,7 +37,7 @@ if (! function_exists('money')) {
      * @param  string  $currency
      * @return string
      */
-    function money($amount, $currency = '$')
+    function money(mixed $amount, string $currency = '$'): string
     {
         return $currency.number_format(is_numeric($amount) ? (float) $amount : 0.0, 2);
     }

@@ -40,7 +40,7 @@ class ModuleInstall extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
         try {
             $this->call('cache:clear');
@@ -125,7 +125,7 @@ class ModuleInstall extends Command
      *
      * @throws \Exception
      */
-    public function createModulePublicSymlink($module)
+    public function createModulePublicSymlink(\Nwidart\Modules\Module $module): void
     {
         $target = $module->getExtraPath('Resources/assets');
         $link = public_path('modules/'.$module->getLowerName());

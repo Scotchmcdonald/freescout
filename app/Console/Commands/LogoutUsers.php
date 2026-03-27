@@ -37,7 +37,7 @@ class LogoutUsers extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         try {
             // Remove files from storage/frameworks/sessions

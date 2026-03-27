@@ -481,7 +481,7 @@ class Conversation extends Model
      *
      * @param  \Illuminate\Support\Carbon|string|null  $date
      */
-    public function setFollowUp($date = null): void
+    public function setFollowUp(\Illuminate\Support\Carbon|string|null $date = null): void
     {
         if ($date === null) {
             $defaultDays = config('app.default_follow_up_days', 3);
@@ -713,7 +713,7 @@ class Conversation extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<User, $this>
      */
-    public function starredByUsers()
+    public function starredByUsers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'conversation_user_stars', 'conversation_id', 'user_id');
     }
@@ -770,7 +770,7 @@ class Conversation extends Model
      * @param  User|null  $user  User performing the search
      * @return \Illuminate\Database\Eloquent\Builder<static>
      */
-    public static function search(string $query, array $filters = [], ?User $user = null)
+    public static function search(string $query, array $filters = [], ?User $user = null): \Illuminate\Database\Eloquent\Builder
     {
         $builder = static::query()
             ->select('conversations.*');
@@ -903,7 +903,7 @@ class Conversation extends Model
      * @param  array<int, int>  $excludeUserIds
      * @return array<int, array{user: User|null, user_id: int, replying: bool}>
      */
-    public static function getViewersInfo($conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
+    public static function getViewersInfo(\Illuminate\Database\Eloquent\Collection|array $conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
     {
         /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);

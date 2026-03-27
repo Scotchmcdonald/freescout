@@ -51,7 +51,13 @@ foreach ($scanDirs as $dir) {
             continue;
         }
 
+        // Skip Blade view files — they contain JavaScript function declarations
+        // that are not PHP and would produce false positives
         $filePath = $file->getPathname();
+        if (str_contains($filePath, '.blade.php')) {
+            continue;
+        }
+
         $code     = (string) file_get_contents($filePath);
 
         // Derive a short namespace key from path (e.g. "app/Services" or "Modules/Payment/Services")
@@ -138,13 +144,13 @@ $lines[] = sprintf('| Minimum required | %.1f%% |', $minPct);
 $lines[] = sprintf('| Status | %s |', $pass ? '✅ PASS' : '❌ FAIL');
 $lines[] = '';
 
-// Top violations (up to 20)
+// Top violations (up to 100)
 if ($violations !== []) {
-    $lines[] = '## Top Missing Type Declarations (first 20)';
+    $lines[] = '## Top Missing Type Declarations (first 100)';
     $lines[] = '';
     $lines[] = '| File | Method | Missing |';
     $lines[] = '| :--- | :--- | :--- |';
-    foreach (array_slice($violations, 0, 20) as $v) {
+    foreach (array_slice($violations, 0, 100) as $v) {
         $lines[] = sprintf('| %s | `%s` | `%s` |', $v['file'], $v['method'], $v['param']);
     }
     $lines[] = '';
@@ -191,6 +197,11 @@ function analyzeMethodSignatures(string $code): array
 {
     $methods = [];
 
+    // Strip comments and docblocks before matching to avoid false positives
+    // from example code in docblocks (e.g., "public function addCredit($clientId)")
+    $code = preg_replace('#/\*.*?\*/#s', '', $code) ?? $code;  // block + doc comments
+    $code = preg_replace('#//[^\n]*#', '', $code) ?? $code;    // single-line comments
+
     // Match public/protected function declarations (not abstract interfaces)
     // Pattern: optional(public|protected) [static] function name(...)[ : type]
     $pattern = '/(?:(?:public|protected)\s+)?(?:static\s+)?function\s+(\w+)\s*\(([^)]*)\)\s*(?::\s*[\w\\\\|?<>]+\s*)?(?:\{|;)/';
@@ -209,14 +220,27 @@ function analyzeMethodSignatures(string $code): array
 
         $params = [];
         if ($paramStr !== '') {
-            foreach (explode(',', $paramStr) as $param) {
+            // Strip comments from param string to avoid false positives
+            // Remove single-line comments: // ... (to end of line)
+            $cleanParams = preg_replace('#//[^\n]*#', '', $paramStr) ?? $paramStr;
+            // Remove block comments: /* ... */ and /** ... */
+            $cleanParams = preg_replace('#/\*.*?\*/#s', '', $cleanParams) ?? $cleanParams;
+
+            // Split on commas respecting bracket nesting (arrays, generics)
+            $splitParams = splitParamsRespectingBrackets($cleanParams);
+
+            foreach ($splitParams as $param) {
                 $param = trim($param);
                 if ($param === '') {
                     continue;
                 }
                 // A typed param looks like: "Type $var" or "?Type $var" or "Type|Other $var"
                 // An untyped one is just "$var" or "...$var"
-                $hasType = (bool) preg_match('/^[?\\\\]?[a-zA-Z]/', $param);
+                // Must contain a $ variable to be a real parameter
+                if (! str_contains($param, '$')) {
+                    continue;
+                }
+                $hasType = (bool) preg_match('/^[?]?[\\\\]?[a-zA-Z]/', $param);
                 // Extract the variable name
                 preg_match('/\$(\w+)/', $param, $vm);
                 $paramName = $vm[1] ?? $param;
@@ -232,4 +256,42 @@ function analyzeMethodSignatures(string $code): array
     }
 
     return $methods;
+}
+
+/**
+ * Split a parameter string on commas, respecting bracket nesting.
+ *
+ * Handles array defaults like ['a', 'b', 'c'] and generic types like
+ * array<string, int> without incorrectly splitting on their internal commas.
+ *
+ * @return list<string>
+ */
+function splitParamsRespectingBrackets(string $paramStr): array
+{
+    $parts = [];
+    $current = '';
+    $depth = 0;
+
+    for ($i = 0, $len = strlen($paramStr); $i < $len; $i++) {
+        $char = $paramStr[$i];
+
+        if ($char === '[' || $char === '(' || $char === '<' || $char === '{') {
+            $depth++;
+            $current .= $char;
+        } elseif ($char === ']' || $char === ')' || $char === '>' || $char === '}') {
+            $depth--;
+            $current .= $char;
+        } elseif ($char === ',' && $depth === 0) {
+            $parts[] = $current;
+            $current = '';
+        } else {
+            $current .= $char;
+        }
+    }
+
+    if (trim($current) !== '') {
+        $parts[] = $current;
+    }
+
+    return $parts;
 }

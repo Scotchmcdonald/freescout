@@ -15,7 +15,7 @@ class CollisionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function viewing(Request $request, int $id)
+    public function viewing(Request $request, int $id): \Illuminate\Http\JsonResponse
     {
         /** @var \App\Models\User|null $user */
         $user = $request->user();

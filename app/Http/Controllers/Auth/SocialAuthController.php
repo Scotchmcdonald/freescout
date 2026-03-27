@@ -18,7 +18,7 @@ class SocialAuthController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function redirectToGoogle()
+    public function redirectToGoogle(): \Symfony\Component\HttpFoundation\Response
     {
         return Socialite::driver('google')->redirect();
     }
@@ -28,7 +28,7 @@ class SocialAuthController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(): \Symfony\Component\HttpFoundation\Response
     {
         try {
             $googleUser = Socialite::driver('google')->user();
