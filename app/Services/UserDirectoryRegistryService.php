@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Contracts\UserProvider;
 
-class UserDirectoryRegistryService
+final class UserDirectoryRegistryService
 {
     /**
      * @var UserProvider[]
