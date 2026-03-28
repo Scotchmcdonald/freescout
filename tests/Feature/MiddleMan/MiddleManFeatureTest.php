@@ -15,11 +15,14 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
 use Modules\MiddleMan\Models\MiddleManLog;
+use Modules\MiddleMan\Models\MiddleManPreset;
 use Modules\MiddleMan\Models\MiddleManSchema;
+use Modules\MiddleMan\Services\CircuitBreaker;
 use Modules\MiddleMan\Jobs\DetectSchemaDriftJob;
 use Modules\MiddleMan\Jobs\WriteLogEntryJob;
 
@@ -57,6 +60,11 @@ if (! class_exists('Tests\Feature\MiddleMan\ReplayableTestEvent')) {
         ) {}
     }
 }
+
+beforeEach(function (): void {
+    // Keep RuleEngine/CircuitBreaker reads in-memory during tests so Redis is never required.
+    config()->set('middleman.cache_store', 'array');
+});
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Authorization Boundary Tests (403 Forbidden)
@@ -668,4 +676,485 @@ test('clearing all logs removes records and writes audit', function (): void {
     $this->assertDatabaseHas('middleman_audit_trail', [
         'action' => 'logs_cleared',
     ]);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Tab Routes and Advanced Views
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('all middleman tab pages load for admin', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)->get('/middleman')->assertOk();
+    $this->actingAs($admin)->get('/middleman/logging')->assertOk();
+    $this->actingAs($admin)->get('/middleman/intercept')->assertOk();
+    $this->actingAs($admin)->get('/middleman/marshal')->assertOk();
+    $this->actingAs($admin)->get('/middleman/topology')->assertOk();
+    $this->actingAs($admin)->get('/middleman/schema')->assertOk();
+    $this->actingAs($admin)->get('/middleman/tracing')->assertOk();
+    $this->actingAs($admin)->get('/middleman/replay')->assertOk();
+    $this->actingAs($admin)->get('/middleman/muting')->assertOk();
+});
+
+test('topology diagram endpoint returns 404 when kroki is disabled', function (): void {
+    $admin = createMiddleManAdmin();
+    config()->set('middleman.kroki.enabled', false);
+
+    $this->actingAs($admin)
+        ->get('/middleman/topology/diagram.svg')
+        ->assertStatus(404);
+});
+
+test('dashboard circuit breaker reset endpoint returns closed state and writes audit', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/circuit-breaker/reset')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('state', 'closed');
+
+    $this->assertDatabaseHas('middleman_audit_trail', [
+        'user_id' => $admin->id,
+        'action'  => 'circuit_breaker_reset',
+    ]);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Intercept Bulk & Queue Workflows
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('intercept reorder updates pending sort order and writes audit', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $first = MiddleManIntercept::create([
+        'event_class'    => 'App\\Events\\A',
+        'event_name'     => 'A',
+        'payload'        => ['k' => 1],
+        'metadata'       => [],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 1,
+        'intercepted_at' => now(),
+    ]);
+
+    $second = MiddleManIntercept::create([
+        'event_class'    => 'App\\Events\\B',
+        'event_name'     => 'B',
+        'payload'        => ['k' => 2],
+        'metadata'       => [],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 2,
+        'intercepted_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/intercept/reorder', [
+            'order' => [
+                ['id' => $first->id, 'sort' => 9],
+                ['id' => $second->id, 'sort' => 3],
+            ],
+        ])
+        ->assertOk()
+        ->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('middleman_intercepts', ['id' => $first->id, 'sort_order' => 9]);
+    $this->assertDatabaseHas('middleman_intercepts', ['id' => $second->id, 'sort_order' => 3]);
+    $this->assertDatabaseHas('middleman_audit_trail', ['action' => MiddleManAuditEntry::ACTION_ORDER_CHANGED]);
+});
+
+test('intercept fire-selected and fire-all return fired and corrupted counters', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $a = MiddleManIntercept::create([
+        'event_class'    => 'App\\Events\\One',
+        'event_name'     => 'One',
+        'payload'        => ['x' => 1],
+        'metadata'       => [],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 1,
+        'intercepted_at' => now(),
+    ]);
+
+    $b = MiddleManIntercept::create([
+        'event_class'    => 'App\\Events\\Two',
+        'event_name'     => 'Two',
+        'payload'        => ['x' => 2],
+        'metadata'       => [],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 2,
+        'intercepted_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/intercept/fire-selected', ['ids' => [$a->id]])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('fired', 1)
+        ->assertJsonStructure(['corrupted']);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/intercept/fire-all')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonStructure(['fired', 'corrupted']);
+
+    $this->assertDatabaseHas('middleman_audit_trail', ['action' => MiddleManAuditEntry::ACTION_BATCH_FIRED]);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Marshal Workflows and Allowlist Guardrails
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('marshal parameters endpoint returns parameter metadata payload', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/marshal/parameters?event_class=' . urlencode(ReplayableTestEvent::class))
+        ->assertOk()
+        ->assertJsonStructure(['parameters', 'presets']);
+});
+
+test('marshal searchable model endpoint blocks non-allowlisted model with 403', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/marshal/search-model?model_class=' . urlencode(User::class) . '&query=adm')
+        ->assertStatus(403)
+        ->assertJsonPath('error', 'Model is not searchable. Implement MiddleManSearchable or add it to middleman.searchable_models.');
+});
+
+test('marshal searchable model endpoint allows model in config allowlist', function (): void {
+    $admin = createMiddleManAdmin();
+
+    config()->set('middleman.searchable_models', [User::class]);
+
+    $user = User::factory()->create([
+        'first_name' => 'Search',
+        'last_name'  => 'Target',
+        'email'      => 'search.target@example.test',
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/marshal/search-model?model_class=' . urlencode(User::class) . '&query=search')
+        ->assertOk()
+        ->assertJsonStructure(['results'])
+        ->assertJsonFragment(['id' => $user->id]);
+});
+
+test('marshal fire with hold creates pending intercept and audit entry', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/marshal/fire', [
+            'event_class' => ReplayableTestEvent::class,
+            'payload'     => ['message' => 'held', 'code' => 204],
+            'hold'        => true,
+        ])
+        ->assertOk()
+        ->assertJsonPath('action', 'held');
+
+    $this->assertDatabaseHas('middleman_intercepts', [
+        'event_class' => ReplayableTestEvent::class,
+        'status'      => MiddleManIntercept::STATUS_PENDING,
+    ]);
+
+    $this->assertDatabaseHas('middleman_audit_trail', [
+        'user_id' => $admin->id,
+        'action'  => MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
+    ]);
+});
+
+test('marshal batch with hold creates multiple intercepts', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/marshal/batch', [
+            'event_class' => ReplayableTestEvent::class,
+            'items'       => [
+                ['message' => 'a', 'code' => 101],
+                ['message' => 'b', 'code' => 202],
+            ],
+            'hold'        => true,
+        ])
+        ->assertOk()
+        ->assertJsonPath('success', 2)
+        ->assertJsonPath('failed', 0);
+
+    expect(MiddleManIntercept::query()->where('event_class', ReplayableTestEvent::class)->count())->toBeGreaterThanOrEqual(2);
+});
+
+test('marshal preset save and delete endpoints work', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $save = $this->actingAs($admin)
+        ->postJson('/middleman/marshal/presets', [
+            'event_class' => ReplayableTestEvent::class,
+            'name'        => 'Smoke Preset',
+            'payload'     => ['message' => 'preset', 'code' => 200],
+        ])
+        ->assertOk()
+        ->assertJsonPath('success', true);
+
+    $presetId = (int) $save->json('preset.id');
+    expect($presetId)->toBeGreaterThan(0);
+
+    $this->actingAs($admin)
+        ->deleteJson('/middleman/marshal/presets/' . $presetId)
+        ->assertOk()
+        ->assertJsonPath('success', true);
+
+    $this->assertDatabaseMissing((new MiddleManPreset())->getTable(), ['id' => $presetId]);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Replay Sequence Multi-Status Behaviour
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('replay sequence returns 207 multi-status when results are mixed', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $ok = MiddleManLog::create([
+        'event_class'      => ReplayableTestEvent::class,
+        'event_name'       => 'ReplayableTestEvent',
+        'payload'          => ['message' => 'ok', 'code' => 200],
+        'metadata'         => ['class' => ReplayableTestEvent::class],
+        'fired_at'         => now()->subSecond(),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $bad = MiddleManLog::create([
+        'event_class'      => 'App\\Events\\ClassDoesNotExist',
+        'event_name'       => 'ClassDoesNotExist',
+        'payload'          => ['message' => 'bad', 'code' => 500],
+        'metadata'         => ['class' => 'App\\Events\\ClassDoesNotExist'],
+        'fired_at'         => now(),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/replay/sequence', [
+            'source' => 'logs',
+            'ids'    => [$ok->id, $bad->id],
+        ])
+        ->assertStatus(207)
+        ->assertJsonPath('processed', 2)
+        ->assertJsonPath('succeeded', 1)
+        ->assertJsonPath('failed', 1)
+        ->assertJsonCount(1, 'errors');
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Muting data + clear-all endpoints
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('muting data and clear-all endpoints return current state', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/muting/add', ['listener_class' => 'App\\Listeners\\One'])
+        ->assertOk();
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/muting/data')
+        ->assertOk()
+        ->assertJsonStructure(['muted_listeners']);
+
+    $this->actingAs($admin)
+        ->deleteJson('/middleman/muting/clear')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('muted_listeners', []);
+
+    $this->assertDatabaseHas('middleman_audit_trail', ['action' => 'muted_listeners_cleared']);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// README Coverage: Prune command operational path
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+test('middleman prune command dry-run executes successfully', function (): void {
+    MiddleManLog::create([
+        'event_class'      => 'App\\Events\\OldLog',
+        'event_name'       => 'OldLog',
+        'payload'          => ['k' => 'v'],
+        'metadata'         => [],
+        'fired_at'         => now()->subDays(30),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $this->artisan('middleman:prune', ['--dry-run' => true, '--logs-days' => 7])
+        ->assertSuccessful();
+});
+
+test('logging and intercept detail endpoints return selected records', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $log = MiddleManLog::create([
+        'event_class'      => ReplayableTestEvent::class,
+        'event_name'       => 'ReplayableTestEvent',
+        'payload'          => ['message' => 'detail', 'code' => 200],
+        'metadata'         => [],
+        'fired_at'         => now(),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $intercept = MiddleManIntercept::create([
+        'event_class'    => ReplayableTestEvent::class,
+        'event_name'     => 'ReplayableTestEvent',
+        'payload'        => ['message' => 'intercept-detail', 'code' => 200],
+        'metadata'       => [],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 1,
+        'intercepted_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/logging/' . $log->id)
+        ->assertOk()
+        ->assertJsonPath('id', $log->id);
+
+    $this->actingAs($admin)
+        ->getJson('/middleman/intercept/' . $intercept->id)
+        ->assertOk()
+        ->assertJsonPath('id', $intercept->id);
+});
+
+test('marshal fire without hold dispatches event immediately', function (): void {
+    Event::fake([ReplayableTestEvent::class]);
+
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/marshal/fire', [
+            'event_class' => ReplayableTestEvent::class,
+            'payload'     => ['message' => 'live-fire', 'code' => 299],
+            'hold'        => false,
+        ])
+        ->assertOk()
+        ->assertJsonPath('action', 'fired');
+
+    Event::assertDispatched(ReplayableTestEvent::class, function (ReplayableTestEvent $event): bool {
+        return $event->message === 'live-fire' && $event->code === 299;
+    });
+});
+
+test('tracing page filter scopes results to selected correlation id', function (): void {
+    $admin = createMiddleManAdmin();
+
+    MiddleManLog::create([
+        'event_class'      => 'App\\Events\\TraceA',
+        'event_name'       => 'TraceA',
+        'payload'          => [],
+        'metadata'         => [],
+        'fired_at'         => now(),
+        'correlation_id'   => 'corr-a',
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    MiddleManLog::create([
+        'event_class'      => 'App\\Events\\TraceB',
+        'event_name'       => 'TraceB',
+        'payload'          => [],
+        'metadata'         => [],
+        'fired_at'         => now(),
+        'correlation_id'   => 'corr-b',
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->get('/middleman/tracing?correlation_id=corr-a')
+        ->assertOk()
+        ->assertSee('corr-a')
+        ->assertSee('TraceA')
+        ->assertDontSee('TraceB');
+});
+
+test('intercept fire marks record corrupted and returns 422 when dispatch throws', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $intercept = MiddleManIntercept::create([
+        'event_class'    => ReplayableTestEvent::class,
+        'event_name'     => 'ReplayableTestEvent',
+        'payload'        => ['message' => 'boom', 'code' => 500],
+        'metadata'       => ['source' => 'test'],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 1,
+        'intercepted_at' => now(),
+    ]);
+
+    $dispatcher = \Mockery::mock(\Modules\MiddleMan\Services\MiddleManDispatcher::class, [app()])->makePartial();
+    $dispatcher->shouldReceive('dispatchBypassing')->andThrow(new \RuntimeException('forced dispatch failure'));
+    app()->instance(\Illuminate\Contracts\Events\Dispatcher::class, $dispatcher);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/intercept/' . $intercept->id . '/fire')
+        ->assertStatus(422)
+        ->assertJsonPath('error', 'Event hydration failed. The intercept has been marked CORRUPTED.');
+
+    $intercept->refresh();
+    expect($intercept->status)->toBe(MiddleManIntercept::STATUS_CORRUPTED);
+    expect((string) $intercept->resolution_notes)->toContain('forced dispatch failure');
+});
+
+test('replay sequence endpoint rejects payloads over 200 ids', function (): void {
+    $admin = createMiddleManAdmin();
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/replay/sequence', [
+            'source' => 'logs',
+            'ids'    => range(1, 201),
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['ids']);
+});
+
+test('topology diagram endpoint returns svg when kroki is enabled and reachable', function (): void {
+    $admin = createMiddleManAdmin();
+
+    config()->set('middleman.kroki.enabled', true);
+    config()->set('middleman.kroki.base_url', 'http://kroki.test');
+
+    Http::fake([
+        'http://kroki.test/graphviz/svg' => Http::response('<svg xmlns="http://www.w3.org/2000/svg"></svg>', 200),
+    ]);
+
+    $this->actingAs($admin)
+        ->get('/middleman/topology/diagram.svg')
+        ->assertOk()
+        ->assertHeader('Content-Type', 'image/svg+xml');
+});
+
+test('circuit breaker trip and close manage open state and fallback flag file', function (): void {
+    $breaker = app(CircuitBreaker::class);
+    $flag = storage_path('framework/middleman_breaker.flag');
+
+    if (file_exists($flag)) {
+        unlink($flag);
+    }
+
+    $breaker->trip('forced infrastructure failure', true);
+
+    expect($breaker->getState())->toBe(CircuitBreaker::STATE_OPEN);
+    expect(file_exists($flag))->toBeTrue();
+
+    $breaker->close('test cleanup');
+
+    expect($breaker->getState())->toBe(CircuitBreaker::STATE_CLOSED);
+    expect(file_exists($flag))->toBeFalse();
 });
