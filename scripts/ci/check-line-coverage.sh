@@ -33,6 +33,7 @@ COVERAGE_TXT="$REPORTS_DIR/coverage-final.txt"
 MIN_COVERAGE="${TEST_MIN_COVERAGE:-70}"
 
 PREVERIFIED_ARTIFACT="$REPORTS_DIR/all-tests-passed.json"
+QUIET_MODE=false
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════════╗"
@@ -40,9 +41,11 @@ echo "║ Line Coverage Collection (sequential, 3G, Xdebug)             ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
 if [ -f "$PREVERIFIED_ARTIFACT" ]; then
-    echo "  ✅ Tests pre-verified by check-all-tests.sh — collecting coverage only"
+    echo "  ✅ Tests pre-verified by check-all-tests.sh"
+    echo "     Suppressing per-test output (coverage instrumentation only)"
+    QUIET_MODE=true
 else
-    echo "  ⚠️  No pre-verification artifact found — tests will be validated here"
+    echo "  ⚠️  No pre-verification artifact — showing full test output"
 fi
 echo "  Min required : ${MIN_COVERAGE}%"
 echo "  Output text  : $COVERAGE_TXT"
@@ -52,13 +55,27 @@ echo ""
 
 START=$(date +%s)
 
-XDEBUG_MODE=coverage php \
-    -d memory_limit=3G \
-    "$ROOT_DIR/vendor/bin/pest" \
-    --coverage-text="$COVERAGE_TXT" \
-    --coverage-xml="$COVERAGE_XML_DIR" \
-    --log-junit="$JUNIT_FILE" \
-    --no-progress
+if [ "$QUIET_MODE" = true ]; then
+    # Tests already verified — suppress verbose output, show only summary
+    # pipefail ensures pest failures still propagate through the pipe
+    XDEBUG_MODE=coverage php \
+        -d memory_limit=3G \
+        "$ROOT_DIR/vendor/bin/pest" \
+        --coverage-text="$COVERAGE_TXT" \
+        --coverage-xml="$COVERAGE_XML_DIR" \
+        --log-junit="$JUNIT_FILE" \
+        --no-progress \
+        --compact 2>&1 | tail -6
+else
+    # No pre-verification — show full output so failures are visible
+    XDEBUG_MODE=coverage php \
+        -d memory_limit=3G \
+        "$ROOT_DIR/vendor/bin/pest" \
+        --coverage-text="$COVERAGE_TXT" \
+        --coverage-xml="$COVERAGE_XML_DIR" \
+        --log-junit="$JUNIT_FILE" \
+        --no-progress
+fi
 
 END=$(date +%s)
 DURATION=$((END - START))
