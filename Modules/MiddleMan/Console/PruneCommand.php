@@ -124,17 +124,10 @@ class PruneCommand extends Command
 
         $deleted = 0;
         do {
-            $batch = $queryFactory()
-                ->limit($batchSize)
-                ->pluck('id');
-
-            if ($batch->isEmpty()) {
-                break;
-            }
-
-            // Use the correct model class based on the query
+            // Database-level chunking: delete in bounded LIMIT batches to
+            // avoid loading large ID lists into PHP memory.
             $batchDeleted = $queryFactory()
-                ->whereIn('id', $batch->all())
+                ->limit($batchSize)
                 ->delete();
 
             $deleted += $batchDeleted;

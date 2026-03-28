@@ -74,6 +74,19 @@
                     body: JSON.stringify({ source: 'logs', ids: this.selectedIds })
                 });
                 const data = await res.json();
+
+                if (res.status === 207) {
+                    const failures = (data.errors || []).map(err => `#${err.id} ${err.event_class}: ${err.message}`);
+                    const details = failures.length > 0 ? `\n\nFailed items:\n${failures.join('\n')}` : '';
+                    alert(`Replay sequence completed with partial failures. ${data.succeeded || 0} succeeded, ${data.failed || 0} failed.${details}`);
+                    return;
+                }
+
+                if (!res.ok) {
+                    alert(data.message || data.error || 'Replay sequence failed.');
+                    return;
+                }
+
                 const status = `${data.succeeded || 0} succeeded, ${data.failed || 0} failed`;
                 alert(`Replay sequence complete: ${status}`);
             } finally {

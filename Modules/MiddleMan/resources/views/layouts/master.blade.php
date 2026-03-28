@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $middlemanCircuitBreakerState = null;
+
+        try {
+            $middlemanCircuitBreakerState = app(\Modules\MiddleMan\Services\CircuitBreaker::class)->getState();
+        } catch (\Throwable) {
+            $middlemanCircuitBreakerState = null;
+        }
+    @endphp
+
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
         <!-- Module Header & Navigation -->
         <div class="mb-8">
@@ -133,6 +143,14 @@
                 </div>
             </div>
         </div>
+
+        @if ($middlemanCircuitBreakerState === \Modules\MiddleMan\Services\CircuitBreaker::STATE_OPEN)
+            <div class="mb-6 rounded-lg border border-danger-300 bg-danger-50 px-4 py-3">
+                <p class="text-sm font-semibold text-danger-800">
+                    ⚠️ MiddleMan Circuit Breaker is OPEN. Events are bypassing the control plane.
+                </p>
+            </div>
+        @endif
 
         <!-- Main Content -->
         <div class="w-full">
