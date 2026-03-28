@@ -21,16 +21,23 @@ echo "Threads: $THREADS"
 echo "Timeout: ${TIMEOUT_MINUTES} minutes"
 echo ""
 
-# Verify coverage XML exists (mutation testing requires prior coverage collection)
-if [ ! -d "$ROOT_DIR/storage/infection/coverage" ]; then
-    echo "⚠️  Coverage XML not found. Collecting coverage first..."
+# Verify coverage XML and JUnit report exist (both required when using --skip-initial-tests)
+COVERAGE_DIR="$ROOT_DIR/storage/infection/coverage"
+JUNIT_FILE="$COVERAGE_DIR/junit.xml"
+
+if [ ! -d "$COVERAGE_DIR" ] || [ ! -f "$JUNIT_FILE" ]; then
+    echo "⚠️  Coverage XML or JUnit report missing. Collecting both artifacts first..."
+    mkdir -p "$COVERAGE_DIR"
     XDEBUG_MODE=coverage php -d memory_limit=3G "$ROOT_DIR/vendor/bin/pest" \
-        --coverage-xml="$ROOT_DIR/storage/infection/coverage" \
+        --coverage-xml="$COVERAGE_DIR" \
+        --log-junit="$JUNIT_FILE" \
         > /dev/null 2>&1 || true
 fi
 
-if [ ! -d "$ROOT_DIR/storage/infection/coverage" ]; then
-    echo "❌ Failed to collect coverage. Aborting mutation testing."
+if [ ! -d "$COVERAGE_DIR" ] || [ ! -f "$JUNIT_FILE" ]; then
+    echo "❌ Failed to collect required artifacts."
+    echo "   Expected coverage dir: $COVERAGE_DIR"
+    echo "   Expected junit file:   $JUNIT_FILE"
     exit 1
 fi
 
