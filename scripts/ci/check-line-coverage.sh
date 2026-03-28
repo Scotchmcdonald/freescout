@@ -56,8 +56,7 @@ echo ""
 START=$(date +%s)
 
 if [ "$QUIET_MODE" = true ]; then
-    # Tests already verified — suppress verbose output, show only summary
-    # pipefail ensures pest failures still propagate through the pipe
+    # Tests already verified — compact shows dots for progress + final summary
     XDEBUG_MODE=coverage php \
         -d memory_limit=3G \
         "$ROOT_DIR/vendor/bin/pest" \
@@ -65,7 +64,7 @@ if [ "$QUIET_MODE" = true ]; then
         --coverage-xml="$COVERAGE_XML_DIR" \
         --log-junit="$JUNIT_FILE" \
         --no-progress \
-        --compact 2>&1 | tail -6
+        --compact
 else
     # No pre-verification — show full output so failures are visible
     XDEBUG_MODE=coverage php \
