@@ -21,6 +21,7 @@ class MiddleManIntercept extends Model
         'intercepted_at',
         'fired_at',
         'fired_by',
+        'resolution_notes',
     ];
 
     protected function casts(): array
@@ -43,6 +44,7 @@ class MiddleManIntercept extends Model
     public const STATUS_PENDING   = 'pending';
     public const STATUS_FIRED     = 'fired';
     public const STATUS_DISCARDED = 'discarded';
+    public const STATUS_CORRUPTED = 'corrupted';
 
     /*
     |--------------------------------------------------------------------------
@@ -94,5 +96,19 @@ class MiddleManIntercept extends Model
     public function markDiscarded(): void
     {
         $this->update(['status' => self::STATUS_DISCARDED]);
+    }
+
+    /**
+     * Mark the intercept as CORRUPTED when hydration or dispatch throws.
+     *
+     * Stores a diagnostic message in `resolution_notes` so operators can
+     * triage the failure from the UI without trawling log files.
+     */
+    public function markCorrupted(string $reason): void
+    {
+        $this->update([
+            'status'           => self::STATUS_CORRUPTED,
+            'resolution_notes' => mb_substr($reason, 0, 5000),
+        ]);
     }
 }

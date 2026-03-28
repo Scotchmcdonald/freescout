@@ -16,31 +16,44 @@ use Modules\MiddleMan\Models\MiddleManLog;
  * Deletes in batches to avoid locking the table during large purges.
  *
  * Usage:
- *   php artisan middleman:prune                 # Uses config default (7 days)
- *   php artisan middleman:prune --days=30       # Keep 30 days
- *   php artisan middleman:prune --days=1        # Aggressive cleanup
- *   php artisan middleman:prune --dry-run       # Preview what would be deleted
+ *   php artisan middleman:prune                 # Uses config-driven per-table retention
+ *   php artisan middleman:prune --logs-days=3   # Override log retention
+ *   php artisan middleman:prune --intercepts-days=30  # Override intercept retention
+ *   php artisan middleman:prune --dry-run       # Preview counts without deleting
+ *
+ * Scheduled daily by routes/console.php (see Schedule::command('middleman:prune')).
  */
 class PruneCommand extends Command
 {
     protected $signature = 'middleman:prune
-        {--days= : Number of days to retain (default: config value)}
+        {--logs-days=       : Days to retain logs (overrides config middleman.prune.logs_days)}
+        {--intercepts-days= : Days to retain resolved intercepts (overrides config middleman.prune.intercepts_days)}
+        {--audit-days=      : Days to retain audit entries (overrides config middleman.prune.audit_days)}
         {--batch=1000 : Delete batch size to avoid table locking}
         {--dry-run : Preview counts without deleting}
         {--include-audit : Also prune the audit trail (excluded by default)}';
 
-    protected $description = 'Prune old MiddleMan logs, completed intercepts, and optionally audit entries';
+    protected $description = 'Prune old MiddleMan logs, resolved intercepts, and optionally audit entries';
 
     public function handle(): int
     {
-        $days = (int) ($this->option('days') ?: config('middleman.log_retention_days', 7));
-        $batchSize = (int) $this->option('batch');
-        $dryRun = (bool) $this->option('dry-run');
-        $includeAudit = (bool) $this->option('include-audit');
+        $logsDays       = (int) ($this->option('logs-days')       ?: config('middleman.prune.logs_days', 7));
+        $interceptsDays = (int) ($this->option('intercepts-days') ?: config('middleman.prune.intercepts_days', 14));
+        $auditDays      = (int) ($this->option('audit-days')      ?: config('middleman.prune.audit_days', 90));
+        $batchSize      = (int) $this->option('batch');
+        $dryRun         = (bool) $this->option('dry-run');
+        $includeAudit   = (bool) $this->option('include-audit');
 
-        $cutoff = now()->subDays($days);
+        $logsCutoff       = now()->subDays($logsDays);
+        $interceptsCutoff = now()->subDays($interceptsDays);
+        $auditCutoff      = now()->subDays($auditDays);
 
-        $this->info("MiddleMan Prune — Retention: {$days} days (cutoff: {$cutoff->toDateTimeString()})");
+        $this->info(sprintf(
+            'MiddleMan Prune — logs: %d days, intercepts: %d days, audit: %d days',
+            $logsDays,
+            $interceptsDays,
+            $auditDays,
+        ));
 
         if ($dryRun) {
             $this->warn('DRY RUN — no records will be deleted.');
@@ -48,32 +61,32 @@ class PruneCommand extends Command
 
         $this->newLine();
 
-        // 1. Prune logs
+        // 1. Prune logs older than logs_days
         $logCount = $this->pruneTable(
             'Logs',
-            fn () => MiddleManLog::where('fired_at', '<', $cutoff),
+            fn () => MiddleManLog::where('fired_at', '<', $logsCutoff),
             $batchSize,
             $dryRun,
         );
 
-        // 2. Prune completed/discarded intercepts
+        // 2. Prune resolved/corrupted intercepts older than intercepts_days
         $interceptCount = $this->pruneTable(
-            'Intercepts (fired/discarded)',
+            'Intercepts (fired/discarded/corrupted)',
             fn () => MiddleManIntercept::whereIn('status', [
                 MiddleManIntercept::STATUS_FIRED,
                 MiddleManIntercept::STATUS_DISCARDED,
-                'corrupted',
-            ])->where('updated_at', '<', $cutoff),
+                MiddleManIntercept::STATUS_CORRUPTED,
+            ])->where('updated_at', '<', $interceptsCutoff),
             $batchSize,
             $dryRun,
         );
 
-        // 3. Optionally prune audit trail
+        // 3. Optionally prune audit trail entries older than audit_days
         $auditCount = 0;
         if ($includeAudit) {
             $auditCount = $this->pruneTable(
                 'Audit Trail',
-                fn () => MiddleManAuditEntry::where('created_at', '<', $cutoff),
+                fn () => MiddleManAuditEntry::where('created_at', '<', $auditCutoff),
                 $batchSize,
                 $dryRun,
             );

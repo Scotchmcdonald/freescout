@@ -43,3 +43,12 @@ Schedule::job(\Modules\PIB\Jobs\GenerateRecurringInvoicesJob::class)
     ->dailyAt('01:00')
     ->withoutOverlapping()
     ->onOneServer();
+
+// MiddleMan: Daily data lifecycle pruning — prevents log/intercept table disk exhaustion.
+// Uses per-table retention windows from middleman.prune config.
+Schedule::command('middleman:prune')
+    ->dailyAt('03:30')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground()
+    ->name('middleman-prune');

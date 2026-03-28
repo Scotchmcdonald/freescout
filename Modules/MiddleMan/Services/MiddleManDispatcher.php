@@ -179,12 +179,21 @@ class MiddleManDispatcher extends Dispatcher
             )->onConnection(config('middleman.queue_connection', 'redis'))
              ->onQueue(config('middleman.queue_name', 'middleman'));
         } catch (\Throwable $e) {
-            // Never let MiddleMan break the application — log failure silently
-            logger()->warning('MiddleMan: Failed to queue log entry', [
-                'event' => $eventClass,
-                'error' => $e->getMessage(),
-            ]);
-            $this->circuitBreaker?->recordFailure($e);
+            // Never let MiddleMan break the application.
+            // Distinguish infrastructure failures (Redis/cache) from transient errors
+            // so the circuit breaker emits the correct severity.
+            if ($this->isInfrastructureException($e)) {
+                $this->circuitBreaker?->trip(
+                    'Cache/queue infrastructure failure during log dispatch: ' . $e->getMessage(),
+                    isInfrastructureFailure: true,
+                );
+            } else {
+                logger()->warning('MiddleMan: Failed to queue log entry', [
+                    'event' => $eventClass,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->circuitBreaker?->recordFailure($e);
+            }
         }
     }
 
@@ -213,13 +222,47 @@ class MiddleManDispatcher extends Dispatcher
             )->onConnection(config('middleman.queue_connection', 'redis'))
              ->onQueue(config('middleman.queue_name', 'middleman'));
         } catch (\Throwable $e) {
-            // If interception fails, let the event through normally
-            logger()->error('MiddleMan: Failed to intercept event, allowing passthrough', [
-                'event' => $eventClass,
-                'error' => $e->getMessage(),
-            ]);
-            $this->circuitBreaker?->recordFailure($e);
+            // If interception fails, let the event through normally.
+            if ($this->isInfrastructureException($e)) {
+                $this->circuitBreaker?->trip(
+                    'Cache/queue infrastructure failure during intercept dispatch: ' . $e->getMessage(),
+                    isInfrastructureFailure: true,
+                );
+            } else {
+                logger()->error('MiddleMan: Failed to intercept event, allowing passthrough', [
+                    'event' => $eventClass,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->circuitBreaker?->recordFailure($e);
+            }
         }
+    }
+
+    /**
+     * Returns true for exceptions that indicate the cache or queue layer
+     * is unavailable rather than a transient application-level error.
+     */
+    private function isInfrastructureException(\Throwable $e): bool
+    {
+        // Redis connection failures (predis / phpredis)
+        if ($e instanceof \RedisException) {
+            return true;
+        }
+
+        $class = get_class($e);
+        if (str_contains($class, 'Predis\\') || str_contains($class, 'Redis')) {
+            return true;
+        }
+
+        // Connection-reset/refused patterns from various Redis/Memcached drivers
+        $message = strtolower($e->getMessage());
+        foreach (['connection refused', 'connection reset', 'no connection to redis', 'redis server gone away', 'memcache'] as $keyword) {
+            if (str_contains($message, $keyword)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*

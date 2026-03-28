@@ -33,6 +33,13 @@ final class CircuitBreaker
     private const COUNTER_KEY        = 'middleman:cb_failures';
     private const RATE_WINDOW_KEY    = 'middleman:cb_rate_window';
 
+    /**
+     * Fallback flag file written to local disk when primary cache (Redis) is
+     * unavailable.  This guarantees the OPEN state survives across PHP-FPM
+     * worker restarts even if the static property resets to CLOSED.
+     */
+    private const FALLBACK_FLAG_FILE = 'framework/middleman_breaker.flag';
+
     /** In-process cache — avoids Redis round-trips on every dispatch. */
     private static string $localState = self::STATE_CLOSED;
     private static int $localStateCheckedAt = 0;
@@ -172,11 +179,21 @@ final class CircuitBreaker
                     }
                 }
             } else {
-                self::$localState = self::STATE_CLOSED;
+                // No cached state; check the file fallback before defaulting to CLOSED
+                self::$localState = $this->readFallbackFlag() ?? self::STATE_CLOSED;
             }
-        } catch (\Throwable) {
-            // Cache is down — trip the breaker (we can't check rules anyway)
+        } catch (\Throwable $cacheException) {
+            // Primary cache (Redis/Memcached) is unavailable.
+            // 1. Trip immediately and persist to the file-based fallback.
+            // 2. Emit EMERGENCY so on-call engineers are paged immediately.
+            $this->writeFallbackFlag(self::STATE_OPEN);
             self::$localState = self::STATE_OPEN;
+
+            Log::emergency('MiddleMan CircuitBreaker: PRIMARY CACHE FAILURE — breaker force-OPEN', [
+                'exception' => $cacheException->getMessage(),
+                'class'     => get_class($cacheException),
+                'action'    => 'All event processing bypassed until cache recovers.',
+            ]);
         }
 
         self::$localStateCheckedAt = $now;
@@ -195,14 +212,18 @@ final class CircuitBreaker
 
         $this->persistState(self::STATE_CLOSED, $reason);
         $this->resetFailureCounterForce();
+        $this->clearFallbackFlag();
 
         Log::info('MiddleMan CircuitBreaker: CLOSED', ['reason' => $reason]);
     }
 
     /**
      * Manually open/trip the breaker (admin action or auto-trigger).
+     *
+     * Infrastructure-layer causes (cache/queue failures) are classified as
+     * EMERGENCY so they surface immediately in alerting pipelines.
      */
-    public function trip(string $reason): void
+    public function trip(string $reason, bool $isInfrastructureFailure = false): void
     {
         // Idempotent — don't log repeatedly if already open
         if (self::$localState === self::STATE_OPEN) {
@@ -212,12 +233,23 @@ final class CircuitBreaker
         self::$localState = self::STATE_OPEN;
         self::$localStateCheckedAt = time();
 
+        // Write to both primary cache and the file-based fallback.
+        // The file fallback survives Redis downtime across FPM worker restarts.
         $this->persistState(self::STATE_OPEN, $reason);
+        $this->writeFallbackFlag(self::STATE_OPEN);
 
-        Log::warning('MiddleMan CircuitBreaker: TRIPPED (OPEN)', [
-            'reason' => $reason,
-            'cooldown_seconds' => $this->cooldownSeconds,
-        ]);
+        if ($isInfrastructureFailure) {
+            Log::emergency('MiddleMan CircuitBreaker: TRIPPED — INFRASTRUCTURE FAILURE (OPEN)', [
+                'reason'           => $reason,
+                'cooldown_seconds' => $this->cooldownSeconds,
+                'action'           => 'All MiddleMan processing bypassed. Restore cache/queue to recover.',
+            ]);
+        } else {
+            Log::warning('MiddleMan CircuitBreaker: TRIPPED (OPEN)', [
+                'reason'           => $reason,
+                'cooldown_seconds' => $this->cooldownSeconds,
+            ]);
+        }
     }
 
     /**
@@ -334,13 +366,91 @@ final class CircuitBreaker
     {
         try {
             Cache::store($this->cacheStore)->forever(self::CACHE_KEY, [
-                'state'     => $state,
-                'reason'    => $reason,
-                'opened_at' => $state === self::STATE_OPEN ? time() : null,
+                'state'      => $state,
+                'reason'     => $reason,
+                'opened_at'  => $state === self::STATE_OPEN ? time() : null,
                 'changed_at' => time(),
             ]);
         } catch (\Throwable) {
-            // Can't persist — the in-process state is authoritative
+            // Primary cache unavailable — in-process + file flag are authoritative.
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | File-Based Fallback (Cache-Unavailable Safety Net)
+    |--------------------------------------------------------------------------
+    |
+    | When Redis / Memcached is completely unavailable, the primary cache-
+    | backed persistence will throw.  The flag file below provides a durable,
+    | cross-process fallback that survives PHP-FPM worker recycling so every
+    | worker starts in the correct OPEN state rather than incorrectly assuming
+    | CLOSED and re-processing events.
+    */
+
+    private function fallbackFlagPath(): string
+    {
+        return storage_path(self::FALLBACK_FLAG_FILE);
+    }
+
+    private function writeFallbackFlag(string $state): void
+    {
+        try {
+            $path = $this->fallbackFlagPath();
+            $dir  = dirname($path);
+
+            if (! is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            file_put_contents($path, json_encode([
+                'state'      => $state,
+                'written_at' => time(),
+            ], JSON_THROW_ON_ERROR), LOCK_EX);
+        } catch (\Throwable) {
+            // Filesystem failure — in-process static state remains authoritative.
+        }
+    }
+
+    private function readFallbackFlag(): ?string
+    {
+        try {
+            $path = $this->fallbackFlagPath();
+
+            if (! file_exists($path)) {
+                return null;
+            }
+
+            /** @var array{state?: string, written_at?: int}|null $data */
+            $data = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+
+            if (! is_array($data) || ! isset($data['state'])) {
+                return null;
+            }
+
+            // Honour cooldown from file timestamp if the state is OPEN
+            if ($data['state'] === self::STATE_OPEN) {
+                $writtenAt = (int) ($data['written_at'] ?? 0);
+                if ((time() - $writtenAt) >= $this->cooldownSeconds) {
+                    return self::STATE_HALF;
+                }
+            }
+
+            return $data['state'];
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function clearFallbackFlag(): void
+    {
+        try {
+            $path = $this->fallbackFlagPath();
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        } catch (\Throwable) {
+            // Non-critical
         }
     }
 }

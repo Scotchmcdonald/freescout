@@ -7,6 +7,7 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\MiddleMan\Contracts\MiddleManSearchable;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
 use Modules\MiddleMan\Models\MiddleManPreset;
@@ -48,6 +49,10 @@ class MarshalController extends Controller
     /**
      * Async searchable endpoint for Eloquent model parameters.
      * Returns matching records by ID, name, email, or other searchable columns.
+     *
+     * Security: only models that implement MiddleManSearchable OR are explicitly
+     * listed in `middleman.searchable_models` config are permitted.  All other
+     * model classes — even valid Eloquent subclasses — are rejected with a 403.
      */
     public function searchModel(Request $request): JsonResponse
     {
@@ -56,13 +61,20 @@ class MarshalController extends Controller
             'query'       => 'required|string|max:100',
         ]);
 
-        $modelClass = $validated['model_class'];
+        $modelClass  = $validated['model_class'];
         $searchQuery = $validated['query'];
 
-        // Security: only allow Eloquent models
-        if (! class_exists($modelClass) || ! is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class)) {
-            return response()->json(['results' => []]);
+        // ── Allowlist gate ─────────────────────────────────────────────────────
+        // A model is searchable when it EITHER:
+        //   (a) implements the MiddleManSearchable interface, OR
+        //   (b) its FQCN appears in the config-defined allowlist.
+        // Reject anything else with a 403 to prevent sensitive model enumeration.
+        if (! $this->isSearchableModel($modelClass)) {
+            return response()->json([
+                'error' => 'Model is not searchable. Implement MiddleManSearchable or add it to middleman.searchable_models.',
+            ], 403);
         }
+        // ──────────────────────────────────────────────────────────────────────
 
         try {
             $instance = new $modelClass();
@@ -287,6 +299,36 @@ class MarshalController extends Controller
     | Internal
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Determine whether a model class is permitted for async search.
+     *
+     * Allowed paths:
+     *   1. Class exists and is an Eloquent model (baseline safety check).
+     *   2. Implements MiddleManSearchable interface (opt-in via code), OR
+     *   3. FQCN is in the config allowlist (opt-in via environment).
+     */
+    private function isSearchableModel(string $modelClass): bool
+    {
+        if (! class_exists($modelClass)) {
+            return false;
+        }
+
+        if (! is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class)) {
+            return false;
+        }
+
+        // Interface opt-in
+        if (is_a($modelClass, MiddleManSearchable::class, true)) {
+            return true;
+        }
+
+        // Config allowlist opt-in
+        /** @var string[] $allowlist */
+        $allowlist = config('middleman.searchable_models', []);
+
+        return in_array($modelClass, (array) $allowlist, true);
+    }
 
     /**
      * Attempt to instantiate an event class from a payload array.

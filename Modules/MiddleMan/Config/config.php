@@ -44,11 +44,31 @@ return [
     | Log Retention (days)
     |--------------------------------------------------------------------------
     |
-    | Logs older than this value are eligible for pruning by the scheduled
-    | cleanup command.
+    | Legacy flat key — kept for backwards compat.  Prefer the `prune` section.
     |
     */
     'log_retention_days' => (int) env('MIDDLEMAN_LOG_RETENTION_DAYS', 7),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data Lifecycle / Pruning
+    |--------------------------------------------------------------------------
+    |
+    | Governs the `php artisan middleman:prune` command that runs daily via the
+    | scheduler.  Uses separate retention windows per table so intercept
+    | history can be kept longer than high-volume log traffic.
+    |
+    | Production recommendations:
+    |   logs_days       = 3–7    (logs are HIGH volume)
+    |   intercepts_days = 14–30  (intercepts are LOW volume, higher forensic value)
+    |   audit_days      = 90     (audit trail — compliance-sensitive)
+    |
+    */
+    'prune' => [
+        'logs_days'       => (int) env('MIDDLEMAN_PRUNE_LOGS_DAYS', 7),
+        'intercepts_days' => (int) env('MIDDLEMAN_PRUNE_INTERCEPTS_DAYS', 14),
+        'audit_days'      => (int) env('MIDDLEMAN_PRUNE_AUDIT_DAYS', 90),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -60,6 +80,25 @@ return [
     |
     */
     'max_payload_bytes' => (int) env('MIDDLEMAN_MAX_PAYLOAD_BYTES', 65536),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Searchable Models Allowlist
+    |--------------------------------------------------------------------------
+    |
+    | Controls which Eloquent models are exposed by the Marshal tab's async
+    | model-search endpoint (`GET /middleman/marshal/search-model`).
+    |
+    | A model is searchable when it EITHER:
+    |   (a) Implements \Modules\MiddleMan\Contracts\MiddleManSearchable, OR
+    |   (b) Its fully-qualified class name appears in this array.
+    |
+    | Leave the array empty to rely solely on the interface approach.
+    |
+    */
+    'searchable_models' => array_filter(
+        array_map('trim', explode(',', (string) env('MIDDLEMAN_SEARCHABLE_MODELS', ''))),
+    ),
 
     /*
     |--------------------------------------------------------------------------

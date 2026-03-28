@@ -133,6 +133,10 @@ class InterceptController extends Controller
 
     /**
      * Fire a single intercepted event.
+     *
+     * Hydration armor: any failure during event reconstruction or dispatch
+     * marks the record CORRUPTED with the exception message stored for
+     * operator triage, and returns a graceful 422 rather than a fatal 500.
      */
     public function fire(Request $request, int $id): JsonResponse
     {
@@ -142,8 +146,28 @@ class InterceptController extends Controller
             return response()->json(['error' => 'Only pending intercepts can be fired.'], 422);
         }
 
-        // Dispatch the event through the base dispatcher (bypassing MiddleMan)
-        $this->dispatchInterceptedEvent($intercept);
+        try {
+            $this->dispatchInterceptedEvent($intercept);
+        } catch (\Throwable $e) {
+            $intercept->markCorrupted(sprintf(
+                '[%s] %s in %s:%d',
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+            ));
+
+            logger()->error('MiddleMan: Intercept hydration/dispatch failed — marked CORRUPTED', [
+                'intercept_id' => $intercept->id,
+                'event_class'  => $intercept->event_class,
+                'exception'    => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error'   => 'Event hydration failed. The intercept has been marked CORRUPTED.',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         $intercept->markFired($request->user()->id);
 
@@ -173,11 +197,18 @@ class InterceptController extends Controller
             ->ordered()
             ->get();
 
-        $fired = 0;
+        $fired    = 0;
+        $corrupted = 0;
+
         foreach ($intercepts as $intercept) {
-            $this->dispatchInterceptedEvent($intercept);
-            $intercept->markFired($request->user()->id);
-            $fired++;
+            try {
+                $this->dispatchInterceptedEvent($intercept);
+                $intercept->markFired($request->user()->id);
+                $fired++;
+            } catch (\Throwable $e) {
+                $intercept->markCorrupted(sprintf('[%s] %s', get_class($e), $e->getMessage()));
+                $corrupted++;
+            }
         }
 
         MiddleManAuditEntry::record(
@@ -185,10 +216,10 @@ class InterceptController extends Controller
             MiddleManAuditEntry::ACTION_BATCH_FIRED,
             null,
             null,
-            ['count' => $fired, 'ids' => $validated['ids']],
+            ['count' => $fired, 'corrupted' => $corrupted, 'ids' => $validated['ids']],
         );
 
-        return response()->json(['success' => true, 'fired' => $fired]);
+        return response()->json(['success' => true, 'fired' => $fired, 'corrupted' => $corrupted]);
     }
 
     /**
@@ -198,11 +229,18 @@ class InterceptController extends Controller
     {
         $intercepts = MiddleManIntercept::pending()->ordered()->get();
 
-        $fired = 0;
+        $fired    = 0;
+        $corrupted = 0;
+
         foreach ($intercepts as $intercept) {
-            $this->dispatchInterceptedEvent($intercept);
-            $intercept->markFired($request->user()->id);
-            $fired++;
+            try {
+                $this->dispatchInterceptedEvent($intercept);
+                $intercept->markFired($request->user()->id);
+                $fired++;
+            } catch (\Throwable $e) {
+                $intercept->markCorrupted(sprintf('[%s] %s', get_class($e), $e->getMessage()));
+                $corrupted++;
+            }
         }
 
         MiddleManAuditEntry::record(
@@ -210,10 +248,10 @@ class InterceptController extends Controller
             MiddleManAuditEntry::ACTION_BATCH_FIRED,
             null,
             null,
-            ['count' => $fired, 'scope' => 'all'],
+            ['count' => $fired, 'corrupted' => $corrupted, 'scope' => 'all'],
         );
 
-        return response()->json(['success' => true, 'fired' => $fired]);
+        return response()->json(['success' => true, 'fired' => $fired, 'corrupted' => $corrupted]);
     }
 
     /**
