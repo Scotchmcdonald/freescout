@@ -13,10 +13,10 @@
 # Time budget: ~8-10 min (documented in phpunit.xml)
 # Memory:      3G (single process, no parallel merge overhead)
 #
-# Usage (CI — after parallel test pass):
-#   bash scripts/ci/check-line-coverage.sh
+# Pre-condition: check-all-tests.sh runs first (parallel, ~2 min) to verify all
+# tests pass, so this step is purely for coverage data collection.
 #
-# Usage (local — only when full coverage needed):
+# Usage:
 #   bash scripts/ci/check-line-coverage.sh
 # ==============================================================================
 
@@ -32,11 +32,18 @@ mkdir -p "$REPORTS_DIR" "$COVERAGE_XML_DIR"
 COVERAGE_TXT="$REPORTS_DIR/coverage-final.txt"
 MIN_COVERAGE="${TEST_MIN_COVERAGE:-70}"
 
+PREVERIFIED_ARTIFACT="$REPORTS_DIR/all-tests-passed.json"
+
 echo ""
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║ Line Coverage Collection (sequential, 3G, Xdebug)             ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
+if [ -f "$PREVERIFIED_ARTIFACT" ]; then
+    echo "  ✅ Tests pre-verified by check-all-tests.sh — collecting coverage only"
+else
+    echo "  ⚠️  No pre-verification artifact found — tests will be validated here"
+fi
 echo "  Min required : ${MIN_COVERAGE}%"
 echo "  Output text  : $COVERAGE_TXT"
 echo "  Output XML   : $COVERAGE_XML_DIR"
