@@ -11,6 +11,14 @@ MiddleMan is an operator control plane for Laravel events: observe, intercept, m
 - Mutating actions additionally require:
   - `can:manage_middleman`
 
+## Production Safety Controls
+- Circuit breaker auto-trips on repeated failures, event storms, or queue backpressure.
+- Infrastructure failures (cache/queue path) are logged at `emergency` level and force `OPEN` state.
+- Breaker state has a file fallback at `storage/framework/middleman_breaker.flag` so `OPEN` survives cache outages.
+- Intercept hydration armor marks failed replay/hydration attempts as `corrupted` and stores operator notes in `resolution_notes`.
+- Marshal async model search is allowlisted: model must implement `MiddleManSearchable` or be listed in `middleman.searchable_models`.
+- Daily lifecycle pruning is scheduled at `03:30` with independent retention windows for logs/intercepts/audit.
+
 ## Tabs and URLs
 - Dashboard: `GET /middleman`
 - Logging: `GET /middleman/logging`
@@ -76,6 +84,7 @@ Features:
 - Pending queue with drag-drop ordering.
 - Per-item actions: fire, discard, edit payload.
 - Bulk actions: fire selected, replay selected sequence, fire all.
+- Hydration armor during fire paths: failed items are marked `corrupted` instead of hard-failing the request.
 - Recent resolved history.
 
 Read APIs:
@@ -96,6 +105,10 @@ Manage actions:
 Typical workflow:
 - Intercept a risky flow, inspect queued events, reorder for dependency correctness, edit payloads if needed, then release selected events.
 
+Response notes:
+- `POST /middleman/intercept/{id}/fire` returns `422` when event hydration/dispatch fails, and the intercept is marked `corrupted`.
+- `POST /middleman/intercept/fire-selected` and `POST /middleman/intercept/fire-all` return counters for both `fired` and `corrupted`.
+
 ### 4) Marshal (`/middleman/marshal`)
 Purpose: manually construct and dispatch events for testing and operations.
 
@@ -104,7 +117,7 @@ Features:
 - Constructor reflection to render dynamic parameter forms.
 - Type-aware inputs:
   - enum dropdowns
-  - async model search fields
+  - async model search fields (allowlisted only)
   - scalar coercion
 - Single dispatch and batch JSON dispatch.
 - Optional hold in intercept queue.
@@ -113,6 +126,12 @@ Features:
 Read APIs:
 - Parameter discovery: `GET /middleman/marshal/parameters?event_class=...`
 - Async model search: `GET /middleman/marshal/search-model?model_class=...&query=...`
+
+Security notes:
+- Async model search rejects non-allowlisted models with `403`.
+- Allowlist options:
+  - implement `Modules\\MiddleMan\\Contracts\\MiddleManSearchable`
+  - add FQCN to `MIDDLEMAN_SEARCHABLE_MODELS` / `middleman.searchable_models`
 
 Manage actions:
 - Fire/hold single: `POST /middleman/marshal/fire`
@@ -221,6 +240,11 @@ Typical workflow:
 3. Review sequence outcome (`processed`, `succeeded`, `failed`, `errors`).
 4. Investigate failures by event class and payload history.
 
+Replay response notes:
+- `POST /middleman/replay/sequence` returns `200` when all selected items succeed.
+- Returns `207` when processing is mixed (some success, some failed).
+- Request validation: `source` must be `logs` or `intercepts`; `ids` must contain 1-200 integers.
+
 ### Contract/Dependency Diagnostics
 1. Use Topology to inspect listener graph and edges.
 2. Use Schema Drift to find payload contract changes.
@@ -232,3 +256,14 @@ Typical workflow:
 - Marshal batch accepts max 100 payload items per request.
 - Intercept actions preserve queue order semantics; use reorder carefully when events depend on prior state.
 - All control actions are audit logged via `MiddleManAuditEntry`.
+
+### Data Lifecycle / Pruning
+- Scheduled task: `middleman:prune` runs daily at `03:30` (see `routes/console.php`).
+- Retention windows (config):
+  - `middleman.prune.logs_days` (default `7`)
+  - `middleman.prune.intercepts_days` (default `14`)
+  - `middleman.prune.audit_days` (default `90`)
+- Command options:
+  - `--logs-days=`, `--intercepts-days=`, `--audit-days=`
+  - `--include-audit` (audit pruning is opt-in)
+  - `--dry-run` and `--batch=` for safe operations
