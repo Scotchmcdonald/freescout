@@ -32,7 +32,9 @@
                 </div>
             @endif
 
-            {{ $slot }}
+            @isset($slot)
+                {{ $slot }}
+            @endisset
         </div>
     </div>
 </div>

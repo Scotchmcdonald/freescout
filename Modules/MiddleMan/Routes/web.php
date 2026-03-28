@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\MiddleMan\Http\Controllers\DashboardController;
+use Modules\MiddleMan\Http\Controllers\AdvancedController;
 use Modules\MiddleMan\Http\Controllers\InterceptController;
 use Modules\MiddleMan\Http\Controllers\LoggingController;
 use Modules\MiddleMan\Http\Controllers\MarshalController;
@@ -85,6 +86,7 @@ Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'
     */
     Route::prefix('muting')->group(function () {
         Route::get('/', [MutingController::class, 'index'])->name('middleman.muting.index');
+        Route::get('/data', [MutingController::class, 'data'])->name('middleman.muting.data');
 
         Route::middleware('can:manage_middleman')->group(function () {
             Route::post('/add', [MutingController::class, 'addMute'])->name('middleman.muting.add');
@@ -95,10 +97,33 @@ Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'
 
     /*
     |----------------------------------------------------------------------
+    | Advanced Features
+    |----------------------------------------------------------------------
+    */
+    Route::prefix('topology')->group(function () {
+        Route::get('/', [AdvancedController::class, 'topology'])->name('middleman.topology.index');
+        Route::get('/diagram.svg', [AdvancedController::class, 'topologyDiagram'])->name('middleman.topology.diagram');
+    });
+
+    Route::prefix('schema')->group(function () {
+        Route::get('/', [AdvancedController::class, 'schema'])->name('middleman.schema.index');
+    });
+
+    Route::prefix('tracing')->group(function () {
+        Route::get('/', [AdvancedController::class, 'tracing'])->name('middleman.tracing.index');
+    });
+
+    /*
+    |----------------------------------------------------------------------
     | Historical Replay
     |----------------------------------------------------------------------
     */
-    Route::prefix('replay')->middleware('can:manage_middleman')->group(function () {
-        Route::post('/{logId}', [ReplayController::class, 'replay'])->name('middleman.replay');
+    Route::prefix('replay')->group(function () {
+        Route::get('/', [AdvancedController::class, 'replay'])->name('middleman.replay.index');
+
+        Route::middleware('can:manage_middleman')->group(function () {
+            Route::post('/sequence', [ReplayController::class, 'replaySequence'])->name('middleman.replay.sequence');
+            Route::post('/{logId}', [ReplayController::class, 'replay'])->name('middleman.replay');
+        });
     });
 });

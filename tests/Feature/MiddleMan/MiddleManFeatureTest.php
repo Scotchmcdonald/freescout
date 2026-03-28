@@ -361,6 +361,85 @@ test('replay endpoint returns 422 for non-existent log entry', function (): void
         ->assertJsonPath('corrupted', false);
 });
 
+test('replay sequence endpoint replays selected logs and writes sequence audit', function (): void {
+    Event::fake([ReplayableTestEvent::class]);
+
+    $admin = createMiddleManAdmin();
+
+    $logA = MiddleManLog::create([
+        'event_class'      => ReplayableTestEvent::class,
+        'event_name'       => 'ReplayableTestEvent',
+        'payload'          => ['message' => 'first', 'code' => 101],
+        'metadata'         => ['class' => ReplayableTestEvent::class],
+        'fired_at'         => now()->subMinute(),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $logB = MiddleManLog::create([
+        'event_class'      => ReplayableTestEvent::class,
+        'event_name'       => 'ReplayableTestEvent',
+        'payload'          => ['message' => 'second', 'code' => 202],
+        'metadata'         => ['class' => ReplayableTestEvent::class],
+        'fired_at'         => now(),
+        'correlation_id'   => null,
+        'causation_id'     => null,
+        'is_replay'        => false,
+        'has_schema_drift' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/replay/sequence', [
+            'source' => 'logs',
+            'ids' => [$logB->id, $logA->id],
+        ])
+        ->assertOk()
+        ->assertJsonPath('source', 'logs')
+        ->assertJsonPath('requested', 2)
+        ->assertJsonPath('succeeded', 2)
+        ->assertJsonPath('failed', 0);
+
+    Event::assertDispatchedTimes(ReplayableTestEvent::class, 2);
+
+    $this->assertDatabaseHas('middleman_audit_trail', [
+        'user_id' => $admin->id,
+        'action'  => 'sequence_replayed',
+    ]);
+});
+
+test('replay sequence endpoint replays selected intercept captures', function (): void {
+    Event::fake([ReplayableTestEvent::class]);
+
+    $admin = createMiddleManAdmin();
+
+    $intercept = MiddleManIntercept::create([
+        'event_class'    => ReplayableTestEvent::class,
+        'event_name'     => 'ReplayableTestEvent',
+        'payload'        => ['message' => 'from-intercept', 'code' => 303],
+        'metadata'       => ['source' => 'test'],
+        'status'         => MiddleManIntercept::STATUS_PENDING,
+        'sort_order'     => 1,
+        'intercepted_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/middleman/replay/sequence', [
+            'source' => 'intercepts',
+            'ids' => [$intercept->id],
+        ])
+        ->assertOk()
+        ->assertJsonPath('source', 'intercepts')
+        ->assertJsonPath('requested', 1)
+        ->assertJsonPath('succeeded', 1)
+        ->assertJsonPath('failed', 0);
+
+    Event::assertDispatched(ReplayableTestEvent::class, function (ReplayableTestEvent $event): bool {
+        return $event->message === 'from-intercept' && $event->code === 303;
+    });
+});
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Listener Muting — Write Endpoints with Side-Effect Assertions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

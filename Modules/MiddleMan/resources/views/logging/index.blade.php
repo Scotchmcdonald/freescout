@@ -4,6 +4,7 @@
     <div x-data="{
         loggingActive: @json($loggingActive),
         selectedEvent: null,
+        selectedIds: [],
         logRules: @json($logRules),
         newRule: '',
         filterClass: '',
@@ -31,8 +32,10 @@
                     body: JSON.stringify({ event_class: this.newRule })
                 });
                 const data = await res.json();
-                if (data.success) { this.logRules = data.rules;
-                    this.newRule = ''; }
+                if (data.success) {
+                    this.logRules = data.rules;
+                    this.newRule = '';
+                }
             } finally { this.submitting = false; }
         },
         async removeRule(eventClass) {
@@ -47,20 +50,59 @@
         async loadDetail(id) {
             const res = await fetch(`/middleman/logging/${id}`);
             this.selectedEvent = await res.json();
+        },
+        toggleSelect(id) {
+            const idx = this.selectedIds.indexOf(id);
+            if (idx === -1) {
+                this.selectedIds.push(id);
+            } else {
+                this.selectedIds.splice(idx, 1);
+            }
+        },
+        isSelected(id) {
+            return this.selectedIds.includes(id);
+        },
+        async replaySelectedSequence() {
+            if (this.selectedIds.length === 0) return;
+            if (!confirm(`Replay ${this.selectedIds.length} selected event(s) in recorded sequence?`)) return;
+
+            this.submitting = true;
+            try {
+                const res = await fetch('{{ route('middleman.replay.sequence') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ source: 'logs', ids: this.selectedIds })
+                });
+                const data = await res.json();
+                const status = `${data.succeeded || 0} succeeded, ${data.failed || 0} failed`;
+                alert(`Replay sequence complete: ${status}`);
+            } finally {
+                this.submitting = false;
+            }
         }
     }">
         <div class="flex justify-between items-center mb-6">
             <h2 class="font-semibold text-xl text-neutral-800 leading-tight">Event Logging</h2>
-            <button @click="toggleLogging()" :disabled="submitting"
-                :class="loggingActive ? 'bg-danger-600 hover:bg-danger-700' : 'bg-success-600 hover:bg-success-700'"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50">
-                <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-                <span x-text="loggingActive ? 'Stop Recording' : 'Start Recording'"></span>
-            </button>
+            <div class="flex items-center gap-2">
+                @can('manage_middleman')
+                    <button @click="replaySelectedSequence()" :disabled="submitting || selectedIds.length === 0"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white bg-primary-600 hover:bg-primary-700 uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition ease-in-out duration-150 disabled:opacity-50">
+                        Replay Selected (<span class="ml-1" x-text="selectedIds.length"></span>)
+                    </button>
+                @endcan
+                <button @click="toggleLogging()" :disabled="submitting"
+                    :class="loggingActive ? 'bg-danger-600 hover:bg-danger-700' : 'bg-success-600 hover:bg-success-700'"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50">
+                    <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <span x-text="loggingActive ? 'Stop Recording' : 'Start Recording'"></span>
+                </button>
+            </div>
         </div>
 
         <!-- Status Banner -->
@@ -147,6 +189,9 @@
                     <table class="min-w-full divide-y divide-neutral-200">
                         <thead class="bg-neutral-50">
                             <tr>
+                                <th class="w-10 px-2 py-3">
+                                    <span class="sr-only">Select</span>
+                                </th>
                                 <th
                                     class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Time</th>
@@ -164,7 +209,13 @@
                         <tbody class="bg-white divide-y divide-neutral-200">
                             @forelse($logs as $log)
                                 <tr class="hover:bg-primary-50 cursor-pointer transition-colors"
-                                    @click="loadDetail({{ $log->id }})" @mouseenter="loadDetail({{ $log->id }})">
+                                    @click="loadDetail({{ $log->id }})"
+                                    @mouseenter="loadDetail({{ $log->id }})">
+                                    <td class="px-2 py-3 text-center" @click.stop>
+                                        <input type="checkbox" :checked="isSelected({{ $log->id }})"
+                                            @change="toggleSelect({{ $log->id }})"
+                                            class="rounded border-neutral-300 text-primary-600 focus:ring-primary-500">
+                                    </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-neutral-500">
                                         {{ $log->fired_at->diffForHumans() }}
                                     </td>
@@ -184,7 +235,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-4 py-12 text-center text-sm text-neutral-500 italic">
+                                    <td colspan="5" class="px-4 py-12 text-center text-sm text-neutral-500 italic">
                                         No log entries yet. Start recording to capture events.
                                     </td>
                                 </tr>

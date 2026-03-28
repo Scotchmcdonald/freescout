@@ -188,6 +188,11 @@ class MiddleManServiceProvider extends ServiceProvider
             ['label' => 'Logging', 'route' => 'middleman.logging.index'],
             ['label' => 'Intercept', 'route' => 'middleman.intercept.index'],
             ['label' => 'Marshal', 'route' => 'middleman.marshal.index'],
+            ['label' => 'Topology', 'route' => 'middleman.topology.index'],
+            ['label' => 'Schema Drift', 'route' => 'middleman.schema.index'],
+            ['label' => 'Tracing', 'route' => 'middleman.tracing.index'],
+            ['label' => 'Replay', 'route' => 'middleman.replay.index'],
+            ['label' => 'Muting', 'route' => 'middleman.muting.index'],
         ], 'view_middleman', 'icon-activity', 'Tools');
     }
 }

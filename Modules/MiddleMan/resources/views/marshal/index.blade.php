@@ -15,60 +15,58 @@
                 </svg>
                 <p class="ml-3 text-sm text-info-700">
                     Create and dispatch events manually. Select an event type, fill in the constructor parameters, and fire
-                    immediately or hold in the intercept queue. Model parameters offer async search; enums render as dropdowns.
+                    immediately or hold in the intercept queue. Model parameters offer async search; enums render as
+                    dropdowns.
                 </p>
             </div>
         </div>
 
         {{-- Step 1: Select Event --}}
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
+        <div class="bg-white overflow-visible shadow-sm sm:rounded-lg p-6 mb-6">
             <div class="flex items-center mb-4">
-                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">1</span>
+                <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">1</span>
                 <h3 class="text-lg font-medium text-neutral-900">Select Event Type</h3>
             </div>
 
             <div class="max-w-lg relative">
                 <label for="event-search" class="block text-sm font-medium text-neutral-700 mb-1">Event Class</label>
-                <input type="text" id="event-search"
-                    x-model="eventSearch"
-                    @input="filterEvents()"
-                    @focus="showEventDropdown = true"
-                    @click.away="showEventDropdown = false"
+                <input type="text" id="event-search" x-model="eventSearch" @input="filterEvents()"
+                    @focus="showEventDropdown = true" @click.away="showEventDropdown = false"
                     :placeholder="selectedEventClass || 'Search events by name, class, or module...'"
                     class="w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                     autocomplete="off">
 
                 {{-- Module filter chips --}}
                 <div class="flex flex-wrap gap-1 mt-2" x-show="modules.length > 1">
-                    <button type="button"
-                        @click="moduleFilter = ''; filterEvents()"
-                        :class="moduleFilter === '' ? 'bg-primary-100 text-primary-800 border-primary-300' : 'bg-neutral-50 text-neutral-600 border-neutral-200'"
+                    <button type="button" @click="moduleFilter = ''; filterEvents()"
+                        :class="moduleFilter === '' ? 'bg-primary-100 text-primary-800 border-primary-300' :
+                            'bg-neutral-50 text-neutral-600 border-neutral-200'"
                         class="px-2 py-0.5 text-xs rounded-full border transition-colors">
                         All
                     </button>
                     <template x-for="mod in modules" :key="mod">
-                        <button type="button"
-                            @click="moduleFilter = mod; filterEvents()"
-                            :class="moduleFilter === mod ? 'bg-primary-100 text-primary-800 border-primary-300' : 'bg-neutral-50 text-neutral-600 border-neutral-200'"
-                            class="px-2 py-0.5 text-xs rounded-full border transition-colors"
-                            x-text="mod">
+                        <button type="button" @click="moduleFilter = mod; filterEvents()"
+                            :class="moduleFilter === mod ? 'bg-primary-100 text-primary-800 border-primary-300' :
+                                'bg-neutral-50 text-neutral-600 border-neutral-200'"
+                            class="px-2 py-0.5 text-xs rounded-full border transition-colors" x-text="mod">
                         </button>
                     </template>
                 </div>
 
                 {{-- Dropdown --}}
                 <div x-show="showEventDropdown && filteredEvents.length > 0" x-transition
-                    class="absolute z-20 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    class="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
                     <template x-for="evt in filteredEvents" :key="evt.class">
-                        <button type="button"
-                            @click="selectEvent(evt)"
+                        <button type="button" @click="selectEvent(evt)"
                             class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 transition-colors border-b border-neutral-50 last:border-0">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <span class="font-medium text-neutral-900" x-text="evt.name"></span>
                                     <span class="text-xs text-neutral-400 ml-1" x-text="evt.module || 'App'"></span>
                                 </div>
-                                <span class="text-xs text-neutral-400" x-text="(evt.listener_count || 0) + ' listeners'"></span>
+                                <span class="text-xs text-neutral-400"
+                                    x-text="(evt.listener_count || 0) + ' listeners'"></span>
                             </div>
                             <div class="text-xs text-neutral-500 mt-0.5 font-mono truncate" x-text="evt.class"></div>
                         </button>
@@ -77,7 +75,8 @@
             </div>
 
             {{-- Selected event badge --}}
-            <div x-show="selectedEventClass" class="mt-3 inline-flex items-center bg-primary-50 text-primary-800 px-3 py-1.5 rounded-lg text-sm">
+            <div x-show="selectedEventClass"
+                class="mt-3 inline-flex items-center bg-primary-50 text-primary-800 px-3 py-1.5 rounded-lg text-sm">
                 <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -91,10 +90,11 @@
         </div>
 
         {{-- Step 2: Configure Parameters --}}
-        <div x-show="selectedEventClass" x-transition class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
+        <div x-show="selectedEventClass" x-transition class="bg-white overflow-visible shadow-sm sm:rounded-lg p-6 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
-                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">2</span>
+                    <span
+                        class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">2</span>
                     <h3 class="text-lg font-medium text-neutral-900">Configure Parameters</h3>
                 </div>
                 {{-- Preset dropdown --}}
@@ -102,20 +102,24 @@
                     <button type="button" @click="showPresets = !showPresets"
                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-600 bg-neutral-50 border border-neutral-200 rounded-md hover:bg-neutral-100 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                         Load Preset
                     </button>
                     <div x-show="showPresets" @click.away="showPresets = false" x-transition
-                        class="absolute right-0 z-10 mt-1 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg">
+                        class="absolute right-0 z-50 mt-1 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg">
                         <template x-for="preset in presets" :key="preset.id">
                             <div class="flex items-center justify-between px-3 py-2 hover:bg-neutral-50 transition-colors">
                                 <button type="button" @click="loadPreset(preset); showPresets = false"
-                                    class="text-sm text-neutral-700 hover:text-primary-600 truncate flex-1 text-left" x-text="preset.name"></button>
+                                    class="text-sm text-neutral-700 hover:text-primary-600 truncate flex-1 text-left"
+                                    x-text="preset.name"></button>
                                 <button type="button" @click.stop="deletePreset(preset.id)"
                                     class="text-neutral-400 hover:text-danger-500 p-1 ml-2 flex-shrink-0">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </div>
@@ -128,12 +132,14 @@
             <div class="border-b border-neutral-200 mb-6">
                 <nav class="-mb-px flex space-x-8" aria-label="Mode">
                     <button type="button" @click="tab = 'single'"
-                        :class="tab === 'single' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'"
+                        :class="tab === 'single' ? 'border-primary-500 text-primary-600' :
+                            'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'"
                         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
                         Single Event
                     </button>
                     <button type="button" @click="tab = 'batch'"
-                        :class="tab === 'batch' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'"
+                        :class="tab === 'batch' ? 'border-primary-500 text-primary-600' :
+                            'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'"
                         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
                         Batch (JSON)
                     </button>
@@ -145,8 +151,10 @@
                 <template x-if="loadingParams">
                     <div class="flex items-center space-x-2 text-neutral-400 text-sm">
                         <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+                            </path>
                         </svg>
                         <span>Loading parameters...</span>
                     </div>
@@ -178,21 +186,22 @@
                         {{-- Model: Async-searchable select --}}
                         <template x-if="param.is_model && !param.is_enum">
                             <div class="relative" x-data="modelSearchField()" x-init="initParam(param)">
-                                <input type="text" x-model="searchText"
-                                    @input.debounce.300ms="doSearch()"
-                                    @focus="showResults = true"
-                                    @click.away="showResults = false"
+                                <input type="text" x-model="searchText" @input.debounce.300ms="doSearch()"
+                                    @focus="showResults = true" @click.away="showResults = false"
                                     :placeholder="selectedLabel || 'Search by ID, name, or email...'"
                                     class="w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                                     autocomplete="off">
                                 <div class="absolute right-2 top-2">
-                                    <svg x-show="searching" class="animate-spin h-4 w-4 text-neutral-400" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    <svg x-show="searching" class="animate-spin h-4 w-4 text-neutral-400" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                     </svg>
                                 </div>
                                 <div x-show="showResults && results.length > 0" x-transition
-                                    class="absolute z-10 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                    class="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                                     <template x-for="r in results" :key="r.id">
                                         <button type="button" @click="pickResult(r)"
                                             class="w-full text-left px-3 py-2 text-sm hover:bg-primary-50 transition-colors border-b border-neutral-50 last:border-0"
@@ -200,23 +209,28 @@
                                     </template>
                                 </div>
                                 <div x-show="showResults && !searching && searchText.length > 0 && results.length === 0"
-                                    class="absolute z-10 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg p-3 text-sm text-neutral-500">
+                                    class="absolute z-50 w-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg p-3 text-sm text-neutral-500">
                                     No results found
                                 </div>
                             </div>
                         </template>
 
                         {{-- Boolean: Toggle --}}
-                        <template x-if="(param.type === 'bool' || param.type === 'boolean') && !param.is_model && !param.is_enum">
+                        <template
+                            x-if="(param.type === 'bool' || param.type === 'boolean') && !param.is_model && !param.is_enum">
                             <label class="relative inline-flex items-center cursor-pointer mt-1">
                                 <input type="checkbox" x-model="formValues[param.name]" class="sr-only peer">
-                                <div class="w-9 h-5 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600"></div>
-                                <span class="ml-2 text-sm text-neutral-600" x-text="formValues[param.name] ? 'true' : 'false'"></span>
+                                <div
+                                    class="w-9 h-5 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600">
+                                </div>
+                                <span class="ml-2 text-sm text-neutral-600"
+                                    x-text="formValues[param.name] ? 'true' : 'false'"></span>
                             </label>
                         </template>
 
                         {{-- Numeric: Number input --}}
-                        <template x-if="(param.type === 'int' || param.type === 'integer' || param.type === 'float' || param.type === 'double') && !param.is_model && !param.is_enum">
+                        <template
+                            x-if="(param.type === 'int' || param.type === 'integer' || param.type === 'float' || param.type === 'double') && !param.is_model && !param.is_enum">
                             <input type="number" x-model="formValues[param.name]"
                                 :step="param.type === 'float' || param.type === 'double' ? '0.01' : '1'"
                                 :placeholder="'Enter ' + param.name"
@@ -224,9 +238,9 @@
                         </template>
 
                         {{-- String/mixed: Text input --}}
-                        <template x-if="!param.is_model && !param.is_enum && param.type !== 'bool' && param.type !== 'boolean' && param.type !== 'int' && param.type !== 'integer' && param.type !== 'float' && param.type !== 'double'">
-                            <input type="text" x-model="formValues[param.name]"
-                                :placeholder="'Enter ' + param.name"
+                        <template
+                            x-if="!param.is_model && !param.is_enum && param.type !== 'bool' && param.type !== 'boolean' && param.type !== 'int' && param.type !== 'integer' && param.type !== 'float' && param.type !== 'double'">
+                            <input type="text" x-model="formValues[param.name]" :placeholder="'Enter ' + param.name"
                                 class="w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
                         </template>
                     </div>
@@ -240,15 +254,17 @@
                     <textarea x-model="batchJson" rows="12"
                         placeholder='[{"user_id": 1, "amount": 100}, {"user_id": 2, "amount": 200}]'
                         class="w-full text-sm font-mono rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-neutral-50"></textarea>
-                    <p class="mt-1 text-xs text-neutral-500">Each object in the array maps to the event constructor parameters. Max 100 items.</p>
+                    <p class="mt-1 text-xs text-neutral-500">Each object in the array maps to the event constructor
+                        parameters. Max 100 items.</p>
                 </div>
             </div>
         </div>
 
         {{-- Step 3: Dispatch --}}
-        <div x-show="selectedEventClass" x-transition class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
+        <div x-show="selectedEventClass" x-transition class="bg-white overflow-visible shadow-sm sm:rounded-lg p-6 mb-6">
             <div class="flex items-center mb-4">
-                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">3</span>
+                <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold mr-3">3</span>
                 <h3 class="text-lg font-medium text-neutral-900">Dispatch</h3>
             </div>
 
@@ -263,21 +279,24 @@
 
                 <div class="flex items-center space-x-3">
                     {{-- Save Preset --}}
-                    <div x-show="tab === 'single'" class="relative" x-data="{ showSavePreset: false, presetName: '' }">
-                        <button type="button" @click="showSavePreset = !showSavePreset"
+                    <div x-show="tab === 'single'" class="relative">
+                        <button type="button" @click="savePresetOpen = !savePresetOpen"
                             class="inline-flex items-center px-3 py-2 text-xs font-medium text-neutral-600 bg-neutral-50 border border-neutral-200 rounded-md hover:bg-neutral-100 transition-colors">
-                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                             </svg>
                             Save Preset
                         </button>
-                        <div x-show="showSavePreset" @click.away="showSavePreset = false" x-transition
-                            class="absolute right-0 z-10 mt-1 w-64 bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+                        <div x-show="savePresetOpen" @click.away="savePresetOpen = false" x-transition
+                            class="absolute right-0 z-50 mt-1 w-64 bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
                             <label class="block text-xs font-medium text-neutral-700 mb-1">Preset Name</label>
-                            <input type="text" x-model="presetName" placeholder="e.g. Happy Path User"
+                            <input type="text" x-model="presetNameDraft" placeholder="e.g. Happy Path User"
                                 class="w-full text-sm rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 mb-2">
-                            <button type="button" @click="$data.savePreset(presetName); showSavePreset = false; presetName = ''"
-                                :disabled="!presetName.trim()"
+                            <button type="button"
+                                @click="savePreset(presetNameDraft); savePresetOpen = false; presetNameDraft = ''"
+                                :disabled="!presetNameDraft.trim()"
                                 class="w-full px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 transition-colors">
                                 Save
                             </button>
@@ -287,22 +306,30 @@
                     {{-- Fire / Batch Button --}}
                     <template x-if="tab === 'single'">
                         <button @click="fireSingle()" :disabled="submitting"
-                            :class="holdInQueue ? 'bg-warning-600 hover:bg-warning-700 focus:ring-warning-500' : 'bg-success-600 hover:bg-success-700 focus:ring-success-500'"
+                            :class="holdInQueue ? 'bg-warning-600 hover:bg-warning-700 focus:ring-warning-500' :
+                                'bg-success-600 hover:bg-success-700 focus:ring-success-500'"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50">
-                            <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
                             <span x-text="holdInQueue ? 'Hold in Queue' : 'Fire Event'"></span>
                         </button>
                     </template>
                     <template x-if="tab === 'batch'">
                         <button @click="fireBatch()" :disabled="submitting"
-                            :class="holdInQueue ? 'bg-warning-600 hover:bg-warning-700 focus:ring-warning-500' : 'bg-success-600 hover:bg-success-700 focus:ring-success-500'"
+                            :class="holdInQueue ? 'bg-warning-600 hover:bg-warning-700 focus:ring-warning-500' :
+                                'bg-success-600 hover:bg-success-700 focus:ring-success-500'"
                             class="inline-flex items-center px-6 py-2.5 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50">
-                            <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            <svg x-show="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
                             <span x-text="holdInQueue ? 'Hold Batch in Queue' : 'Fire Batch'"></span>
                         </button>
@@ -377,10 +404,14 @@
                 submitting: false,
                 loadingParams: false,
                 result: null,
+                savePresetOpen: false,
+                presetNameDraft: '',
 
                 init() {
                     const mods = new Set();
-                    this.allEvents.forEach(e => { if (e.module) mods.add(e.module); });
+                    this.allEvents.forEach(e => {
+                        if (e.module) mods.add(e.module);
+                    });
                     this.modules = [...mods].sort();
                     this.filteredEvents = [...this.allEvents];
                 },
@@ -389,10 +420,10 @@
                     const q = this.eventSearch.toLowerCase();
                     this.filteredEvents = this.allEvents.filter(e => {
                         const matchesModule = !this.moduleFilter || e.module === this.moduleFilter;
-                        const matchesSearch = !q
-                            || e.name.toLowerCase().includes(q)
-                            || e.class.toLowerCase().includes(q)
-                            || (e.module || '').toLowerCase().includes(q);
+                        const matchesSearch = !q ||
+                            e.name.toLowerCase().includes(q) ||
+                            e.class.toLowerCase().includes(q) ||
+                            (e.module || '').toLowerCase().includes(q);
                         return matchesModule && matchesSearch;
                     });
                 },
@@ -411,13 +442,21 @@
                     this.presets = [];
                     this.formValues = {};
                     this.result = null;
+                    this.savePresetOpen = false;
+                    this.presetNameDraft = '';
                 },
 
                 async loadParameters() {
-                    if (!this.selectedEventClass) { this.parameters = []; this.presets = []; return; }
+                    if (!this.selectedEventClass) {
+                        this.parameters = [];
+                        this.presets = [];
+                        return;
+                    }
                     this.loadingParams = true;
                     try {
-                        const res = await fetch(`{{ route('middleman.marshal.parameters') }}?event_class=${encodeURIComponent(this.selectedEventClass)}`);
+                        const res = await fetch(
+                            `{{ route('middleman.marshal.parameters') }}?event_class=${encodeURIComponent(this.selectedEventClass)}`
+                        );
                         const data = await res.json();
                         this.parameters = data.parameters || [];
                         this.presets = data.presets || [];
@@ -435,7 +474,10 @@
 
                 loadPreset(preset) {
                     if (preset.payload) {
-                        this.formValues = { ...this.formValues, ...preset.payload };
+                        this.formValues = {
+                            ...this.formValues,
+                            ...preset.payload
+                        };
                     }
                 },
 
@@ -444,24 +486,39 @@
                     try {
                         const res = await fetch('{{ route('middleman.marshal.presets.save') }}', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ event_class: this.selectedEventClass, name: name.trim(), payload: this.formValues })
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                event_class: this.selectedEventClass,
+                                name: name.trim(),
+                                payload: this.formValues
+                            })
                         });
                         const data = await res.json();
                         if (data.success) {
                             this.presets.push(data.preset);
+                            this.presetNameDraft = '';
+                            this.savePresetOpen = false;
                         }
-                    } catch (e) { /* absorb */ }
+                    } catch (e) {
+                        /* absorb */
+                    }
                 },
 
                 async deletePreset(id) {
                     try {
                         await fetch(`{{ url('/middleman/marshal/presets') }}/${id}`, {
                             method: 'DELETE',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
                         });
                         this.presets = this.presets.filter(p => p.id !== id);
-                    } catch (e) { /* absorb */ }
+                    } catch (e) {
+                        /* absorb */
+                    }
                 },
 
                 async fireSingle() {
@@ -471,11 +528,24 @@
                     try {
                         const res = await fetch('{{ route('middleman.marshal.fire') }}', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ event_class: this.selectedEventClass, payload: this.formValues, hold: this.holdInQueue })
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                event_class: this.selectedEventClass,
+                                payload: this.formValues,
+                                hold: this.holdInQueue
+                            })
                         });
                         this.result = await res.json();
-                    } catch (e) { this.result = { error: e.message }; } finally { this.submitting = false; }
+                    } catch (e) {
+                        this.result = {
+                            error: e.message
+                        };
+                    } finally {
+                        this.submitting = false;
+                    }
                 },
 
                 async fireBatch() {
@@ -486,11 +556,24 @@
                         const items = JSON.parse(this.batchJson);
                         const res = await fetch('{{ route('middleman.marshal.batch') }}', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: JSON.stringify({ event_class: this.selectedEventClass, items, hold: this.holdInQueue })
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                event_class: this.selectedEventClass,
+                                items,
+                                hold: this.holdInQueue
+                            })
                         });
                         this.result = await res.json();
-                    } catch (e) { this.result = { error: 'Invalid JSON: ' + e.message }; } finally { this.submitting = false; }
+                    } catch (e) {
+                        this.result = {
+                            error: 'Invalid JSON: ' + e.message
+                        };
+                    } finally {
+                        this.submitting = false;
+                    }
                 }
             };
         }
@@ -509,10 +592,14 @@
                 },
 
                 async doSearch() {
-                    if (!this.searchText || this.searchText.length < 1 || !this.paramRef) { this.results = []; return; }
+                    if (!this.searchText || this.searchText.length < 1 || !this.paramRef) {
+                        this.results = [];
+                        return;
+                    }
                     this.searching = true;
                     try {
-                        const url = `{{ route('middleman.marshal.search-model') }}?model_class=${encodeURIComponent(this.paramRef.model_class)}&query=${encodeURIComponent(this.searchText)}`;
+                        const url =
+                            `{{ route('middleman.marshal.search-model') }}?model_class=${encodeURIComponent(this.paramRef.model_class)}&query=${encodeURIComponent(this.searchText)}`;
                         const res = await fetch(url);
                         const data = await res.json();
                         this.results = data.results || [];

@@ -47,7 +47,9 @@
         </div>
 
         {{-- Slot for extra actions (edit, fire, discard) --}}
-        {{ $slot }}
+        @isset($slot)
+            {{ $slot }}
+        @endisset
     </div>
 </div>
 

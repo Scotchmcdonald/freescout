@@ -32,8 +32,10 @@
                     body: JSON.stringify({ event_class: this.newRule })
                 });
                 const data = await res.json();
-                if (data.success) { this.interceptRules = data.rules;
-                    this.newRule = ''; }
+                if (data.success) {
+                    this.interceptRules = data.rules;
+                    this.newRule = '';
+                }
             } finally { this.submitting = false; }
         },
         async removeRule(eventClass) {
@@ -82,6 +84,22 @@
                 });
                 window.location.reload();
             } finally { this.submitting = false; }
+        },
+        async replaySelectedSequence() {
+            if (this.selectedIds.length === 0) return;
+            if (!confirm(`Replay ${this.selectedIds.length} selected captured event(s) in recorded sequence?`)) return;
+            this.submitting = true;
+            try {
+                const res = await fetch('{{ route('middleman.replay.sequence') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ source: 'intercepts', ids: this.selectedIds })
+                });
+                const data = await res.json();
+                alert(`Replay sequence complete: ${data.succeeded || 0} succeeded, ${data.failed || 0} failed`);
+            } finally {
+                this.submitting = false;
+            }
         },
         async fireAll() {
             if (!confirm('Fire ALL pending intercepted events in order? This cannot be undone.')) return;
@@ -202,6 +220,10 @@
                             class="w-full px-3 py-2 bg-success-600 text-white text-xs rounded-md hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-success-500 font-medium uppercase tracking-wide">
                             Fire Selected (<span x-text="selectedIds.length"></span>)
                         </button>
+                        <button @click="replaySelectedSequence()" :disabled="selectedIds.length === 0 || submitting"
+                            class="w-full px-3 py-2 bg-primary-600 text-white text-xs rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium uppercase tracking-wide">
+                            Replay Selected Sequence
+                        </button>
                         <button @click="fireAll()" :disabled="submitting"
                             class="w-full px-3 py-2 bg-warning-600 text-white text-xs rounded-md hover:bg-warning-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-warning-500 font-medium uppercase tracking-wide">
                             Fire All Pending
@@ -256,8 +278,8 @@
                                         </td>
                                         <td class="px-2 py-3 cursor-grab text-neutral-400 hover:text-neutral-600"
                                             @click.stop>
-                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                stroke-width="2">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M4 8h16M4 16h16" />
                                             </svg>

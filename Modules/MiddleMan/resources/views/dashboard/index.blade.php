@@ -64,18 +64,43 @@
         {{-- Circuit Breaker Status Panel --}}
         @php
             $cbState = $circuitBreakerStatus['state'] ?? 'CLOSED';
-            $cbColors = match($cbState) {
-                'CLOSED'    => ['bg' => 'bg-success-50',  'border' => 'border-success-200', 'text' => 'text-success-800', 'badge' => 'bg-success-100 text-success-800', 'dot' => 'text-success-500'],
-                'HALF_OPEN' => ['bg' => 'bg-warning-50',  'border' => 'border-warning-200', 'text' => 'text-warning-800', 'badge' => 'bg-warning-100 text-warning-800', 'dot' => 'text-warning-500'],
-                'OPEN'      => ['bg' => 'bg-danger-50',   'border' => 'border-danger-200',  'text' => 'text-danger-800',  'badge' => 'bg-danger-100 text-danger-800',   'dot' => 'text-danger-500'],
-                default     => ['bg' => 'bg-neutral-50',  'border' => 'border-neutral-200', 'text' => 'text-neutral-800', 'badge' => 'bg-neutral-100 text-neutral-800', 'dot' => 'text-neutral-500'],
+            $cbColors = match ($cbState) {
+                'CLOSED' => [
+                    'bg' => 'bg-success-50',
+                    'border' => 'border-success-200',
+                    'text' => 'text-success-800',
+                    'badge' => 'bg-success-100 text-success-800',
+                    'dot' => 'text-success-500',
+                ],
+                'HALF_OPEN' => [
+                    'bg' => 'bg-warning-50',
+                    'border' => 'border-warning-200',
+                    'text' => 'text-warning-800',
+                    'badge' => 'bg-warning-100 text-warning-800',
+                    'dot' => 'text-warning-500',
+                ],
+                'OPEN' => [
+                    'bg' => 'bg-danger-50',
+                    'border' => 'border-danger-200',
+                    'text' => 'text-danger-800',
+                    'badge' => 'bg-danger-100 text-danger-800',
+                    'dot' => 'text-danger-500',
+                ],
+                default => [
+                    'bg' => 'bg-neutral-50',
+                    'border' => 'border-neutral-200',
+                    'text' => 'text-neutral-800',
+                    'badge' => 'bg-neutral-100 text-neutral-800',
+                    'dot' => 'text-neutral-500',
+                ],
             };
         @endphp
         <div class="{{ $cbColors['bg'] }} {{ $cbColors['border'] }} border rounded-lg p-6 mb-6" x-data="{ resetting: false }">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
                     <h3 class="text-lg font-medium {{ $cbColors['text'] }}">Circuit Breaker</h3>
-                    <span class="ml-3 inline-flex items-center rounded-full {{ $cbColors['badge'] }} px-2.5 py-0.5 text-xs font-medium">
+                    <span
+                        class="ml-3 inline-flex items-center rounded-full {{ $cbColors['badge'] }} px-2.5 py-0.5 text-xs font-medium">
                         <svg class="mr-1.5 h-2.5 w-2.5 {{ $cbColors['dot'] }}" fill="currentColor" viewBox="0 0 8 8">
                             <circle cx="4" cy="4" r="3" />
                         </svg>
@@ -83,12 +108,16 @@
                     </span>
                 </div>
                 @if ($cbState !== 'CLOSED')
-                    <button type="button" @click="resetting = true; fetch('{{ route('middleman.circuit-breaker.reset') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => location.reload()).catch(() => { resetting = false; })"
+                    <button type="button"
+                        @click="resetting = true; fetch('{{ route('middleman.circuit-breaker.reset') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => location.reload()).catch(() => { resetting = false; })"
                         :disabled="resetting"
                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 transition-colors">
-                        <svg x-show="resetting" class="animate-spin -ml-0.5 mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        <svg x-show="resetting" class="animate-spin -ml-0.5 mr-1.5 h-3.5 w-3.5" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+                            </path>
                         </svg>
                         Reset Circuit Breaker
                     </button>
@@ -98,29 +127,36 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                     <div class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Events in Window</div>
-                    <div class="mt-1 text-lg font-semibold text-neutral-800">{{ $circuitBreakerStatus['events_in_window'] ?? 0 }}</div>
+                    <div class="mt-1 text-lg font-semibold text-neutral-800">
+                        {{ $circuitBreakerStatus['events_in_window'] ?? 0 }}</div>
                 </div>
                 <div>
                     <div class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Failure Count</div>
-                    <div class="mt-1 text-lg font-semibold text-neutral-800">{{ $circuitBreakerStatus['failure_count'] ?? 0 }} / {{ $circuitBreakerStatus['failure_threshold'] ?? '—' }}</div>
+                    <div class="mt-1 text-lg font-semibold text-neutral-800">
+                        {{ $circuitBreakerStatus['failure_count'] ?? 0 }} /
+                        {{ $circuitBreakerStatus['failure_threshold'] ?? '—' }}</div>
                 </div>
                 <div>
                     <div class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Storm Threshold</div>
-                    <div class="mt-1 text-lg font-semibold text-neutral-800">{{ $circuitBreakerStatus['storm_threshold'] ?? '—' }}/s</div>
+                    <div class="mt-1 text-lg font-semibold text-neutral-800">
+                        {{ $circuitBreakerStatus['storm_threshold'] ?? '—' }}/s</div>
                 </div>
                 <div>
                     <div class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Cooldown</div>
-                    <div class="mt-1 text-lg font-semibold text-neutral-800">{{ $circuitBreakerStatus['cooldown_seconds'] ?? '—' }}s</div>
+                    <div class="mt-1 text-lg font-semibold text-neutral-800">
+                        {{ $circuitBreakerStatus['cooldown_seconds'] ?? '—' }}s</div>
                 </div>
             </div>
 
             @if ($cbState === 'OPEN')
                 <div class="mt-4 text-sm {{ $cbColors['text'] }}">
-                    MiddleMan processing is temporarily suspended. Events will pass through without logging or interception until the circuit resets.
+                    MiddleMan processing is temporarily suspended. Events will pass through without logging or interception
+                    until the circuit resets.
                 </div>
             @elseif ($cbState === 'HALF_OPEN')
                 <div class="mt-4 text-sm {{ $cbColors['text'] }}">
-                    Testing recovery — a limited number of events are being processed. If successful, the circuit will close automatically.
+                    Testing recovery — a limited number of events are being processed. If successful, the circuit will close
+                    automatically.
                 </div>
             @endif
         </div>

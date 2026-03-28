@@ -8,11 +8,37 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
+use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\RuleEngine;
 
 class MutingController extends Controller
 {
-    public function index(RuleEngine $ruleEngine): JsonResponse
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
+    {
+        $listenerMap = $discovery->getListenerMap();
+
+        $listenerCandidates = collect($listenerMap)
+            ->flatten()
+            ->filter(fn (mixed $listener): bool => is_string($listener))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'muted_listeners' => $ruleEngine->getMutedListeners(),
+                'listener_candidates' => $listenerCandidates,
+            ]);
+        }
+
+        return view('middleman::muting.index', [
+            'mutedListeners' => $ruleEngine->getMutedListeners(),
+            'listenerCandidates' => $listenerCandidates,
+        ]);
+    }
+
+    public function data(RuleEngine $ruleEngine): JsonResponse
     {
         return response()->json([
             'muted_listeners' => $ruleEngine->getMutedListeners(),

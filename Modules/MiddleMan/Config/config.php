@@ -137,4 +137,20 @@ return [
     |
     */
     'max_presets_per_event' => (int) env('MIDDLEMAN_MAX_PRESETS', 25),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kroki Diagram Rendering
+    |--------------------------------------------------------------------------
+    |
+    | Enables server-side topology graph rendering via a Kroki instance.
+    | For standalone compose deployments, point base_url to the host-accessible
+    | endpoint, e.g. http://host.docker.internal:8001 in local Docker setups.
+    |
+    */
+    'kroki' => [
+        'enabled'         => (bool) env('MIDDLEMAN_KROKI_ENABLED', false),
+        'base_url'        => env('MIDDLEMAN_KROKI_URL', 'http://kroki:8000'),
+        'timeout_seconds' => (int) env('MIDDLEMAN_KROKI_TIMEOUT', 10),
+    ],
 ];

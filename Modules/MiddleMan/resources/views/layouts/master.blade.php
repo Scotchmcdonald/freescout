@@ -17,11 +17,21 @@
                         {{ request()->routeIs('middleman.intercept.*') ? 'selected' : '' }}>Intercept</option>
                     <option value="{{ route('middleman.marshal.index') }}"
                         {{ request()->routeIs('middleman.marshal.*') ? 'selected' : '' }}>Marshal</option>
+                    <option value="{{ route('middleman.topology.index') }}"
+                        {{ request()->routeIs('middleman.topology.*') ? 'selected' : '' }}>Topology</option>
+                    <option value="{{ route('middleman.schema.index') }}"
+                        {{ request()->routeIs('middleman.schema.*') ? 'selected' : '' }}>Schema Drift</option>
+                    <option value="{{ route('middleman.tracing.index') }}"
+                        {{ request()->routeIs('middleman.tracing.*') ? 'selected' : '' }}>Tracing</option>
+                    <option value="{{ route('middleman.replay.index') }}"
+                        {{ request()->routeIs('middleman.replay.index') ? 'selected' : '' }}>Replay</option>
+                    <option value="{{ route('middleman.muting.index') }}"
+                        {{ request()->routeIs('middleman.muting.*') ? 'selected' : '' }}>Muting</option>
                 </select>
             </div>
             <div class="hidden sm:block">
                 <div class="border-b border-neutral-200">
-                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <nav class="-mb-px flex flex-wrap gap-x-8" aria-label="Tabs">
                         {{-- Dashboard --}}
                         <a href="{{ route('middleman.dashboard') }}"
                             class="{{ request()->routeIs('middleman.dashboard') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
@@ -64,6 +74,60 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                             <span>Marshal</span>
+                        </a>
+
+                        {{-- Topology --}}
+                        <a href="{{ route('middleman.topology.index') }}"
+                            class="{{ request()->routeIs('middleman.topology.*') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
+                            <svg class="{{ request()->routeIs('middleman.topology.*') ? 'text-primary-500' : 'text-neutral-400 group-hover:text-neutral-500' }} -ml-0.5 mr-2 h-5 w-5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 6h7M4 12h16M4 18h7M15 6h5M15 18h5" />
+                            </svg>
+                            <span>Topology</span>
+                        </a>
+
+                        {{-- Schema Drift --}}
+                        <a href="{{ route('middleman.schema.index') }}"
+                            class="{{ request()->routeIs('middleman.schema.*') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
+                            <svg class="{{ request()->routeIs('middleman.schema.*') ? 'text-primary-500' : 'text-neutral-400 group-hover:text-neutral-500' }} -ml-0.5 mr-2 h-5 w-5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                            </svg>
+                            <span>Schema</span>
+                        </a>
+
+                        {{-- Tracing --}}
+                        <a href="{{ route('middleman.tracing.index') }}"
+                            class="{{ request()->routeIs('middleman.tracing.*') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
+                            <svg class="{{ request()->routeIs('middleman.tracing.*') ? 'text-primary-500' : 'text-neutral-400 group-hover:text-neutral-500' }} -ml-0.5 mr-2 h-5 w-5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3l3 8 4-16 3 8h5" />
+                            </svg>
+                            <span>Tracing</span>
+                        </a>
+
+                        {{-- Replay --}}
+                        <a href="{{ route('middleman.replay.index') }}"
+                            class="{{ request()->routeIs('middleman.replay.index') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
+                            <svg class="{{ request()->routeIs('middleman.replay.index') ? 'text-primary-500' : 'text-neutral-400 group-hover:text-neutral-500' }} -ml-0.5 mr-2 h-5 w-5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 10h4l3-3m0 0l3 3m-3-3v10m5-5h6" />
+                            </svg>
+                            <span>Replay</span>
+                        </a>
+
+                        {{-- Muting --}}
+                        <a href="{{ route('middleman.muting.index') }}"
+                            class="{{ request()->routeIs('middleman.muting.*') ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700' }} group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium">
+                            <svg class="{{ request()->routeIs('middleman.muting.*') ? 'text-primary-500' : 'text-neutral-400 group-hover:text-neutral-500' }} -ml-0.5 mr-2 h-5 w-5"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M11 5L6 9H3v6h3l5 4V5zM19 9l-6 6" />
+                            </svg>
+                            <span>Muting</span>
                         </a>
                     </nav>
                 </div>
