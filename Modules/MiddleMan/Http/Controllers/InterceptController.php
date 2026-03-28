@@ -9,13 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
-use Modules\MiddleMan\Services\EventScanner;
+use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\MiddleManDispatcher;
 use Modules\MiddleMan\Services\RuleEngine;
 
 class InterceptController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, EventScanner $scanner)
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
     {
         $interceptActive = $ruleEngine->isInterceptActive();
         $rules = $ruleEngine->getRules();
@@ -30,7 +30,7 @@ class InterceptController extends Controller
             MiddleManIntercept::STATUS_DISCARDED,
         ])->orderByDesc('fired_at')->limit(50)->get();
 
-        $availableEvents = $scanner->discover();
+        $availableEvents = $discovery->discover();
 
         return view('middleman::intercept.index', compact(
             'interceptActive',

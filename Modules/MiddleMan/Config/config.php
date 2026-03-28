@@ -89,4 +89,52 @@ return [
         'intercept_active' => 'middleman:intercept_active',
         'muted_listeners'  => 'middleman:muted_listeners',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Circuit Breaker
+    |--------------------------------------------------------------------------
+    |
+    | Guarantees zero production impact. If MiddleMan encounters repeated
+    | failures (cache/queue down) or an event storm, it auto-disables
+    | and recovers after a cooldown period.
+    |
+    */
+    'circuit_breaker' => [
+        // Number of consecutive failures before tripping the breaker
+        'failure_threshold'        => (int) env('MIDDLEMAN_CB_FAILURE_THRESHOLD', 5),
+
+        // Max events per second before storm detection trips the breaker (memory protection)
+        'storm_threshold_per_second' => (int) env('MIDDLEMAN_CB_STORM_THRESHOLD', 500),
+
+        // Max queued jobs before backpressure trips the breaker
+        'queue_depth_limit'        => (int) env('MIDDLEMAN_CB_QUEUE_DEPTH', 10000),
+
+        // Seconds to wait before attempting half-open recovery
+        'cooldown_seconds'         => (int) env('MIDDLEMAN_CB_COOLDOWN', 60),
+
+        // Seconds between cache syncs (local state is used between syncs for speed)
+        'sync_interval_seconds'    => (int) env('MIDDLEMAN_CB_SYNC_INTERVAL', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Discovery Cache TTL (seconds)
+    |--------------------------------------------------------------------------
+    |
+    | How long the EventDiscoveryService caches the discovered event map.
+    | Set to 0 to disable caching (not recommended in production).
+    |
+    */
+    'discovery_cache_ttl' => (int) env('MIDDLEMAN_DISCOVERY_CACHE_TTL', 300),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Marshal Presets
+    |--------------------------------------------------------------------------
+    |
+    | Maximum number of saved presets per event class for the Marshal UI.
+    |
+    */
+    'max_presets_per_event' => (int) env('MIDDLEMAN_MAX_PRESETS', 25),
 ];

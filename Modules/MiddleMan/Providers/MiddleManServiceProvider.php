@@ -10,6 +10,8 @@ use Illuminate\Events\Dispatcher as BaseDispatcher;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Modules\MiddleMan\Services\CircuitBreaker;
+use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\EventSerializer;
 use Modules\MiddleMan\Services\MiddleManContext;
 use Modules\MiddleMan\Services\MiddleManDispatcher;
@@ -33,6 +35,8 @@ class MiddleManServiceProvider extends ServiceProvider
         $this->app->singleton(RuleEngine::class);
         $this->app->singleton(EventSerializer::class);
         $this->app->singleton(MiddleManContext::class);
+        $this->app->singleton(CircuitBreaker::class);
+        $this->app->singleton(EventDiscoveryService::class);
 
         // Only swap the dispatcher when the module is enabled
         if (! config('middleman.enabled')) {
@@ -56,6 +60,7 @@ class MiddleManServiceProvider extends ServiceProvider
             );
 
             $dispatcher->setContext($app->make(MiddleManContext::class));
+            $dispatcher->setCircuitBreaker($app->make(CircuitBreaker::class));
 
             return $dispatcher;
         });
@@ -116,6 +121,7 @@ class MiddleManServiceProvider extends ServiceProvider
     {
         $this->commands([
             \Modules\MiddleMan\Console\BuildTopologyCommand::class,
+            \Modules\MiddleMan\Console\PruneCommand::class,
         ]);
     }
 

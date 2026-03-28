@@ -30,6 +30,7 @@ class MiddleManDispatcher extends Dispatcher
     private RuleEngine $ruleEngine;
     private EventSerializer $serializer;
     private ?MiddleManContext $context = null;
+    private ?CircuitBreaker $circuitBreaker = null;
     private bool $bypassing = false;
 
     public function setMiddleManServices(RuleEngine $ruleEngine, EventSerializer $serializer): void
@@ -43,6 +44,11 @@ class MiddleManDispatcher extends Dispatcher
         $this->context = $context;
     }
 
+    public function setCircuitBreaker(CircuitBreaker $circuitBreaker): void
+    {
+        $this->circuitBreaker = $circuitBreaker;
+    }
+
     /**
      * @param  string|object  $event
      * @param  mixed  $payload
@@ -53,6 +59,11 @@ class MiddleManDispatcher extends Dispatcher
     {
         // Bypass mode: used when firing intercepted events to prevent infinite loops
         if ($this->bypassing) {
+            return parent::dispatch($event, $payload, $halt);
+        }
+
+        // Circuit Breaker: if tripped, pass through immediately (zero overhead)
+        if ($this->circuitBreaker !== null && ! $this->circuitBreaker->allowsProcessing()) {
             return parent::dispatch($event, $payload, $halt);
         }
 
@@ -72,12 +83,14 @@ class MiddleManDispatcher extends Dispatcher
             // Check interception FIRST — if intercepted, event is halted entirely
             if (isset($this->ruleEngine) && $this->ruleEngine->shouldIntercept($eventClass)) {
                 $this->dispatchInterception($event, $eventClass, $eventId);
+                $this->circuitBreaker?->recordSuccess();
                 return null;
             }
 
             // Check logging — if logged, event continues normally after queuing the log
             if (isset($this->ruleEngine) && $this->ruleEngine->shouldLog($eventClass)) {
                 $this->dispatchLog($event, $eventClass, $eventId);
+                $this->circuitBreaker?->recordSuccess();
             }
 
             return parent::dispatch($event, $payload, $halt);
@@ -171,6 +184,7 @@ class MiddleManDispatcher extends Dispatcher
                 'event' => $eventClass,
                 'error' => $e->getMessage(),
             ]);
+            $this->circuitBreaker?->recordFailure($e);
         }
     }
 
@@ -204,6 +218,7 @@ class MiddleManDispatcher extends Dispatcher
                 'event' => $eventClass,
                 'error' => $e->getMessage(),
             ]);
+            $this->circuitBreaker?->recordFailure($e);
         }
     }
 

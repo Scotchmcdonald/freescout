@@ -14,6 +14,9 @@ Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'
 
     // Dashboard — "Flight Deck"
     Route::get('/', [DashboardController::class, 'index'])->name('middleman.dashboard');
+    Route::post('/circuit-breaker/reset', [DashboardController::class, 'resetCircuitBreaker'])
+        ->middleware('can:manage_middleman')
+        ->name('middleman.circuit-breaker.reset');
 
     /*
     |----------------------------------------------------------------------
@@ -65,10 +68,13 @@ Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'
     Route::prefix('marshal')->group(function () {
         Route::get('/', [MarshalController::class, 'index'])->name('middleman.marshal.index');
         Route::get('/parameters', [MarshalController::class, 'parameters'])->name('middleman.marshal.parameters');
+        Route::get('/search-model', [MarshalController::class, 'searchModel'])->name('middleman.marshal.search-model');
 
         Route::middleware('can:manage_middleman')->group(function () {
             Route::post('/fire', [MarshalController::class, 'fire'])->name('middleman.marshal.fire');
             Route::post('/batch', [MarshalController::class, 'batch'])->name('middleman.marshal.batch');
+            Route::post('/presets', [MarshalController::class, 'savePreset'])->name('middleman.marshal.presets.save');
+            Route::delete('/presets/{id}', [MarshalController::class, 'deletePreset'])->name('middleman.marshal.presets.delete');
         });
     });
 

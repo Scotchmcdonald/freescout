@@ -351,12 +351,14 @@ test('replay endpoint dispatches the event and writes audit log', function (): v
     ]);
 });
 
-test('replay endpoint returns 404 for non-existent log entry', function (): void {
+test('replay endpoint returns 422 for non-existent log entry', function (): void {
     $admin = createMiddleManAdmin();
 
     $this->actingAs($admin)
         ->postJson('/middleman/replay/999999')
-        ->assertStatus(404);
+        ->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('corrupted', false);
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

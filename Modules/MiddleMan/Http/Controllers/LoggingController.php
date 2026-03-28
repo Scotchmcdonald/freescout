@@ -9,12 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManLog;
-use Modules\MiddleMan\Services\EventScanner;
+use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\RuleEngine;
 
 class LoggingController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, EventScanner $scanner)
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
     {
         $loggingActive = $ruleEngine->isLoggingActive();
         $rules = $ruleEngine->getRules();
@@ -23,7 +23,7 @@ class LoggingController extends Controller
         $logs = MiddleManLog::orderByDesc('fired_at')
             ->paginate(50);
 
-        $availableEvents = $scanner->discover();
+        $availableEvents = $discovery->discover();
 
         return view('middleman::logging.index', compact(
             'loggingActive',

@@ -9,14 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
-use Modules\MiddleMan\Services\EventScanner;
+use Modules\MiddleMan\Models\MiddleManPreset;
+use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\MiddleManDispatcher;
 
 class MarshalController extends Controller
 {
-    public function index(EventScanner $scanner)
+    public function index(EventDiscoveryService $discovery)
     {
-        $availableEvents = $scanner->discover();
+        $availableEvents = $discovery->discover();
 
         return view('middleman::marshal.index', compact('availableEvents'));
     }
@@ -24,15 +25,122 @@ class MarshalController extends Controller
     /**
      * Return constructor parameters for a specific event class.
      */
-    public function parameters(Request $request, EventScanner $scanner): JsonResponse
+    public function parameters(Request $request, EventDiscoveryService $discovery): JsonResponse
     {
         $validated = $request->validate([
             'event_class' => 'required|string|max:255',
         ]);
 
-        $params = $scanner->getParameters($validated['event_class']);
+        $params = $discovery->getParameters($validated['event_class']);
 
-        return response()->json(['parameters' => $params]);
+        // Also return any saved presets for this event
+        $presets = MiddleManPreset::forEvent($validated['event_class'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'payload'])
+            ->toArray();
+
+        return response()->json([
+            'parameters' => $params,
+            'presets'    => $presets,
+        ]);
+    }
+
+    /**
+     * Async searchable endpoint for Eloquent model parameters.
+     * Returns matching records by ID, name, email, or other searchable columns.
+     */
+    public function searchModel(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'model_class' => 'required|string|max:255',
+            'query'       => 'required|string|max:100',
+        ]);
+
+        $modelClass = $validated['model_class'];
+        $searchQuery = $validated['query'];
+
+        // Security: only allow Eloquent models
+        if (! class_exists($modelClass) || ! is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class)) {
+            return response()->json(['results' => []]);
+        }
+
+        try {
+            $instance = new $modelClass();
+            $keyName = $instance->getKeyName();
+            $table = $instance->getTable();
+
+            $query = $modelClass::query()->limit(20);
+
+            // Smart search: try numeric ID first, then common string columns
+            if (is_numeric($searchQuery)) {
+                $query->where($keyName, $searchQuery);
+            } else {
+                $searchableColumns = $this->getSearchableColumns($instance);
+
+                if ($searchableColumns !== []) {
+                    $query->where(function ($q) use ($searchableColumns, $searchQuery): void {
+                        foreach ($searchableColumns as $col) {
+                            $q->orWhere($col, 'like', '%' . $searchQuery . '%');
+                        }
+                    });
+                } else {
+                    // Fallback: search by key if it's string-typed
+                    $query->where($keyName, 'like', '%' . $searchQuery . '%');
+                }
+            }
+
+            $results = $query->get()->map(function ($model) use ($keyName): array {
+                return [
+                    'id'    => $model->getKey(),
+                    'label' => $this->buildModelLabel($model, $keyName),
+                ];
+            })->all();
+
+            return response()->json(['results' => $results]);
+        } catch (\Throwable $e) {
+            return response()->json(['results' => [], 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Save a preset for quick re-use.
+     */
+    public function savePreset(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'event_class' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
+            'payload'     => 'required|array',
+        ]);
+
+        $maxPresets = (int) config('middleman.max_presets_per_event', 25);
+        $existing = MiddleManPreset::forEvent($validated['event_class'])->count();
+
+        if ($existing >= $maxPresets) {
+            return response()->json([
+                'error' => "Maximum of {$maxPresets} presets per event class reached.",
+            ], 422);
+        }
+
+        $preset = MiddleManPreset::create([
+            'event_class' => $validated['event_class'],
+            'name'        => $validated['name'],
+            'payload'     => $validated['payload'],
+            'created_by'  => $request->user()->id,
+        ]);
+
+        return response()->json(['success' => true, 'preset' => $preset]);
+    }
+
+    /**
+     * Delete a preset.
+     */
+    public function deletePreset(Request $request, int $id): JsonResponse
+    {
+        $preset = MiddleManPreset::findOrFail($id);
+        $preset->delete();
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -54,7 +162,6 @@ class MarshalController extends Controller
         }
 
         if ($hold) {
-            // Write directly to intercepts table
             $maxOrder = MiddleManIntercept::pending()->max('sort_order') ?? 0;
 
             MiddleManIntercept::create([
@@ -78,7 +185,6 @@ class MarshalController extends Controller
             return response()->json(['success' => true, 'action' => 'held']);
         }
 
-        // Attempt to instantiate and dispatch
         try {
             $event = $this->instantiateEvent($eventClass, $validated['payload']);
 
@@ -114,7 +220,7 @@ class MarshalController extends Controller
     {
         $validated = $request->validate([
             'event_class' => 'required|string|max:255',
-            'items'       => 'required|array|min:1',
+            'items'       => 'required|array|min:1|max:100',
             'items.*'     => 'array',
             'hold'        => 'boolean',
         ]);
@@ -184,7 +290,8 @@ class MarshalController extends Controller
 
     /**
      * Attempt to instantiate an event class from a payload array.
-     * Uses Reflection to map payload keys to constructor parameters.
+     * Uses Reflection to map payload keys to constructor parameters,
+     * with automatic model resolution, enum coercion, and type casting.
      */
     private function instantiateEvent(string $eventClass, array $payload): object
     {
@@ -200,19 +307,7 @@ class MarshalController extends Controller
             $name = $param->getName();
 
             if (array_key_exists($name, $payload)) {
-                $value = $payload[$name];
-
-                // Auto-resolve Eloquent models by ID
-                $type = $param->getType();
-                if ($type instanceof \ReflectionNamedType
-                    && class_exists($type->getName())
-                    && is_subclass_of($type->getName(), \Illuminate\Database\Eloquent\Model::class)
-                ) {
-                    $modelClass = $type->getName();
-                    $value = $modelClass::findOrFail($value);
-                }
-
-                $args[] = $value;
+                $args[] = $this->coerceParameterValue($param, $payload[$name]);
             } elseif ($param->isDefaultValueAvailable()) {
                 $args[] = $param->getDefaultValue();
             } elseif ($param->allowsNull()) {
@@ -223,5 +318,98 @@ class MarshalController extends Controller
         }
 
         return $ref->newInstanceArgs($args);
+    }
+
+    /**
+     * Coerce a raw form value into the type expected by the constructor parameter.
+     */
+    private function coerceParameterValue(\ReflectionParameter $param, mixed $value): mixed
+    {
+        $type = $param->getType();
+
+        if (! $type instanceof \ReflectionNamedType) {
+            return $value;
+        }
+
+        $typeName = $type->getName();
+
+        // Eloquent models: resolve by primary key
+        if (class_exists($typeName) && is_subclass_of($typeName, \Illuminate\Database\Eloquent\Model::class)) {
+            return $typeName::findOrFail($value);
+        }
+
+        // PHP 8.1+ backed enums: resolve from value
+        if (class_exists($typeName) && is_subclass_of($typeName, \BackedEnum::class)) {
+            return $typeName::from($value);
+        }
+
+        // PHP 8.1+ unit enums: resolve from name
+        if (class_exists($typeName) && is_subclass_of($typeName, \UnitEnum::class)) {
+            foreach ($typeName::cases() as $case) {
+                if ($case->name === $value) {
+                    return $case;
+                }
+            }
+            throw new \InvalidArgumentException("Invalid enum case '{$value}' for {$typeName}");
+        }
+
+        // Scalar type coercion
+        return match ($typeName) {
+            'int', 'integer' => (int) $value,
+            'float', 'double' => (float) $value,
+            'bool', 'boolean' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'string' => (string) $value,
+            'array'  => is_array($value) ? $value : json_decode((string) $value, true) ?? [$value],
+            default  => $value,
+        };
+    }
+
+    /**
+     * Determine searchable columns for a model's async search.
+     *
+     * @return string[]
+     */
+    private function getSearchableColumns(\Illuminate\Database\Eloquent\Model $model): array
+    {
+        // Common searchable column names, checked against the model's table
+        $candidates = ['name', 'email', 'title', 'label', 'first_name', 'last_name', 'username', 'slug'];
+        $columns = [];
+
+        try {
+            $schema = $model->getConnection()->getSchemaBuilder();
+            $tableColumns = $schema->getColumnListing($model->getTable());
+
+            foreach ($candidates as $col) {
+                if (in_array($col, $tableColumns, true)) {
+                    $columns[] = $col;
+                }
+            }
+        } catch (\Throwable) {
+            // Schema introspection failed — return empty
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Build a human-readable label for a model instance in the search dropdown.
+     */
+    private function buildModelLabel(\Illuminate\Database\Eloquent\Model $model, string $keyName): string
+    {
+        $id = $model->getKey();
+
+        // Try common label fields
+        foreach (['name', 'email', 'title', 'label'] as $field) {
+            if (isset($model->{$field}) && is_string($model->{$field})) {
+                return "#{$id} — {$model->{$field}}";
+            }
+        }
+
+        // Try first_name + last_name combo
+        if (isset($model->first_name, $model->last_name)) {
+            return "#{$id} — {$model->first_name} {$model->last_name}";
+        }
+
+        return "#{$id}";
     }
 }
