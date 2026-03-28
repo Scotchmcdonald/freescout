@@ -7,6 +7,8 @@ use Modules\MiddleMan\Http\Controllers\DashboardController;
 use Modules\MiddleMan\Http\Controllers\InterceptController;
 use Modules\MiddleMan\Http\Controllers\LoggingController;
 use Modules\MiddleMan\Http\Controllers\MarshalController;
+use Modules\MiddleMan\Http\Controllers\MutingController;
+use Modules\MiddleMan\Http\Controllers\ReplayController;
 
 Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'])->group(function () {
 
@@ -68,5 +70,29 @@ Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'
             Route::post('/fire', [MarshalController::class, 'fire'])->name('middleman.marshal.fire');
             Route::post('/batch', [MarshalController::class, 'batch'])->name('middleman.marshal.batch');
         });
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | Listener Muting (Surgical)
+    |----------------------------------------------------------------------
+    */
+    Route::prefix('muting')->group(function () {
+        Route::get('/', [MutingController::class, 'index'])->name('middleman.muting.index');
+
+        Route::middleware('can:manage_middleman')->group(function () {
+            Route::post('/add', [MutingController::class, 'addMute'])->name('middleman.muting.add');
+            Route::delete('/remove', [MutingController::class, 'removeMute'])->name('middleman.muting.remove');
+            Route::delete('/clear', [MutingController::class, 'clearAll'])->name('middleman.muting.clear');
+        });
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | Historical Replay
+    |----------------------------------------------------------------------
+    */
+    Route::prefix('replay')->middleware('can:manage_middleman')->group(function () {
+        Route::post('/{logId}', [ReplayController::class, 'replay'])->name('middleman.replay');
     });
 });

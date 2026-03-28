@@ -20,13 +20,15 @@ class RuleEngine
     private string $rulesKey;
     private string $loggingKey;
     private string $interceptKey;
+    private string $mutedListenersKey;
 
     public function __construct()
     {
-        $this->cacheStore   = config('middleman.cache_store', 'redis');
-        $this->rulesKey     = config('middleman.cache_keys.rules', 'middleman:rules');
-        $this->loggingKey   = config('middleman.cache_keys.logging_active', 'middleman:logging_active');
-        $this->interceptKey = config('middleman.cache_keys.intercept_active', 'middleman:intercept_active');
+        $this->cacheStore        = config('middleman.cache_store', 'redis');
+        $this->rulesKey          = config('middleman.cache_keys.rules', 'middleman:rules');
+        $this->loggingKey        = config('middleman.cache_keys.logging_active', 'middleman:logging_active');
+        $this->interceptKey      = config('middleman.cache_keys.intercept_active', 'middleman:intercept_active');
+        $this->mutedListenersKey = config('middleman.cache_keys.muted_listeners', 'middleman:muted_listeners');
     }
 
     /*
@@ -113,6 +115,52 @@ class RuleEngine
         $this->store()->forget($this->rulesKey);
         $this->store()->forget($this->loggingKey);
         $this->store()->forget($this->interceptKey);
+        $this->store()->forget($this->mutedListenersKey);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Listener Muting (Surgical)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * @return string[] List of muted listener class patterns
+     */
+    public function getMutedListeners(): array
+    {
+        return $this->store()->get($this->mutedListenersKey, []);
+    }
+
+    public function setMutedListeners(array $listeners): void
+    {
+        $this->store()->forever(
+            $this->mutedListenersKey,
+            array_values(array_unique($listeners)),
+        );
+    }
+
+    public function addMutedListener(string $listenerClass): void
+    {
+        $muted = $this->getMutedListeners();
+        $muted[] = $listenerClass;
+        $this->setMutedListeners($muted);
+    }
+
+    public function removeMutedListener(string $listenerClass): void
+    {
+        $muted = $this->getMutedListeners();
+        $muted = array_values(array_diff($muted, [$listenerClass]));
+        $this->setMutedListeners($muted);
+    }
+
+    /**
+     * Check if a specific listener name is in the muted list.
+     * Supports exact match and namespace wildcard (e.g. "App\Listeners\*").
+     */
+    public function isListenerMuted(string $listenerName): bool
+    {
+        return $this->matchesAny($listenerName, $this->getMutedListeners());
     }
 
     /*

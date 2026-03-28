@@ -18,15 +18,21 @@ class MiddleManLog extends Model
         'payload',
         'metadata',
         'fired_at',
+        'correlation_id',
+        'causation_id',
+        'is_replay',
+        'has_schema_drift',
     ];
 
     protected function casts(): array
     {
         return [
-            'payload'  => 'array',
-            'metadata' => 'array',
-            'fired_at' => 'datetime',
-            'created_at' => 'datetime',
+            'payload'          => 'array',
+            'metadata'         => 'array',
+            'fired_at'         => 'datetime',
+            'created_at'       => 'datetime',
+            'is_replay'        => 'boolean',
+            'has_schema_drift' => 'boolean',
         ];
     }
 
@@ -44,5 +50,20 @@ class MiddleManLog extends Model
     public function scopeRecent($query, int $minutes = 60)
     {
         return $query->where('fired_at', '>=', now()->subMinutes($minutes));
+    }
+
+    public function scopeForCorrelation($query, string $correlationId)
+    {
+        return $query->where('correlation_id', $correlationId);
+    }
+
+    public function scopeWithDrift($query)
+    {
+        return $query->where('has_schema_drift', true);
+    }
+
+    public function scopeReplays($query)
+    {
+        return $query->where('is_replay', true);
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Modules\MiddleMan\Services\EventSerializer;
+use Modules\MiddleMan\Services\MiddleManContext;
 use Modules\MiddleMan\Services\MiddleManDispatcher;
 use Modules\MiddleMan\Services\RuleEngine;
 
@@ -31,6 +32,7 @@ class MiddleManServiceProvider extends ServiceProvider
         // Always register singletons so they can be resolved even when disabled
         $this->app->singleton(RuleEngine::class);
         $this->app->singleton(EventSerializer::class);
+        $this->app->singleton(MiddleManContext::class);
 
         // Only swap the dispatcher when the module is enabled
         if (! config('middleman.enabled')) {
@@ -52,6 +54,8 @@ class MiddleManServiceProvider extends ServiceProvider
                 $app->make(RuleEngine::class),
                 $app->make(EventSerializer::class),
             );
+
+            $dispatcher->setContext($app->make(MiddleManContext::class));
 
             return $dispatcher;
         });
@@ -84,6 +88,7 @@ class MiddleManServiceProvider extends ServiceProvider
 
         $this->registerRoutes();
         $this->registerViews();
+        $this->registerCommands();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
         $this->registerNavigation();
     }
@@ -99,6 +104,19 @@ class MiddleManServiceProvider extends ServiceProvider
         Route::middleware('web')
             ->namespace($this->moduleNamespace)
             ->group(__DIR__ . '/../Routes/web.php');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Console Commands
+    |--------------------------------------------------------------------------
+    */
+
+    protected function registerCommands(): void
+    {
+        $this->commands([
+            \Modules\MiddleMan\Console\BuildTopologyCommand::class,
+        ]);
     }
 
     /*

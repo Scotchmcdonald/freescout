@@ -84,8 +84,9 @@ return [
     |
     */
     'cache_keys' => [
-        'rules'          => 'middleman:rules',
-        'logging_active' => 'middleman:logging_active',
+        'rules'            => 'middleman:rules',
+        'logging_active'   => 'middleman:logging_active',
         'intercept_active' => 'middleman:intercept_active',
+        'muted_listeners'  => 'middleman:muted_listeners',
     ],
 ];
