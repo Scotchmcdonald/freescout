@@ -27,6 +27,12 @@
     },
     "minMsi": 95,
     "minCoveredMsi": 95,
+    // Per-mutant timeout in seconds. Required when using --skip-initial-tests
+    // because Infection has no initial test baseline for adaptive timeouts.
+    // 30s is generous: most unit/feature tests complete in <5s per mutant.
+    // Mutants that cause infinite loops or deadlocks will be killed and
+    // counted as "timed out" (treated as detected).
+    "timeout": 30,
     "testFramework": "phpunit",
     "phpUnit": {
         "customPath": "scripts/pest-phpunit-wrapper",

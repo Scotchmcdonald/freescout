@@ -2,15 +2,13 @@
 <!--
   Lean PHPUnit configuration used exclusively by Infection mutation testing.
 
-  Only includes test suites that:
-  a) Are 100% passing (no pre-existing failures), and
-  b) Provide coverage for the mutation scope: PIB/Services,
-     ContractManager/Services, Payment/Services (and optionally
-     app/Services, app/Actions for the extended run).
+  Includes all test suites whose tests may cover the mutation scope defined
+  in infection-extended.json5 (app/Services, app/Actions, app/Jobs, and
+  module Services/Jobs directories).
 
-  The full test suite has pre-existing integration failures that require
-  seeded DB data not available in the mutation testing environment.
-  Those failures are unrelated to the mutation scope.
+  When Infection uses "only-covering-test-cases" mode, it selects only the
+  tests that actually cover each mutant. This config just needs to make all
+  potentially-covering test files available.
 -->
 <phpunit bootstrap="../../vendor/autoload.php" colors="true">
     <testsuites>
@@ -18,37 +16,60 @@
             <directory>../../tests/Unit</directory>
             <exclude>../../tests/Unit/Console/Commands</exclude>
         </testsuite>
-        <testsuite name="PIB">
-            <directory>../../Modules/PIB/Tests</directory>
+        <testsuite name="Feature">
+            <directory>../../tests/Feature</directory>
         </testsuite>
-        <testsuite name="ContractManager">
-            <directory>../../Modules/ContractManager/Tests</directory>
+        <testsuite name="Integration">
+            <directory>../../tests/Integration</directory>
         </testsuite>
-        <testsuite name="Payment">
-            <directory>../../Modules/Payment/Tests</directory>
+        <testsuite name="Action1">
+            <directory>../../Modules/Action1/Tests</directory>
         </testsuite>
-        <testsuite name="SoftwareSubscriptions">
-            <directory>../../Modules/SoftwareSubscriptions/Tests</directory>
+        <testsuite name="AssetManagement">
+            <directory>../../Modules/AssetManagement/Tests</directory>
         </testsuite>
         <testsuite name="CaseManager">
             <directory>../../Modules/CaseManager/Tests</directory>
         </testsuite>
+        <testsuite name="ContractManager">
+            <directory>../../Modules/ContractManager/Tests</directory>
+        </testsuite>
+        <testsuite name="Crm">
+            <directory>../../Modules/Crm/Tests</directory>
+        </testsuite>
+        <testsuite name="Payment">
+            <directory>../../Modules/Payment/Tests</directory>
+        </testsuite>
+        <testsuite name="PIB">
+            <directory>../../Modules/PIB/Tests</directory>
+        </testsuite>
+        <testsuite name="SoftwareSubscriptions">
+            <directory>../../Modules/SoftwareSubscriptions/Tests</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory>../../Modules/PIB/Services</directory>
-            <directory>../../Modules/ContractManager/Services</directory>
-            <directory>../../Modules/Payment/Services</directory>
-            <directory>../../Modules/SoftwareSubscriptions/Services</directory>
-            <directory>../../Modules/CaseManager/Services</directory>
             <directory>../../app/Services</directory>
             <directory>../../app/Actions</directory>
+            <directory>../../app/Jobs</directory>
+            <directory>../../Modules/Action1/Services</directory>
+            <directory>../../Modules/Action1/Jobs</directory>
+            <directory>../../Modules/AssetManagement/Services</directory>
+            <directory>../../Modules/CaseManager/Services</directory>
+            <directory>../../Modules/CaseManager/Jobs</directory>
+            <directory>../../Modules/ContractManager/Services</directory>
+            <directory>../../Modules/Crm/Services</directory>
+            <directory>../../Modules/Payment/Services</directory>
+            <directory>../../Modules/Payment/Jobs</directory>
+            <directory>../../Modules/PIB/Services</directory>
+            <directory>../../Modules/PIB/Jobs</directory>
+            <directory>../../Modules/SoftwareSubscriptions/Services</directory>
         </include>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="XDEBUG_MODE" value="coverage"/>
-        <ini name="memory_limit" value="4096M"/>
+        <ini name="memory_limit" value="512M"/>
         <ini name="zend.enable_gc" value="1"/>
         <ini name="report_memleaks" value="0"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

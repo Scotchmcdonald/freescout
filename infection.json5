@@ -15,6 +15,8 @@
     },
     "minMsi": 95,
     "minCoveredMsi": 95,
+    // Per-mutant timeout in seconds (required with --skip-initial-tests).
+    "timeout": 30,
     "testFramework": "phpunit",
     "phpUnit": {
         "customPath": "scripts/pest-phpunit-wrapper",

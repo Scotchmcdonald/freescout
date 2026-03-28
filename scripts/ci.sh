@@ -4,6 +4,10 @@
 LOG_FILE="/var/www/html/reports/ci_master.log"
 CI_DIR="/var/www/html/scripts/ci"
 
+# Shared test execution defaults for all child scripts
+export TEST_PROCESSES="${TEST_PROCESSES:-10}"
+export INFECTION_THREADS="${INFECTION_THREADS:-10}"
+
 mkdir -p "$(dirname "$LOG_FILE")"
 : > "$LOG_FILE"
 
@@ -14,6 +18,8 @@ echo "========================================"
 echo " Starting CI Pipeline Run"
 echo " Date: $(date)"
 echo " Target Directory: $CI_DIR"
+echo " Parallel test workers: $TEST_PROCESSES"
+echo " Infection workers: $INFECTION_THREADS"
 echo "========================================"
 
 # 3. Validate that the target directory actually exists

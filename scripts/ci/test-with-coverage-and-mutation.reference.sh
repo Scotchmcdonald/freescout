@@ -7,11 +7,12 @@
 # This script is a REFERENCE for CI/CD pipeline configuration.
 # Copy patterns into your .github/workflows/*.yml or .gitlab-ci.yml
 #
-# Usage:
-#   # Option 1: Include this script in your CI/CD definition
-#   bash scripts/ci/test-with-coverage-and-mutation.sh
+# IMPORTANT: This file is intentionally named .reference.sh so it is NOT
+# picked up by the ci.sh glob (scripts/ci/*.sh). The actual CI pipeline
+# uses check-line-coverage.sh + check-mutation-tier2.sh as separate steps.
 #
-#   # Option 2: Use as a template and copy individual sections to your CI config
+# Usage:
+#   bash scripts/ci/test-with-coverage-and-mutation.reference.sh
 #
 # ==============================================================================
 

@@ -6,6 +6,7 @@ echo "============================================"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXIT_CODE=0
+TEST_PROCESSES="${TEST_PROCESSES:-10}"
 
 # Run each compliance check
 bash "$SCRIPT_DIR/check-core-blindness.sh" || EXIT_CODE=1
@@ -17,11 +18,12 @@ bash "$SCRIPT_DIR/check-event-inheritance.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-listener-inheritance.sh" || EXIT_CODE=1
 
 # Phase 4 architecture guard subset (fast, deterministic)
-php artisan test tests/Architecture/CriticalNamespaceBoundaryGuardTest.php --parallel --processes=10 || EXIT_CODE=1
-php artisan test tests/Architecture/BillingPaymentTypeCoverageGuardTest.php --parallel --processes=10 || EXIT_CODE=1
+php artisan test tests/Architecture/CriticalNamespaceBoundaryGuardTest.php --parallel --processes="$TEST_PROCESSES" || EXIT_CODE=1
+php artisan test tests/Architecture/BillingPaymentTypeCoverageGuardTest.php --parallel --processes="$TEST_PROCESSES" || EXIT_CODE=1
 
-# Phase 5: Mutation testing gate for critical app services (Tier 2)
-bash "$SCRIPT_DIR/check-mutation-tier2.sh" || EXIT_CODE=1
+# Note: Mutation testing (Phase 5) runs as its own CI step (check-mutation-tier2.sh).
+# Do NOT call it here — it depends on coverage artifacts from check-line-coverage.sh
+# and must run only once in the pipeline.
 
 echo ""
 if [ $EXIT_CODE -eq 0 ]; then

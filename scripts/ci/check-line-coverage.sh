@@ -25,6 +25,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REPORTS_DIR="$ROOT_DIR/reports"
 COVERAGE_XML_DIR="$ROOT_DIR/storage/infection/coverage"
+JUNIT_FILE="$COVERAGE_XML_DIR/junit.xml"
 
 mkdir -p "$REPORTS_DIR" "$COVERAGE_XML_DIR"
 
@@ -39,6 +40,7 @@ echo ""
 echo "  Min required : ${MIN_COVERAGE}%"
 echo "  Output text  : $COVERAGE_TXT"
 echo "  Output XML   : $COVERAGE_XML_DIR"
+echo "  Output JUnit : $JUNIT_FILE"
 echo ""
 
 START=$(date +%s)
@@ -48,6 +50,7 @@ XDEBUG_MODE=coverage php \
     "$ROOT_DIR/vendor/bin/pest" \
     --coverage-text="$COVERAGE_TXT" \
     --coverage-xml="$COVERAGE_XML_DIR" \
+    --log-junit="$JUNIT_FILE" \
     --no-progress
 
 END=$(date +%s)
@@ -60,6 +63,19 @@ echo ""
 if [ ! -f "$COVERAGE_TXT" ]; then
     echo "❌ ERROR: coverage-final.txt was not written."
     exit 1
+fi
+
+if [ ! -f "$JUNIT_FILE" ]; then
+    echo "❌ ERROR: junit.xml was not written."
+    exit 1
+fi
+
+echo "📋 JUnit report written: $JUNIT_FILE"
+
+# Normalize the JUnit XML so Infection can consume Pest-style class names
+NORMALIZER="$ROOT_DIR/scripts/testing/normalize-pest-junit-for-infection.php"
+if [ -f "$NORMALIZER" ]; then
+    php "$NORMALIZER" "$JUNIT_FILE"
 fi
 
 # Extract the overall line coverage percentage from the text report
@@ -80,7 +96,7 @@ cat > "$REPORTS_DIR/coverage-summary.json" << JSON
 JSON
 
 # Enforce the minimum threshold
-if (( $(echo "$LINE_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
+if awk "BEGIN { exit ($LINE_COVERAGE < $MIN_COVERAGE ? 0 : 1) }"; then
     echo ""
     echo "❌ FAILED: Line coverage ${LINE_COVERAGE}% is below the ${MIN_COVERAGE}% minimum."
     exit 1
