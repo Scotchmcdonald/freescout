@@ -15,5 +15,6 @@
     "PIB": true,
     "Payment": true,
     "SoftwareSubscriptions": true,
-    "WidgetRegistry": true
+    "WidgetRegistry": true,
+    "MiddleMan": true
 }

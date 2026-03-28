@@ -1,0 +1,24 @@
+{
+    "name": "MiddleMan",
+    "alias": "middleman",
+    "description": "Event observation, interception, and marshalling module for developer and admin use.",
+    "keywords": [
+        "events",
+        "debugging",
+        "interception",
+        "logging",
+        "marshalling"
+    ],
+    "priority": 99,
+    "version": "1.0.0",
+    "providers": [
+        "Modules\\MiddleMan\\Providers\\MiddleManServiceProvider"
+    ],
+    "aliases": {},
+    "permissions": {
+        "view_middleman": "View MiddleMan",
+        "manage_middleman": "Manage MiddleMan"
+    },
+    "files": [],
+    "requires": []
+}
