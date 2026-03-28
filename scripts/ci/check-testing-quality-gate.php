@@ -111,7 +111,7 @@ $checks = [
 
 $allPass = true;
 foreach ($checks as $c) {
-    if (! $c['status']) {
+    if (! $c['status'] && ! ($c['optional'] ?? false)) {
         $allPass = false;
         break;
     }

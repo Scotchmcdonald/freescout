@@ -193,7 +193,7 @@ final class TopologyBuilder
     }
 
     /**
-     * @param array<string, mixed> $index
+     * @param  array<string, mixed>  $index
      * @return array<string, mixed>|null
      */
     private function makeEventNode(string $class, array &$index): ?array
@@ -233,7 +233,7 @@ final class TopologyBuilder
     }
 
     /**
-     * @param array<string, mixed> $index
+     * @param  array<string, mixed>  $index
      * @return array<string, mixed>|null
      */
     private function makeListenerNode(string $class, array &$index): ?array

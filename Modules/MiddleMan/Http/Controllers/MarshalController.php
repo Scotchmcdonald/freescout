@@ -397,7 +397,7 @@ class MarshalController extends Controller
                     return $case;
                 }
             }
-            throw new \InvalidArgumentException("Invalid enum case '" . (is_scalar($value) ? (string) $value : gettype($value)) . "' for {$typeName}");
+            throw new \InvalidArgumentException("Invalid enum case '".(is_scalar($value) ? (string) $value : gettype($value))."' for {$typeName}");
         }
 
         // Scalar type coercion

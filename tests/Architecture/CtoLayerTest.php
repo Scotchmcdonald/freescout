@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 arch('controllers do not use DB facade')
     ->expect('App\Http\Controllers')
     ->not->toUse('Illuminate\Support\Facades\DB');

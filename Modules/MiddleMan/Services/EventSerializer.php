@@ -182,7 +182,7 @@ final class EventSerializer
     /**
      * Build a size-limited summary when payload exceeds max bytes.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
     private function summarize(array $payload): array

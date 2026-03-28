@@ -51,11 +51,10 @@ class MiddleManDispatcher extends Dispatcher
 
     /**
      * @param  string|object  $event
-     * @param  mixed  $payload
      * @param  bool  $halt
      * @return array<int, mixed>|null
      */
-    public function dispatch($event, $payload = [], $halt = false)
+    public function dispatch(mixed $event, mixed $payload = [], mixed $halt = false): mixed
     {
         // Bypass mode: used when firing intercepted events to prevent infinite loops
         if ($this->bypassing) {
@@ -107,7 +106,7 @@ class MiddleManDispatcher extends Dispatcher
      * @param  string  $eventName
      * @return array<int, mixed>
      */
-    public function getListeners($eventName)
+    public function getListeners(mixed $eventName): array
     {
         $listeners = parent::getListeners($eventName);
 

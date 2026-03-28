@@ -35,6 +35,12 @@ for script in "$CI_DIR"/*.sh; do
 
     # Check if the file actually exists (prevents errors if the folder is empty)
     if [ -e "$script" ]; then
+
+        # Skip reference scripts (*.reference.sh) — they are documentation, not CI steps
+        case "$(basename "$script")" in
+            *.reference.sh) continue ;;
+        esac
+
         echo ""
         echo "--- Executing: $(basename "$script") at $(date) ---"
 

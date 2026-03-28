@@ -193,7 +193,7 @@ final class ReplayEngine
      * All model references are resolved defensively — a missing model
      * returns null (or throws if the parameter is non-nullable).
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     private function rehydrate(string $eventClass, array $payload): object
     {
@@ -260,7 +260,7 @@ final class ReplayEngine
                     }
 
                     throw new \RuntimeException(
-                        "Model [{$modelClass}] with ID [" . (string) ($value['_id'] ?? '') . "] no longer exists and parameter [{$param->getName()}] is non-nullable." // @phpstan-ignore cast.string
+                        "Model [{$modelClass}] with ID [".(string) ($value['_id'] ?? '')."] no longer exists and parameter [{$param->getName()}] is non-nullable." // @phpstan-ignore cast.string
                     );
                 }
 
@@ -278,13 +278,14 @@ final class ReplayEngine
                 try {
                     /** @var int|string $enumValue */
                     $enumValue = $value;
+
                     return $typeName::from($enumValue);
                 } catch (Throwable) {
                     if ($param->allowsNull()) {
                         return null;
                     }
                     throw new \RuntimeException(
-                        "Cannot coerce value '" . (is_scalar($value) ? (string) $value : gettype($value)) . "' to enum [{$typeName}]."
+                        "Cannot coerce value '".(is_scalar($value) ? (string) $value : gettype($value))."' to enum [{$typeName}]."
                     );
                 }
             }
@@ -303,7 +304,7 @@ final class ReplayEngine
      * Pre-validate that the stored payload is compatible with the current constructor.
      * Returns null if compatible, or an error message if not.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     private function validateConstructorCompatibility(string $eventClass, array $payload): ?string
     {

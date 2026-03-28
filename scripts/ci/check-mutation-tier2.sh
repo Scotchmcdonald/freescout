@@ -12,7 +12,7 @@ MIN_MSI="${INFECTION_MIN_MSI:-95}"
 MIN_COVERED_MSI="${INFECTION_MIN_COVERED_MSI:-95}"
 THREADS="${INFECTION_THREADS:-10}"
 TIMEOUT_MINUTES="${INFECTION_TIMEOUT_MINUTES:-90}"
-MEMORY_LIMIT="${INFECTION_MEMORY_LIMIT:-2G}"
+MEMORY_LIMIT="${INFECTION_MEMORY_LIMIT:-4G}"
 
 echo "🧬 Mutation Testing: Tier 2 (app/Services + app/Actions)"
 echo "========================================================"

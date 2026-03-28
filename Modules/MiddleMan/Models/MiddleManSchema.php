@@ -65,7 +65,7 @@ class MiddleManSchema extends Model
      * Get or create the baseline schema for an event class.
      * If no baseline exists, creates one from the given payload.
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return array{baseline: self, is_new: bool}
      */
     public static function resolveBaseline(string $eventClass, array $payload): array
