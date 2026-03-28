@@ -8,12 +8,11 @@ use App\Models\Subscription;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubSubscription::class)) {
-final class StubSubscription extends Subscription
-{
-    protected static function booted(): void {}
+    final class StubSubscription extends Subscription
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 final class SubscriptionMediumTest extends PureUnitTestCase
 {

@@ -8,23 +8,22 @@ use Modules\PIB\Models\InvoiceLineItem;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubInvoiceLineItem::class)) {
-final class StubInvoiceLineItem extends InvoiceLineItem
-{
-    protected static function booted(): void {}
-
-    protected function casts(): array
+    final class StubInvoiceLineItem extends InvoiceLineItem
     {
-        return [];
+        protected static function booted(): void {}
+
+        protected function casts(): array
+        {
+            return [];
+        }
     }
 }
-}
-
 
 final class InvoiceLineItemTest extends PureUnitTestCase
 {
     private function lineItem(float $quantity, float $unitPrice): StubInvoiceLineItem
     {
-        $item = new StubInvoiceLineItem();
+        $item = new StubInvoiceLineItem;
         $item->setRawAttributes(['quantity' => $quantity, 'unit_price' => $unitPrice]);
 
         return $item;
@@ -38,7 +37,7 @@ final class InvoiceLineItemTest extends PureUnitTestCase
     public function test_calculate_total_rounds_to_two_decimals(): void
     {
         // 3 * 1.005 = 3.015 → rounds to 3.02
-        $item = new StubInvoiceLineItem();
+        $item = new StubInvoiceLineItem;
         $item->setRawAttributes(['quantity' => 3, 'unit_price' => 1.005]);
         $result = $item->calculateTotal();
         $this->assertEqualsWithDelta(3.02, $result, 0.001);

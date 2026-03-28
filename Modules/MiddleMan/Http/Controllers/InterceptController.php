@@ -7,6 +7,7 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
 use Modules\MiddleMan\Services\EventDiscoveryService;
@@ -15,7 +16,7 @@ use Modules\MiddleMan\Services\RuleEngine;
 
 class InterceptController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery): View
     {
         $interceptActive = $ruleEngine->isInterceptActive();
         $rules = $ruleEngine->getRules();
@@ -47,7 +48,7 @@ class InterceptController extends Controller
         $ruleEngine->setInterceptActive($active);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_INTERCEPT_TOGGLED,
             null,
             null,
@@ -66,7 +67,7 @@ class InterceptController extends Controller
         $ruleEngine->addInterceptRule($validated['event_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_RULE_CREATED,
             null,
             null,
@@ -85,7 +86,7 @@ class InterceptController extends Controller
         $ruleEngine->removeInterceptRule($validated['event_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_RULE_DELETED,
             null,
             null,
@@ -121,11 +122,11 @@ class InterceptController extends Controller
         $intercept->update(['payload' => $validated['payload']]);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_PAYLOAD_EDITED,
             MiddleManIntercept::class,
             $id,
-            ['event_class' => $intercept->event_class, 'changed_keys' => array_keys(array_diff_key($validated['payload'], $oldPayload))],
+            ['event_class' => $intercept->event_class, 'changed_keys' => array_keys(array_diff_key($validated['payload'], $oldPayload ?? []))],
         );
 
         return response()->json(['success' => true, 'intercept' => $intercept->fresh()]);
@@ -159,20 +160,20 @@ class InterceptController extends Controller
 
             logger()->error('MiddleMan: Intercept hydration/dispatch failed — marked CORRUPTED', [
                 'intercept_id' => $intercept->id,
-                'event_class'  => $intercept->event_class,
-                'exception'    => $e->getMessage(),
+                'event_class' => $intercept->event_class,
+                'exception' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error'   => 'Event hydration failed. The intercept has been marked CORRUPTED.',
+                'error' => 'Event hydration failed. The intercept has been marked CORRUPTED.',
                 'message' => $e->getMessage(),
             ], 422);
         }
 
-        $intercept->markFired($request->user()->id);
+        $intercept->markFired((int) $request->user()?->id);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_INTERCEPT_FIRED,
             MiddleManIntercept::class,
             $id,
@@ -188,7 +189,7 @@ class InterceptController extends Controller
     public function fireSelected(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'ids'   => 'required|array',
+            'ids' => 'required|array',
             'ids.*' => 'integer|exists:middleman_intercepts,id',
         ]);
 
@@ -197,13 +198,13 @@ class InterceptController extends Controller
             ->ordered()
             ->get();
 
-        $fired    = 0;
+        $fired = 0;
         $corrupted = 0;
 
         foreach ($intercepts as $intercept) {
             try {
                 $this->dispatchInterceptedEvent($intercept);
-                $intercept->markFired($request->user()->id);
+                $intercept->markFired((int) $request->user()?->id);
                 $fired++;
             } catch (\Throwable $e) {
                 $intercept->markCorrupted(sprintf('[%s] %s', get_class($e), $e->getMessage()));
@@ -212,7 +213,7 @@ class InterceptController extends Controller
         }
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_BATCH_FIRED,
             null,
             null,
@@ -229,13 +230,13 @@ class InterceptController extends Controller
     {
         $intercepts = MiddleManIntercept::pending()->ordered()->get();
 
-        $fired    = 0;
+        $fired = 0;
         $corrupted = 0;
 
         foreach ($intercepts as $intercept) {
             try {
                 $this->dispatchInterceptedEvent($intercept);
-                $intercept->markFired($request->user()->id);
+                $intercept->markFired((int) $request->user()?->id);
                 $fired++;
             } catch (\Throwable $e) {
                 $intercept->markCorrupted(sprintf('[%s] %s', get_class($e), $e->getMessage()));
@@ -244,7 +245,7 @@ class InterceptController extends Controller
         }
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_BATCH_FIRED,
             null,
             null,
@@ -268,7 +269,7 @@ class InterceptController extends Controller
         $intercept->markDiscarded();
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_INTERCEPT_DISCARDED,
             MiddleManIntercept::class,
             $id,
@@ -284,9 +285,9 @@ class InterceptController extends Controller
     public function reorder(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'order'         => 'required|array',
-            'order.*.id'    => 'required|integer|exists:middleman_intercepts,id',
-            'order.*.sort'  => 'required|integer|min:0',
+            'order' => 'required|array',
+            'order.*.id' => 'required|integer|exists:middleman_intercepts,id',
+            'order.*.sort' => 'required|integer|min:0',
         ]);
 
         foreach ($validated['order'] as $item) {
@@ -296,7 +297,7 @@ class InterceptController extends Controller
         }
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_ORDER_CHANGED,
             null,
             null,
@@ -327,7 +328,7 @@ class InterceptController extends Controller
             // The dispatcher will use bypass mode to prevent re-interception.
             if ($dispatcher instanceof MiddleManDispatcher) {
                 // Use a simple stdClass wrapper carrying the original metadata
-                $syntheticEvent = new \stdClass();
+                $syntheticEvent = new \stdClass;
                 $syntheticEvent->originalClass = $eventClass;
                 $syntheticEvent->payload = $intercept->payload;
                 $syntheticEvent->metadata = $intercept->metadata;

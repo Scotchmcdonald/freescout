@@ -44,7 +44,8 @@ class UserAdminTest extends PureUnitTestCase
         // the admin gate — this is the first line of privilege authorization.
         $user = new User(['role' => User::ROLE_USER]);
 
-        $this->assertFalse($user->isAdmin(),
+        $this->assertFalse(
+            $user->isAdmin(),
             'Authorization boundary: ROLE_USER must not satisfy the admin authorization check'
         );
     }

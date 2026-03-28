@@ -205,7 +205,9 @@ final class AssetStatusServiceTest extends PureUnitTestCase
             );
         }
 
-        $this->assertSame([], $this->service->getValidTargetStatuses('retired'),
+        $this->assertSame(
+            [],
+            $this->service->getValidTargetStatuses('retired'),
             'Authorization boundary: retired status must have zero authorized target transitions'
         );
     }

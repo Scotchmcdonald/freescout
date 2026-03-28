@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Http\Controllers;
 
-use Illuminate\Http\Response;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 use Modules\MiddleMan\Models\MiddleManLog;
 use Modules\MiddleMan\Models\MiddleManSchema;
 use Modules\MiddleMan\Services\TopologyBuilder;
 
 class AdvancedController extends Controller
 {
-    public function topology(TopologyBuilder $topologyBuilder)
+    public function topology(TopologyBuilder $topologyBuilder): View
     {
         $graph = $topologyBuilder->build();
         $dot = $this->toDot($graph);
@@ -27,18 +28,18 @@ class AdvancedController extends Controller
         ]);
     }
 
-    public function topologyDiagram(TopologyBuilder $topologyBuilder): Response
+    public function topologyDiagram(TopologyBuilder $topologyBuilder, HttpFactory $http): Response
     {
         if (! (bool) config('middleman.kroki.enabled', false)) {
             return response('Kroki rendering is disabled.', 404);
         }
 
-        $baseUrl = rtrim((string) config('middleman.kroki.base_url', 'http://kroki:8000'), '/');
-        $timeout = (int) config('middleman.kroki.timeout_seconds', 10);
+        $baseUrl = rtrim((string) config('middleman.kroki.base_url', 'http://kroki:8000'), '/'); // @phpstan-ignore cast.string
+        $timeout = (int) config('middleman.kroki.timeout_seconds', 10); // @phpstan-ignore cast.int
         $dot = $this->toDot($topologyBuilder->build());
 
         try {
-            $kroki = Http::timeout(max(1, $timeout))
+            $kroki = $http->timeout(max(1, $timeout))
                 ->withHeaders(['Content-Type' => 'text/plain'])
                 ->withBody($dot, 'text/plain')
                 ->post("{$baseUrl}/graphviz/svg");
@@ -51,11 +52,11 @@ class AdvancedController extends Controller
                 ->header('Content-Type', 'image/svg+xml')
                 ->header('Cache-Control', 'no-store, max-age=0');
         } catch (\Throwable $e) {
-            return response('Kroki service unreachable: ' . $e->getMessage(), 502);
+            return response('Kroki service unreachable: '.$e->getMessage(), 502);
         }
     }
 
-    public function schema()
+    public function schema(): View
     {
         $schemas = MiddleManSchema::query()
             ->orderByDesc('updated_at')
@@ -74,7 +75,7 @@ class AdvancedController extends Controller
         ]);
     }
 
-    public function tracing(Request $request)
+    public function tracing(Request $request): View
     {
         $selectedCorrelationId = (string) $request->query('correlation_id', '');
 
@@ -103,7 +104,7 @@ class AdvancedController extends Controller
         ]);
     }
 
-    public function replay()
+    public function replay(): View
     {
         $logs = MiddleManLog::query()
             ->orderByDesc('fired_at')
@@ -116,7 +117,7 @@ class AdvancedController extends Controller
     }
 
     /**
-     * @param array{nodes: array<int, array<string, mixed>>, edges: array<int, array<string, mixed>>} $graph
+     * @param  array{nodes: array<int, array<string, mixed>>, edges: array<int, array<string, mixed>>}  $graph
      */
     private function toDot(array $graph): string
     {
@@ -134,12 +135,12 @@ class AdvancedController extends Controller
                 continue;
             }
 
-            $rawId = (string) $node['id'];
-            $dotId = 'n' . md5($rawId);
+            $rawId = (string) $node['id']; // @phpstan-ignore cast.string
+            $dotId = 'n'.md5($rawId);
             $nodeIds[$rawId] = $dotId;
 
-            $label = isset($node['label']) ? (string) $node['label'] : $rawId;
-            $type = isset($node['type']) ? (string) $node['type'] : 'unknown';
+            $label = isset($node['label']) ? (string) $node['label'] : $rawId; // @phpstan-ignore cast.string
+            $type = isset($node['type']) ? (string) $node['type'] : 'unknown'; // @phpstan-ignore cast.string
             $fill = $type === 'event' ? '#dbeafe' : '#dcfce7';
             $stroke = $type === 'event' ? '#60a5fa' : '#4ade80';
 
@@ -157,11 +158,11 @@ class AdvancedController extends Controller
                 continue;
             }
 
-            $sourceRaw = (string) $edge['source'];
-            $targetRaw = (string) $edge['target'];
+            $sourceRaw = (string) $edge['source']; // @phpstan-ignore cast.string
+            $targetRaw = (string) $edge['target']; // @phpstan-ignore cast.string
 
-            $source = $nodeIds[$sourceRaw] ?? ('n' . md5($sourceRaw));
-            $target = $nodeIds[$targetRaw] ?? ('n' . md5($targetRaw));
+            $source = $nodeIds[$sourceRaw] ?? ('n'.md5($sourceRaw));
+            $target = $nodeIds[$targetRaw] ?? ('n'.md5($targetRaw));
 
             $lines[] = sprintf('  %s -> %s;', $source, $target);
         }

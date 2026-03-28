@@ -17,14 +17,14 @@ use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Modules\MiddleMan\Jobs\DetectSchemaDriftJob;
+use Modules\MiddleMan\Jobs\WriteLogEntryJob;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
 use Modules\MiddleMan\Models\MiddleManLog;
 use Modules\MiddleMan\Models\MiddleManPreset;
 use Modules\MiddleMan\Models\MiddleManSchema;
 use Modules\MiddleMan\Services\CircuitBreaker;
-use Modules\MiddleMan\Jobs\DetectSchemaDriftJob;
-use Modules\MiddleMan\Jobs\WriteLogEntryJob;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -150,12 +150,12 @@ test('validation boundary: updating intercept payload with invalid data returns 
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\TestEvent',
-        'event_name'     => 'TestEvent',
-        'payload'        => ['key' => 'value'],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\TestEvent',
+        'event_name' => 'TestEvent',
+        'payload' => ['key' => 'value'],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -179,7 +179,7 @@ test('toggling logging on creates an audit trail entry', function (): void {
     // Side-effect assertion: audit entry was written
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => MiddleManAuditEntry::ACTION_LOGGING_TOGGLED,
+        'action' => MiddleManAuditEntry::ACTION_LOGGING_TOGGLED,
     ]);
 });
 
@@ -197,7 +197,7 @@ test('toggling intercept on creates an audit trail entry', function (): void {
 
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => MiddleManAuditEntry::ACTION_INTERCEPT_TOGGLED,
+        'action' => MiddleManAuditEntry::ACTION_INTERCEPT_TOGGLED,
     ]);
 });
 
@@ -209,12 +209,12 @@ test('firing a pending intercept marks it as fired and writes audit entry', func
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\TestEvent',
-        'event_name'     => 'TestEvent',
-        'payload'        => ['key' => 'value'],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\TestEvent',
+        'event_name' => 'TestEvent',
+        'payload' => ['key' => 'value'],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -225,14 +225,14 @@ test('firing a pending intercept marks it as fired and writes audit entry', func
 
     // Side-effect: intercept status changed
     $this->assertDatabaseHas('middleman_intercepts', [
-        'id'     => $intercept->id,
+        'id' => $intercept->id,
         'status' => MiddleManIntercept::STATUS_FIRED,
     ]);
 
     // Side-effect: audit trail written
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => MiddleManAuditEntry::ACTION_INTERCEPT_FIRED,
+        'action' => MiddleManAuditEntry::ACTION_INTERCEPT_FIRED,
     ]);
 });
 
@@ -240,15 +240,15 @@ test('firing a non-pending intercept returns 422', function (): void {
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\TestEvent',
-        'event_name'     => 'TestEvent',
-        'payload'        => ['key' => 'value'],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_FIRED,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\TestEvent',
+        'event_name' => 'TestEvent',
+        'payload' => ['key' => 'value'],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_FIRED,
+        'sort_order' => 1,
         'intercepted_at' => now(),
-        'fired_at'       => now(),
-        'fired_by'       => $admin->id,
+        'fired_at' => now(),
+        'fired_by' => $admin->id,
     ]);
 
     $this->actingAs($admin)
@@ -265,12 +265,12 @@ test('discarding a pending intercept marks status as discarded', function (): vo
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\TestEvent',
-        'event_name'     => 'TestEvent',
-        'payload'        => ['data' => 1],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\TestEvent',
+        'event_name' => 'TestEvent',
+        'payload' => ['data' => 1],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -279,7 +279,7 @@ test('discarding a pending intercept marks status as discarded', function (): vo
         ->assertOk();
 
     $this->assertDatabaseHas('middleman_intercepts', [
-        'id'     => $intercept->id,
+        'id' => $intercept->id,
         'status' => MiddleManIntercept::STATUS_DISCARDED,
     ]);
 
@@ -296,12 +296,12 @@ test('updating intercept payload persists new payload and writes audit', functio
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\EditableEvent',
-        'event_name'     => 'EditableEvent',
-        'payload'        => ['original' => true],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\EditableEvent',
+        'event_name' => 'EditableEvent',
+        'payload' => ['original' => true],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -315,9 +315,9 @@ test('updating intercept payload persists new payload and writes audit', functio
     expect($intercept->payload)->toBe($newPayload);
 
     $this->assertDatabaseHas('middleman_audit_trail', [
-        'action'       => MiddleManAuditEntry::ACTION_PAYLOAD_EDITED,
+        'action' => MiddleManAuditEntry::ACTION_PAYLOAD_EDITED,
         'subject_type' => MiddleManIntercept::class,
-        'subject_id'   => $intercept->id,
+        'subject_id' => $intercept->id,
     ]);
 });
 
@@ -331,14 +331,14 @@ test('replay endpoint dispatches the event and writes audit log', function (): v
     $admin = createMiddleManAdmin();
 
     $log = MiddleManLog::create([
-        'event_class'      => ReplayableTestEvent::class,
-        'event_name'       => 'ReplayableTestEvent',
-        'payload'          => ['message' => 'replayed', 'code' => 201],
-        'metadata'         => ['class' => ReplayableTestEvent::class],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'replayed', 'code' => 201],
+        'metadata' => ['class' => ReplayableTestEvent::class],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -355,7 +355,7 @@ test('replay endpoint dispatches the event and writes audit log', function (): v
     // Side-effect: audit entry was written
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => 'event_replayed',
+        'action' => 'event_replayed',
     ]);
 });
 
@@ -375,26 +375,26 @@ test('replay sequence endpoint replays selected logs and writes sequence audit',
     $admin = createMiddleManAdmin();
 
     $logA = MiddleManLog::create([
-        'event_class'      => ReplayableTestEvent::class,
-        'event_name'       => 'ReplayableTestEvent',
-        'payload'          => ['message' => 'first', 'code' => 101],
-        'metadata'         => ['class' => ReplayableTestEvent::class],
-        'fired_at'         => now()->subMinute(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'first', 'code' => 101],
+        'metadata' => ['class' => ReplayableTestEvent::class],
+        'fired_at' => now()->subMinute(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     $logB = MiddleManLog::create([
-        'event_class'      => ReplayableTestEvent::class,
-        'event_name'       => 'ReplayableTestEvent',
-        'payload'          => ['message' => 'second', 'code' => 202],
-        'metadata'         => ['class' => ReplayableTestEvent::class],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'second', 'code' => 202],
+        'metadata' => ['class' => ReplayableTestEvent::class],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -413,7 +413,7 @@ test('replay sequence endpoint replays selected logs and writes sequence audit',
 
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => 'sequence_replayed',
+        'action' => 'sequence_replayed',
     ]);
 });
 
@@ -423,12 +423,12 @@ test('replay sequence endpoint replays selected intercept captures', function ()
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => ReplayableTestEvent::class,
-        'event_name'     => 'ReplayableTestEvent',
-        'payload'        => ['message' => 'from-intercept', 'code' => 303],
-        'metadata'       => ['source' => 'test'],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'from-intercept', 'code' => 303],
+        'metadata' => ['source' => 'test'],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -462,7 +462,7 @@ test('adding a muted listener returns updated list and writes audit', function (
 
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => 'listener_muted',
+        'action' => 'listener_muted',
     ]);
 });
 
@@ -488,14 +488,14 @@ test('removing a muted listener writes audit trail', function (): void {
 
 test('DetectSchemaDriftJob creates baseline on first run', function (): void {
     $log = MiddleManLog::create([
-        'event_class'      => 'App\\Events\\BaselineEvent',
-        'event_name'       => 'BaselineEvent',
-        'payload'          => ['user_id' => 1, 'email' => 'test@example.com'],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\BaselineEvent',
+        'event_name' => 'BaselineEvent',
+        'payload' => ['user_id' => 1, 'email' => 'test@example.com'],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -503,7 +503,7 @@ test('DetectSchemaDriftJob creates baseline on first run', function (): void {
 
     $this->assertDatabaseHas('middleman_schemas', [
         'event_class' => 'App\\Events\\BaselineEvent',
-        'version'     => 1,
+        'version' => 1,
     ]);
 
     // No drift on first run
@@ -515,21 +515,21 @@ test('DetectSchemaDriftJob flags drift when payload diverges from baseline', fun
     // Create baseline first
     MiddleManSchema::create([
         'event_class' => 'App\\Events\\DriftEvent',
-        'schema'      => ['name' => 'string', 'count' => 'integer'],
-        'version'     => 1,
-        'locked_at'   => now(),
+        'schema' => ['name' => 'string', 'count' => 'integer'],
+        'version' => 1,
+        'locked_at' => now(),
     ]);
 
     // Create a log entry with a different schema (new field + type change)
     $log = MiddleManLog::create([
-        'event_class'      => 'App\\Events\\DriftEvent',
-        'event_name'       => 'DriftEvent',
-        'payload'          => ['name' => 'Alice', 'count' => 'not-a-number', 'new_field' => true],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\DriftEvent',
+        'event_name' => 'DriftEvent',
+        'payload' => ['name' => 'Alice', 'count' => 'not-a-number', 'new_field' => true],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -573,10 +573,10 @@ test('WriteLogEntryJob creates log record with tracing columns', function (): vo
     $job->handle();
 
     $this->assertDatabaseHas('middleman_logs', [
-        'event_class'    => 'App\\Events\\TracedEvent',
+        'event_class' => 'App\\Events\\TracedEvent',
         'correlation_id' => 'corr-abc-123',
-        'causation_id'   => 'cause-xyz-789',
-        'is_replay'      => false,
+        'causation_id' => 'cause-xyz-789',
+        'is_replay' => false,
     ]);
 
     // Side-effect: drift detection job dispatched
@@ -601,7 +601,7 @@ test('WriteLogEntryJob marks is_replay flag when set', function (): void {
 
     $this->assertDatabaseHas('middleman_logs', [
         'event_class' => 'App\\Events\\ReplayedEvent',
-        'is_replay'   => true,
+        'is_replay' => true,
     ]);
 });
 
@@ -613,26 +613,26 @@ test('log filter endpoint returns paginated results with event_class filter', fu
     $admin = createMiddleManAdmin();
 
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\TargetEvent',
-        'event_name'       => 'TargetEvent',
-        'payload'          => [],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\TargetEvent',
+        'event_name' => 'TargetEvent',
+        'payload' => [],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\OtherEvent',
-        'event_name'       => 'OtherEvent',
-        'payload'          => [],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\OtherEvent',
+        'event_name' => 'OtherEvent',
+        'payload' => [],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -653,14 +653,14 @@ test('clearing all logs removes records and writes audit', function (): void {
     $admin = createMiddleManAdmin();
 
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\ClearMe',
-        'event_name'       => 'ClearMe',
-        'payload'          => [],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\ClearMe',
+        'event_name' => 'ClearMe',
+        'payload' => [],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -716,7 +716,7 @@ test('dashboard circuit breaker reset endpoint returns closed state and writes a
 
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => 'circuit_breaker_reset',
+        'action' => 'circuit_breaker_reset',
     ]);
 });
 
@@ -728,22 +728,22 @@ test('intercept reorder updates pending sort order and writes audit', function (
     $admin = createMiddleManAdmin();
 
     $first = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\A',
-        'event_name'     => 'A',
-        'payload'        => ['k' => 1],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\A',
+        'event_name' => 'A',
+        'payload' => ['k' => 1],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
     $second = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\B',
-        'event_name'     => 'B',
-        'payload'        => ['k' => 2],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 2,
+        'event_class' => 'App\\Events\\B',
+        'event_name' => 'B',
+        'payload' => ['k' => 2],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 2,
         'intercepted_at' => now(),
     ]);
 
@@ -766,22 +766,22 @@ test('intercept fire-selected and fire-all return fired and corrupted counters',
     $admin = createMiddleManAdmin();
 
     $a = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\One',
-        'event_name'     => 'One',
-        'payload'        => ['x' => 1],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\One',
+        'event_name' => 'One',
+        'payload' => ['x' => 1],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
     $b = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\Two',
-        'event_name'     => 'Two',
-        'payload'        => ['x' => 2],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 2,
+        'event_class' => 'App\\Events\\Two',
+        'event_name' => 'Two',
+        'payload' => ['x' => 2],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 2,
         'intercepted_at' => now(),
     ]);
 
@@ -809,7 +809,7 @@ test('marshal parameters endpoint returns parameter metadata payload', function 
     $admin = createMiddleManAdmin();
 
     $this->actingAs($admin)
-        ->getJson('/middleman/marshal/parameters?event_class=' . urlencode(ReplayableTestEvent::class))
+        ->getJson('/middleman/marshal/parameters?event_class='.urlencode(ReplayableTestEvent::class))
         ->assertOk()
         ->assertJsonStructure(['parameters', 'presets']);
 });
@@ -818,7 +818,7 @@ test('marshal searchable model endpoint blocks non-allowlisted model with 403', 
     $admin = createMiddleManAdmin();
 
     $this->actingAs($admin)
-        ->getJson('/middleman/marshal/search-model?model_class=' . urlencode(User::class) . '&query=adm')
+        ->getJson('/middleman/marshal/search-model?model_class='.urlencode(User::class).'&query=adm')
         ->assertStatus(403)
         ->assertJsonPath('error', 'Model is not searchable. Implement MiddleManSearchable or add it to middleman.searchable_models.');
 });
@@ -830,12 +830,12 @@ test('marshal searchable model endpoint allows model in config allowlist', funct
 
     $user = User::factory()->create([
         'first_name' => 'Search',
-        'last_name'  => 'Target',
-        'email'      => 'search.target@example.test',
+        'last_name' => 'Target',
+        'email' => 'search.target@example.test',
     ]);
 
     $this->actingAs($admin)
-        ->getJson('/middleman/marshal/search-model?model_class=' . urlencode(User::class) . '&query=search')
+        ->getJson('/middleman/marshal/search-model?model_class='.urlencode(User::class).'&query=search')
         ->assertOk()
         ->assertJsonStructure(['results'])
         ->assertJsonFragment(['id' => $user->id]);
@@ -847,20 +847,20 @@ test('marshal fire with hold creates pending intercept and audit entry', functio
     $this->actingAs($admin)
         ->postJson('/middleman/marshal/fire', [
             'event_class' => ReplayableTestEvent::class,
-            'payload'     => ['message' => 'held', 'code' => 204],
-            'hold'        => true,
+            'payload' => ['message' => 'held', 'code' => 204],
+            'hold' => true,
         ])
         ->assertOk()
         ->assertJsonPath('action', 'held');
 
     $this->assertDatabaseHas('middleman_intercepts', [
         'event_class' => ReplayableTestEvent::class,
-        'status'      => MiddleManIntercept::STATUS_PENDING,
+        'status' => MiddleManIntercept::STATUS_PENDING,
     ]);
 
     $this->assertDatabaseHas('middleman_audit_trail', [
         'user_id' => $admin->id,
-        'action'  => MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
+        'action' => MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
     ]);
 });
 
@@ -870,11 +870,11 @@ test('marshal batch with hold creates multiple intercepts', function (): void {
     $this->actingAs($admin)
         ->postJson('/middleman/marshal/batch', [
             'event_class' => ReplayableTestEvent::class,
-            'items'       => [
+            'items' => [
                 ['message' => 'a', 'code' => 101],
                 ['message' => 'b', 'code' => 202],
             ],
-            'hold'        => true,
+            'hold' => true,
         ])
         ->assertOk()
         ->assertJsonPath('success', 2)
@@ -889,8 +889,8 @@ test('marshal preset save and delete endpoints work', function (): void {
     $save = $this->actingAs($admin)
         ->postJson('/middleman/marshal/presets', [
             'event_class' => ReplayableTestEvent::class,
-            'name'        => 'Smoke Preset',
-            'payload'     => ['message' => 'preset', 'code' => 200],
+            'name' => 'Smoke Preset',
+            'payload' => ['message' => 'preset', 'code' => 200],
         ])
         ->assertOk()
         ->assertJsonPath('success', true);
@@ -899,11 +899,11 @@ test('marshal preset save and delete endpoints work', function (): void {
     expect($presetId)->toBeGreaterThan(0);
 
     $this->actingAs($admin)
-        ->deleteJson('/middleman/marshal/presets/' . $presetId)
+        ->deleteJson('/middleman/marshal/presets/'.$presetId)
         ->assertOk()
         ->assertJsonPath('success', true);
 
-    $this->assertDatabaseMissing((new MiddleManPreset())->getTable(), ['id' => $presetId]);
+    $this->assertDatabaseMissing((new MiddleManPreset)->getTable(), ['id' => $presetId]);
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -914,33 +914,33 @@ test('replay sequence returns 207 multi-status when results are mixed', function
     $admin = createMiddleManAdmin();
 
     $ok = MiddleManLog::create([
-        'event_class'      => ReplayableTestEvent::class,
-        'event_name'       => 'ReplayableTestEvent',
-        'payload'          => ['message' => 'ok', 'code' => 200],
-        'metadata'         => ['class' => ReplayableTestEvent::class],
-        'fired_at'         => now()->subSecond(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'ok', 'code' => 200],
+        'metadata' => ['class' => ReplayableTestEvent::class],
+        'fired_at' => now()->subSecond(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     $bad = MiddleManLog::create([
-        'event_class'      => 'App\\Events\\ClassDoesNotExist',
-        'event_name'       => 'ClassDoesNotExist',
-        'payload'          => ['message' => 'bad', 'code' => 500],
-        'metadata'         => ['class' => 'App\\Events\\ClassDoesNotExist'],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\ClassDoesNotExist',
+        'event_name' => 'ClassDoesNotExist',
+        'payload' => ['message' => 'bad', 'code' => 500],
+        'metadata' => ['class' => 'App\\Events\\ClassDoesNotExist'],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     $this->actingAs($admin)
         ->postJson('/middleman/replay/sequence', [
             'source' => 'logs',
-            'ids'    => [$ok->id, $bad->id],
+            'ids' => [$ok->id, $bad->id],
         ])
         ->assertStatus(207)
         ->assertJsonPath('processed', 2)
@@ -980,14 +980,14 @@ test('muting data and clear-all endpoints return current state', function (): vo
 
 test('middleman prune command dry-run executes successfully', function (): void {
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\OldLog',
-        'event_name'       => 'OldLog',
-        'payload'          => ['k' => 'v'],
-        'metadata'         => [],
-        'fired_at'         => now()->subDays(30),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\OldLog',
+        'event_name' => 'OldLog',
+        'payload' => ['k' => 'v'],
+        'metadata' => [],
+        'fired_at' => now()->subDays(30),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -999,34 +999,34 @@ test('logging and intercept detail endpoints return selected records', function 
     $admin = createMiddleManAdmin();
 
     $log = MiddleManLog::create([
-        'event_class'      => ReplayableTestEvent::class,
-        'event_name'       => 'ReplayableTestEvent',
-        'payload'          => ['message' => 'detail', 'code' => 200],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => null,
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'detail', 'code' => 200],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => null,
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => ReplayableTestEvent::class,
-        'event_name'     => 'ReplayableTestEvent',
-        'payload'        => ['message' => 'intercept-detail', 'code' => 200],
-        'metadata'       => [],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'intercept-detail', 'code' => 200],
+        'metadata' => [],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
     $this->actingAs($admin)
-        ->getJson('/middleman/logging/' . $log->id)
+        ->getJson('/middleman/logging/'.$log->id)
         ->assertOk()
         ->assertJsonPath('id', $log->id);
 
     $this->actingAs($admin)
-        ->getJson('/middleman/intercept/' . $intercept->id)
+        ->getJson('/middleman/intercept/'.$intercept->id)
         ->assertOk()
         ->assertJsonPath('id', $intercept->id);
 });
@@ -1039,8 +1039,8 @@ test('marshal fire without hold dispatches event immediately', function (): void
     $this->actingAs($admin)
         ->postJson('/middleman/marshal/fire', [
             'event_class' => ReplayableTestEvent::class,
-            'payload'     => ['message' => 'live-fire', 'code' => 299],
-            'hold'        => false,
+            'payload' => ['message' => 'live-fire', 'code' => 299],
+            'hold' => false,
         ])
         ->assertOk()
         ->assertJsonPath('action', 'fired');
@@ -1054,26 +1054,26 @@ test('tracing page filter scopes results to selected correlation id', function (
     $admin = createMiddleManAdmin();
 
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\TraceA',
-        'event_name'       => 'TraceA',
-        'payload'          => [],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => 'corr-a',
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\TraceA',
+        'event_name' => 'TraceA',
+        'payload' => [],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => 'corr-a',
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
     MiddleManLog::create([
-        'event_class'      => 'App\\Events\\TraceB',
-        'event_name'       => 'TraceB',
-        'payload'          => [],
-        'metadata'         => [],
-        'fired_at'         => now(),
-        'correlation_id'   => 'corr-b',
-        'causation_id'     => null,
-        'is_replay'        => false,
+        'event_class' => 'App\\Events\\TraceB',
+        'event_name' => 'TraceB',
+        'payload' => [],
+        'metadata' => [],
+        'fired_at' => now(),
+        'correlation_id' => 'corr-b',
+        'causation_id' => null,
+        'is_replay' => false,
         'has_schema_drift' => false,
     ]);
 
@@ -1089,12 +1089,12 @@ test('intercept fire marks record corrupted and returns 422 when dispatch throws
     $admin = createMiddleManAdmin();
 
     $intercept = MiddleManIntercept::create([
-        'event_class'    => ReplayableTestEvent::class,
-        'event_name'     => 'ReplayableTestEvent',
-        'payload'        => ['message' => 'boom', 'code' => 500],
-        'metadata'       => ['source' => 'test'],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => ReplayableTestEvent::class,
+        'event_name' => 'ReplayableTestEvent',
+        'payload' => ['message' => 'boom', 'code' => 500],
+        'metadata' => ['source' => 'test'],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 
@@ -1103,7 +1103,7 @@ test('intercept fire marks record corrupted and returns 422 when dispatch throws
     app()->instance(\Illuminate\Contracts\Events\Dispatcher::class, $dispatcher);
 
     $this->actingAs($admin)
-        ->postJson('/middleman/intercept/' . $intercept->id . '/fire')
+        ->postJson('/middleman/intercept/'.$intercept->id.'/fire')
         ->assertStatus(422)
         ->assertJsonPath('error', 'Event hydration failed. The intercept has been marked CORRUPTED.');
 
@@ -1118,7 +1118,7 @@ test('replay sequence endpoint rejects payloads over 200 ids', function (): void
     $this->actingAs($admin)
         ->postJson('/middleman/replay/sequence', [
             'source' => 'logs',
-            'ids'    => range(1, 201),
+            'ids' => range(1, 201),
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['ids']);

@@ -8,23 +8,22 @@ use Modules\SoftwareSubscriptions\Models\SoftwareAssignment;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubSoftwareAssignment::class)) {
-final class StubSoftwareAssignment extends SoftwareAssignment
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubSoftwareAssignment extends SoftwareAssignment
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class SoftwareAssignmentTest extends PureUnitTestCase
 {
     private function assignment(array $attrs): StubSoftwareAssignment
     {
-        $a = new StubSoftwareAssignment();
+        $a = new StubSoftwareAssignment;
         $a->setRawAttributes($attrs);
 
         return $a;

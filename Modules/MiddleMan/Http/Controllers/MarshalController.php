@@ -7,6 +7,7 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Modules\MiddleMan\Contracts\MiddleManSearchable;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
@@ -16,7 +17,7 @@ use Modules\MiddleMan\Services\MiddleManDispatcher;
 
 class MarshalController extends Controller
 {
-    public function index(EventDiscoveryService $discovery)
+    public function index(EventDiscoveryService $discovery): View
     {
         $availableEvents = $discovery->discover();
 
@@ -42,7 +43,7 @@ class MarshalController extends Controller
 
         return response()->json([
             'parameters' => $params,
-            'presets'    => $presets,
+            'presets' => $presets,
         ]);
     }
 
@@ -58,10 +59,10 @@ class MarshalController extends Controller
     {
         $validated = $request->validate([
             'model_class' => 'required|string|max:255',
-            'query'       => 'required|string|max:100',
+            'query' => 'required|string|max:100',
         ]);
 
-        $modelClass  = $validated['model_class'];
+        $modelClass = $validated['model_class'];
         $searchQuery = $validated['query'];
 
         // ── Allowlist gate ─────────────────────────────────────────────────────
@@ -77,7 +78,8 @@ class MarshalController extends Controller
         // ──────────────────────────────────────────────────────────────────────
 
         try {
-            $instance = new $modelClass();
+            /** @var \Illuminate\Database\Eloquent\Model $instance */
+            $instance = new $modelClass;
             $keyName = $instance->getKeyName();
             $table = $instance->getTable();
 
@@ -92,18 +94,18 @@ class MarshalController extends Controller
                 if ($searchableColumns !== []) {
                     $query->where(function ($q) use ($searchableColumns, $searchQuery): void {
                         foreach ($searchableColumns as $col) {
-                            $q->orWhere($col, 'like', '%' . $searchQuery . '%');
+                            $q->orWhere($col, 'like', '%'.$searchQuery.'%');
                         }
                     });
                 } else {
                     // Fallback: search by key if it's string-typed
-                    $query->where($keyName, 'like', '%' . $searchQuery . '%');
+                    $query->where($keyName, 'like', '%'.$searchQuery.'%');
                 }
             }
 
             $results = $query->get()->map(function ($model) use ($keyName): array {
                 return [
-                    'id'    => $model->getKey(),
+                    'id' => $model->getKey(),
                     'label' => $this->buildModelLabel($model, $keyName),
                 ];
             })->all();
@@ -121,11 +123,11 @@ class MarshalController extends Controller
     {
         $validated = $request->validate([
             'event_class' => 'required|string|max:255',
-            'name'        => 'required|string|max:255',
-            'payload'     => 'required|array',
+            'name' => 'required|string|max:255',
+            'payload' => 'required|array',
         ]);
 
-        $maxPresets = (int) config('middleman.max_presets_per_event', 25);
+        $maxPresets = (int) config('middleman.max_presets_per_event', 25); // @phpstan-ignore cast.int
         $existing = MiddleManPreset::forEvent($validated['event_class'])->count();
 
         if ($existing >= $maxPresets) {
@@ -136,9 +138,9 @@ class MarshalController extends Controller
 
         $preset = MiddleManPreset::create([
             'event_class' => $validated['event_class'],
-            'name'        => $validated['name'],
-            'payload'     => $validated['payload'],
-            'created_by'  => $request->user()->id,
+            'name' => $validated['name'],
+            'payload' => $validated['payload'],
+            'created_by' => (int) $request->user()?->id,
         ]);
 
         return response()->json(['success' => true, 'preset' => $preset]);
@@ -162,8 +164,8 @@ class MarshalController extends Controller
     {
         $validated = $request->validate([
             'event_class' => 'required|string|max:255',
-            'payload'     => 'required|array',
-            'hold'        => 'boolean',
+            'payload' => 'required|array',
+            'hold' => 'boolean',
         ]);
 
         $eventClass = $validated['event_class'];
@@ -177,17 +179,17 @@ class MarshalController extends Controller
             $maxOrder = MiddleManIntercept::pending()->max('sort_order') ?? 0;
 
             MiddleManIntercept::create([
-                'event_class'    => $eventClass,
-                'event_name'     => class_basename($eventClass),
-                'payload'        => $validated['payload'],
-                'metadata'       => ['source' => 'marshal', 'created_by' => $request->user()->id],
-                'status'         => MiddleManIntercept::STATUS_PENDING,
-                'sort_order'     => $maxOrder + 1,
+                'event_class' => $eventClass,
+                'event_name' => class_basename($eventClass),
+                'payload' => $validated['payload'],
+                'metadata' => ['source' => 'marshal', 'created_by' => (int) $request->user()?->id],
+                'status' => MiddleManIntercept::STATUS_PENDING,
+                'sort_order' => (int) $maxOrder + 1, // @phpstan-ignore cast.int
                 'intercepted_at' => now(),
             ]);
 
             MiddleManAuditEntry::record(
-                $request->user()->id,
+                (int) $request->user()?->id,
                 MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
                 null,
                 null,
@@ -209,7 +211,7 @@ class MarshalController extends Controller
             }
 
             MiddleManAuditEntry::record(
-                $request->user()->id,
+                (int) $request->user()?->id,
                 MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
                 null,
                 null,
@@ -219,7 +221,7 @@ class MarshalController extends Controller
             return response()->json(['success' => true, 'action' => 'fired']);
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'Failed to instantiate event.',
+                'error' => 'Failed to instantiate event.',
                 'message' => $e->getMessage(),
             ], 422);
         }
@@ -232,9 +234,9 @@ class MarshalController extends Controller
     {
         $validated = $request->validate([
             'event_class' => 'required|string|max:255',
-            'items'       => 'required|array|min:1|max:100',
-            'items.*'     => 'array',
-            'hold'        => 'boolean',
+            'items' => 'required|array|min:1|max:100',
+            'items.*' => 'array',
+            'hold' => 'boolean',
         ]);
 
         $eventClass = $validated['event_class'];
@@ -252,12 +254,12 @@ class MarshalController extends Controller
                     $maxOrder = MiddleManIntercept::pending()->max('sort_order') ?? 0;
 
                     MiddleManIntercept::create([
-                        'event_class'    => $eventClass,
-                        'event_name'     => class_basename($eventClass),
-                        'payload'        => $payload,
-                        'metadata'       => ['source' => 'marshal_batch', 'index' => $index, 'created_by' => $request->user()->id],
-                        'status'         => MiddleManIntercept::STATUS_PENDING,
-                        'sort_order'     => $maxOrder + 1,
+                        'event_class' => $eventClass,
+                        'event_name' => class_basename($eventClass),
+                        'payload' => $payload,
+                        'metadata' => ['source' => 'marshal_batch', 'index' => $index, 'created_by' => (int) $request->user()?->id],
+                        'status' => MiddleManIntercept::STATUS_PENDING,
+                        'sort_order' => (int) $maxOrder + 1, // @phpstan-ignore cast.int
                         'intercepted_at' => now(),
                     ]);
                 } else {
@@ -279,15 +281,15 @@ class MarshalController extends Controller
         }
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_EVENT_MARSHALLED,
             null,
             null,
             [
                 'event_class' => $eventClass,
-                'action'      => $hold ? 'batch_held' : 'batch_fired',
-                'success'     => $results['success'],
-                'failed'      => $results['failed'],
+                'action' => $hold ? 'batch_held' : 'batch_fired',
+                'success' => $results['success'],
+                'failed' => $results['failed'],
             ],
         );
 
@@ -335,8 +337,10 @@ class MarshalController extends Controller
      * Uses Reflection to map payload keys to constructor parameters,
      * with automatic model resolution, enum coercion, and type casting.
      */
+    /** @param array<string, mixed> $payload */
     private function instantiateEvent(string $eventClass, array $payload): object
     {
+        /** @var class-string $eventClass */
         $ref = new \ReflectionClass($eventClass);
         $constructor = $ref->getConstructor();
 
@@ -382,6 +386,7 @@ class MarshalController extends Controller
 
         // PHP 8.1+ backed enums: resolve from value
         if (class_exists($typeName) && is_subclass_of($typeName, \BackedEnum::class)) {
+            /** @var int|string $value */
             return $typeName::from($value);
         }
 
@@ -392,17 +397,17 @@ class MarshalController extends Controller
                     return $case;
                 }
             }
-            throw new \InvalidArgumentException("Invalid enum case '{$value}' for {$typeName}");
+            throw new \InvalidArgumentException("Invalid enum case '" . (is_scalar($value) ? (string) $value : gettype($value)) . "' for {$typeName}");
         }
 
         // Scalar type coercion
         return match ($typeName) {
-            'int', 'integer' => (int) $value,
-            'float', 'double' => (float) $value,
+            'int', 'integer' => (int) (is_scalar($value) ? $value : 0),
+            'float', 'double' => (float) (is_scalar($value) ? $value : 0),
             'bool', 'boolean' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
-            'string' => (string) $value,
-            'array'  => is_array($value) ? $value : json_decode((string) $value, true) ?? [$value],
-            default  => $value,
+            'string' => is_scalar($value) ? (string) $value : (is_array($value) ? json_encode($value) : ''),
+            'array' => is_array($value) ? $value : json_decode(is_string($value) ? $value : '', true) ?? [$value],
+            default => $value,
         };
     }
 
@@ -438,7 +443,7 @@ class MarshalController extends Controller
      */
     private function buildModelLabel(\Illuminate\Database\Eloquent\Model $model, string $keyName): string
     {
-        $id = $model->getKey();
+        $id = (string) $model->getKey(); // @phpstan-ignore cast.string
 
         // Try common label fields
         foreach (['name', 'email', 'title', 'label'] as $field) {

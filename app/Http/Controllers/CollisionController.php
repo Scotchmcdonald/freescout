@@ -12,8 +12,6 @@ class CollisionController extends Controller
 {
     /**
      * Handle collision detection (who is viewing the conversation).
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function viewing(Request $request, int $id): \Illuminate\Http\JsonResponse
     {

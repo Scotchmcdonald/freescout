@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -12,6 +13,14 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Example schema:
  *   { "user_id": "integer", "email": "string", "roles": "array" }
+ *
+ * @property int $id
+ * @property string $event_class
+ * @property array<string, string>|null $schema
+ * @property int $version
+ * @property \Illuminate\Support\Carbon|null $locked_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class MiddleManSchema extends Model
 {
@@ -27,8 +36,8 @@ class MiddleManSchema extends Model
     protected function casts(): array
     {
         return [
-            'schema'    => 'array',
-            'version'   => 'integer',
+            'schema' => 'array',
+            'version' => 'integer',
             'locked_at' => 'datetime',
         ];
     }
@@ -39,7 +48,9 @@ class MiddleManSchema extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function scopeForEvent($query, string $eventClass)
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    public function scopeForEvent(Builder $query, string $eventClass): Builder
     {
         return $query->where('event_class', $eventClass);
     }
@@ -54,7 +65,8 @@ class MiddleManSchema extends Model
      * Get or create the baseline schema for an event class.
      * If no baseline exists, creates one from the given payload.
      *
-     * @return array{baseline: static, is_new: bool}
+     * @param array<string, mixed> $payload
+     * @return array{baseline: self, is_new: bool}
      */
     public static function resolveBaseline(string $eventClass, array $payload): array
     {
@@ -66,9 +78,9 @@ class MiddleManSchema extends Model
 
         $schema = static::create([
             'event_class' => $eventClass,
-            'schema'      => static::extractSchema($payload),
-            'version'     => 1,
-            'locked_at'   => now(),
+            'schema' => static::extractSchema($payload),
+            'version' => 1,
+            'locked_at' => now(),
         ]);
 
         return ['baseline' => $schema, 'is_new' => true];
@@ -79,6 +91,8 @@ class MiddleManSchema extends Model
      *
      * @return array<string, string>
      */
+    /** @param array<string, mixed> $payload
+     * @return array<string, string> */
     public static function extractSchema(array $payload): array
     {
         $schema = [];
@@ -101,6 +115,8 @@ class MiddleManSchema extends Model
      *
      * @return array{has_drift: bool, added: string[], removed: string[], type_changed: array<string, array{expected: string, actual: string}>}
      */
+    /** @param array<string, mixed> $payload
+     * @return array{has_drift: bool, added: string[], removed: string[], type_changed: array<string, array{expected: string, actual: string}>} */
     public function detectDrift(array $payload): array
     {
         $currentSchema = static::extractSchema($payload);
@@ -114,7 +130,7 @@ class MiddleManSchema extends Model
             if (isset($baselineSchema[$key]) && $baselineSchema[$key] !== $type) {
                 $typeChanged[$key] = [
                     'expected' => $baselineSchema[$key],
-                    'actual'   => $type,
+                    'actual' => $type,
                 ];
             }
         }
@@ -122,14 +138,14 @@ class MiddleManSchema extends Model
         $hasDrift = $added !== [] || $removed !== [] || $typeChanged !== [];
 
         return [
-            'has_drift'    => $hasDrift,
-            'added'        => array_keys($added),
-            'removed'      => array_keys($removed),
+            'has_drift' => $hasDrift,
+            'added' => array_keys($added),
+            'removed' => array_keys($removed),
             'type_changed' => $typeChanged,
         ];
     }
 
-    private static function detectType(mixed $value): string
+    protected static function detectType(mixed $value): string
     {
         if ($value === null) {
             return 'null';
@@ -151,6 +167,7 @@ class MiddleManSchema extends Model
             if ($value === [] || array_is_list($value)) {
                 return 'array';
             }
+
             return 'object';
         }
 

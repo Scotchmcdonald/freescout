@@ -12,23 +12,21 @@ use Tests\PureUnitTestCase;
  * Stub to avoid DB dependency for pure attribute logic.
  */
 if (! class_exists(StubFieldDefinition::class)) {
-final class StubFieldDefinition extends FieldDefinition
-{
-    protected static function booted(): void {}
+    final class StubFieldDefinition extends FieldDefinition
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 /**
  * Stub to avoid DB dependency for CustomField attribute logic.
  */
 if (! class_exists(StubCustomField::class)) {
-final class StubCustomField extends CustomField
-{
-    protected static function booted(): void {}
+    final class StubCustomField extends CustomField
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 /**
  * Pure-unit tests for CRM model helpers:
@@ -41,7 +39,7 @@ final class CrmModelHelpersTest extends PureUnitTestCase
 
     private function fieldDef(string $type, ?array $options = null): StubFieldDefinition
     {
-        $fd = new StubFieldDefinition();
+        $fd = new StubFieldDefinition;
         $fd->type = $type;
         if ($options !== null) {
             $fd->setRawAttributes(array_merge($fd->getAttributes(), ['options' => json_encode($options)]));
@@ -95,7 +93,7 @@ final class CrmModelHelpersTest extends PureUnitTestCase
 
     private function customField(string $type, ?string $value): StubCustomField
     {
-        $cf = new StubCustomField();
+        $cf = new StubCustomField;
         $cf->setRawAttributes([
             'field_type' => $type,
             'field_value' => $value,

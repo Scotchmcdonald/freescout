@@ -533,12 +533,14 @@ class ObserversComprehensiveTest extends IntegrationTestCase
 
         Thread::factory()->create([
             'conversation_id' => $conversation->id,
-            'type'            => Thread::TYPE_DRAFT,
-            'body'            => 'Draft body — unauthorized to update preview',
+            'type' => Thread::TYPE_DRAFT,
+            'body' => 'Draft body — unauthorized to update preview',
         ]);
 
         // Draft threads are unauthorized from changing the public conversation preview
-        $this->assertSame('Original preview', $conversation->fresh()->preview,
+        $this->assertSame(
+            'Original preview',
+            $conversation->fresh()->preview,
             'Unauthorized draft thread must not update the conversation preview'
         );
     }

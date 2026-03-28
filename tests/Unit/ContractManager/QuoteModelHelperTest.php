@@ -12,18 +12,17 @@ use Tests\PureUnitTestCase as BaseTestCase;
  * Stub Quote bypasses DB dependencies for pure-logic tests.
  */
 if (! class_exists(StubQuote::class)) {
-final class StubQuote extends Quote
-{
-    protected static function booted(): void {}
-
-    /** Avoid DB-resolver lookup during date serialisation. */
-    public function getDateFormat(): string
+    final class StubQuote extends Quote
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        /** Avoid DB-resolver lookup during date serialisation. */
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 /**
  * Pure-unit tests for Quote model status helpers.
@@ -35,7 +34,7 @@ final class QuoteModelHelperTest extends BaseTestCase
 {
     private function quote(string $status, array $extra = []): StubQuote
     {
-        $q = new StubQuote();
+        $q = new StubQuote;
         $q->setRawAttributes(array_merge(['status' => $status], $extra));
 
         return $q;

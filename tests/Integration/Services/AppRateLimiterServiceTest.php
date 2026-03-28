@@ -161,7 +161,9 @@ class RateLimiterTest extends TestCase
 
         $remaining = $this->limiter->remaining($key, $maxAttempts);
 
-        $this->assertSame(0, $remaining,
+        $this->assertSame(
+            0,
+            $remaining,
             'Rate-limit boundary must report zero remaining — no further requests are authorized'
         );
     }

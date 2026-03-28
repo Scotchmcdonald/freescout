@@ -273,7 +273,8 @@ class CaseRecordHelperTest extends PureUnitTestCase
 
         $partial = $this->makeRecord($partialAttrs);
 
-        $this->assertFalse($partial->isChecklistComplete(),
+        $this->assertFalse(
+            $partial->isChecklistComplete(),
             'Validation boundary: partial checklist must not pass the case authorization gate'
         );
     }

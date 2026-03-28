@@ -15,8 +15,6 @@ class SocialAuthController extends Controller
 {
     /**
      * Redirect the user to the Google authentication page.
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function redirectToGoogle(): \Symfony\Component\HttpFoundation\Response
     {
@@ -25,8 +23,6 @@ class SocialAuthController extends Controller
 
     /**
      * Obtain the user information from Google.
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handleGoogleCallback(): \Symfony\Component\HttpFoundation\Response
     {

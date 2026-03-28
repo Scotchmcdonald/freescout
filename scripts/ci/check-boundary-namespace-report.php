@@ -20,11 +20,10 @@ declare(strict_types=1);
  * Output:
  *   reports/boundary-coverage-latest.md
  */
-
-$root       = dirname(__DIR__, 2);
-$testsDir   = $root . '/tests';
-$reportsDir = $root . '/reports';
-$reportFile = $reportsDir . '/boundary-coverage-latest.md';
+$root = dirname(__DIR__, 2);
+$testsDir = $root.'/tests';
+$reportsDir = $root.'/reports';
+$reportFile = $reportsDir.'/boundary-coverage-latest.md';
 
 /**
  * Namespaces that are not boundary-focused test domains.
@@ -40,7 +39,7 @@ $nonScoredNamespacePrefixes = [
 ];
 
 // ── CLI args ───────────────────────────────────────────────────────────────
-$minDensity  = 0.0;
+$minDensity = 0.0;
 $failOnEmpty = false;
 
 foreach (array_slice($argv ?? [], 1) as $arg) {
@@ -54,14 +53,14 @@ foreach (array_slice($argv ?? [], 1) as $arg) {
 
 // ── Boundary keywords ──────────────────────────────────────────────────────
 $boundaryPattern = '/\b('
-    . 'validation|validate|validated|'
-    . 'authorize|authorization|403|'
-    . 'throttle|429|rate.?limit(?:er)?|'
-    . 'forbidden|unauthorized|unauthenticated|'
-    . 'assertForbidden|assertUnauthorized|'
-    . 'assertStatus\(\s*(?:403|422|429|401)\s*\)|'
-    . 'assertJson.*errors'
-    . ')\b/i';
+    .'validation|validate|validated|'
+    .'authorize|authorization|403|'
+    .'throttle|429|rate.?limit(?:er)?|'
+    .'forbidden|unauthorized|unauthenticated|'
+    .'assertForbidden|assertUnauthorized|'
+    .'assertStatus\(\s*(?:403|422|429|401)\s*\)|'
+    .'assertJson.*errors'
+    .')\b/i';
 
 // ── Scan ───────────────────────────────────────────────────────────────────
 if (! is_dir($testsDir)) {
@@ -72,7 +71,7 @@ if (! is_dir($testsDir)) {
 /** @var array<string,array{files:list<string>,boundary_files:list<string>,hits:int,zero_files:list<string>}> $namespaces */
 $namespaces = [];
 $totalFiles = 0;
-$totalHits  = 0;
+$totalHits = 0;
 
 $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($testsDir));
 /** @var SplFileInfo $fileInfo */
@@ -82,21 +81,21 @@ foreach ($rii as $fileInfo) {
     }
 
     $totalFiles++;
-    $rel   = ltrim(str_replace($testsDir, '', $fileInfo->getPathname()), '/');
+    $rel = ltrim(str_replace($testsDir, '', $fileInfo->getPathname()), '/');
     $parts = explode('/', $rel);
-    $ns    = count($parts) > 1 ? $parts[0] : 'root';
+    $ns = count($parts) > 1 ? $parts[0] : 'root';
 
     // Deeper sub-namespace grouping (up to 2 levels)
     $subNs = $ns;
     if (count($parts) > 2) {
-        $subNs = $parts[0] . '/' . $parts[1];
+        $subNs = $parts[0].'/'.$parts[1];
     }
 
     if (! isset($namespaces[$subNs])) {
         $namespaces[$subNs] = ['files' => [], 'boundary_files' => [], 'hits' => 0, 'zero_files' => []];
     }
 
-    $content  = (string) file_get_contents($fileInfo->getPathname());
+    $content = (string) file_get_contents($fileInfo->getPathname());
     $hitCount = preg_match_all($boundaryPattern, $content, $m) ?: 0;
 
     $namespaces[$subNs]['files'][] = $rel;
@@ -120,11 +119,11 @@ $scoredEmptyNamespaces = [];
 
 foreach ($namespaces as $ns => $data) {
     $fileCount = count($data['files']);
-    $density   = $fileCount > 0 ? $data['hits'] / $fileCount : 0.0;
+    $density = $fileCount > 0 ? $data['hits'] / $fileCount : 0.0;
 
     $isScored = true;
     foreach ($nonScoredNamespacePrefixes as $prefix) {
-        if ($ns === $prefix || str_starts_with($ns, $prefix . '/')) {
+        if ($ns === $prefix || str_starts_with($ns, $prefix.'/')) {
             $isScored = false;
             break;
         }
@@ -143,8 +142,8 @@ foreach ($namespaces as $ns => $data) {
 }
 
 $scoredNamespaceCount = count($scoredNamespaces);
-$scoredPassingCount   = $scoredNamespaceCount - count($scoredEmptyNamespaces);
-$boundaryScore        = $scoredNamespaceCount > 0
+$scoredPassingCount = $scoredNamespaceCount - count($scoredEmptyNamespaces);
+$boundaryScore = $scoredNamespaceCount > 0
     ? round(($scoredPassingCount / $scoredNamespaceCount) * 100, 2)
     : 100.0;
 
@@ -155,12 +154,12 @@ if (! is_dir($reportsDir)) {
     mkdir($reportsDir, 0775, true);
 }
 
-$now   = date('c');
+$now = date('c');
 $lines = [];
 
 $lines[] = '# Boundary Coverage Report';
 $lines[] = '';
-$lines[] = '> Generated: ' . $now;
+$lines[] = '> Generated: '.$now;
 $lines[] = '> Pattern: validation · authorization · throttle · 401/403/422/429';
 $lines[] = '';
 $lines[] = sprintf('## Boundary Score: **%.2f/100**', $boundaryScore);
@@ -182,12 +181,12 @@ $lines[] = '| :--- | ---: | ---: | ---: | ---: | :---: |';
 
 foreach ($namespaces as $ns => $data) {
     $fileCount = count($data['files']);
-    $bFiles    = count($data['boundary_files']);
-    $density   = $fileCount > 0 ? round($data['hits'] / $fileCount, 2) : 0.0;
+    $bFiles = count($data['boundary_files']);
+    $density = $fileCount > 0 ? round($data['hits'] / $fileCount, 2) : 0.0;
 
     $isScored = true;
     foreach ($nonScoredNamespacePrefixes as $prefix) {
-        if ($ns === $prefix || str_starts_with($ns, $prefix . '/')) {
+        if ($ns === $prefix || str_starts_with($ns, $prefix.'/')) {
             $isScored = false;
             break;
         }
@@ -200,7 +199,7 @@ foreach ($namespaces as $ns => $data) {
         $status = $ok ? '✅' : '⚠️';
     }
 
-    $lines[]   = sprintf('| %s | %d | %d | %d | %.2f | %s |', $ns, $fileCount, $bFiles, $data['hits'], $density, $status);
+    $lines[] = sprintf('| %s | %d | %d | %d | %.2f | %s |', $ns, $fileCount, $bFiles, $data['hits'], $density, $status);
 }
 
 $lines[] = '';
@@ -214,10 +213,10 @@ foreach ($namespaces as $ns => $data) {
     if (count($data['zero_files']) === 0) {
         continue;
     }
-    $lines[] = '### ' . $ns;
+    $lines[] = '### '.$ns;
     $lines[] = '';
     foreach (array_slice($data['zero_files'], 0, 10) as $zf) {
-        $lines[] = '- `' . $zf . '`';
+        $lines[] = '- `'.$zf.'`';
         $zeroCap++;
         if ($zeroCap >= 60) {
             break 2;
@@ -233,14 +232,14 @@ $lines[] = '## Result';
 $lines[] = '';
 $lines[] = $allPass
     ? sprintf('✅ PASS — scored boundary coverage is %.2f/100', $boundaryScore)
-    : '❌ FAIL — scored namespaces with insufficient boundary coverage: ' . implode(', ', $scoredEmptyNamespaces);
+    : '❌ FAIL — scored namespaces with insufficient boundary coverage: '.implode(', ', $scoredEmptyNamespaces);
 $lines[] = '';
 
 $report = implode(PHP_EOL, $lines);
 file_put_contents($reportFile, $report);
 
 echo $report;
-echo PHP_EOL . 'Report saved to: reports/boundary-coverage-latest.md' . PHP_EOL;
+echo PHP_EOL.'Report saved to: reports/boundary-coverage-latest.md'.PHP_EOL;
 
 if (! $allPass) {
     exit(1);

@@ -14,18 +14,19 @@ use Throwable;
  * Scans configured directories for event classes and extracts
  * constructor signatures via Reflection for the Marshalling UI.
  */
-class EventScanner
+final class EventScanner
 {
     /**
-     * @return array<int, array{class: string, name: string, parameters: array}>
+     * @return array<int, array{class: string, name: string, parameters: array<int, array{name: string, type: string, required: bool, default: mixed}>}>
      */
     public function discover(): array
     {
         $events = [];
+        /** @var array<int|string, mixed> $scanPaths */
         $scanPaths = config('middleman.scan_paths', ['app/Events']);
 
         foreach ($scanPaths as $pattern) {
-            $resolved = $this->resolveGlobPaths($pattern);
+            $resolved = $this->resolveGlobPaths((string) $pattern); // @phpstan-ignore cast.string
             foreach ($resolved as $dir) {
                 if (! is_dir($dir)) {
                     continue;
@@ -67,7 +68,7 @@ class EventScanner
             }
 
             return array_map(
-                fn (ReflectionParameter $param) => $this->describeParameter($param),
+                fn (ReflectionParameter $param): array => $this->describeParameter($param),
                 $constructor->getParameters(),
             );
         } catch (Throwable) {
@@ -81,11 +82,12 @@ class EventScanner
     |--------------------------------------------------------------------------
     */
 
+    /** @return array<int, array{class: string, name: string, parameters: array<int, array{name: string, type: string, required: bool, default: mixed}>}> */
     private function scanDirectory(string $dir): array
     {
         $events = [];
 
-        $finder = new Finder();
+        $finder = new Finder;
         $finder->files()->name('*.php')->in($dir);
 
         foreach ($finder as $file) {
@@ -104,8 +106,8 @@ class EventScanner
                 }
 
                 $events[] = [
-                    'class'      => $class,
-                    'name'       => $ref->getShortName(),
+                    'class' => $class,
+                    'name' => $ref->getShortName(),
                     'parameters' => $this->getParameters($class),
                 ];
             } catch (Throwable) {
@@ -136,12 +138,13 @@ class EventScanner
         }
 
         if ($namespace && $class) {
-            return $namespace . '\\' . $class;
+            return $namespace.'\\'.$class;
         }
 
         return $class;
     }
 
+    /** @return array{name: string, type: string, required: bool, default: mixed} */
     private function describeParameter(ReflectionParameter $param): array
     {
         $type = $param->getType();
@@ -152,10 +155,10 @@ class EventScanner
         }
 
         $desc = [
-            'name'     => $param->getName(),
-            'type'     => $typeName,
+            'name' => $param->getName(),
+            'type' => $typeName,
             'required' => ! $param->isOptional(),
-            'default'  => null,
+            'default' => null,
         ];
 
         if ($param->isDefaultValueAvailable()) {

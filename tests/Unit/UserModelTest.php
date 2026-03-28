@@ -8,17 +8,16 @@ use App\Models\User;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubUser::class)) {
-final class StubUser extends User
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubUser extends User
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 /**
  * Pure-unit tests for User model methods that do not touch the database.
@@ -29,7 +28,7 @@ final class UserModelTest extends PureUnitTestCase
 {
     private function user(array $attrs = []): StubUser
     {
-        $u = new StubUser();
+        $u = new StubUser;
         $u->setRawAttributes($attrs);
 
         return $u;

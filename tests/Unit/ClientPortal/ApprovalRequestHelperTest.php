@@ -72,7 +72,8 @@ class ApprovalRequestHelperTest extends PureUnitTestCase
         // prevents any loophole re-submission.
         $signed = $this->request(['status' => ApprovalRequest::STATUS_SIGNED]);
 
-        $this->assertFalse($signed->canBeActioned(),
+        $this->assertFalse(
+            $signed->canBeActioned(),
             'Authorization boundary: signed requests are finalized and must not be re-actionable'
         );
     }

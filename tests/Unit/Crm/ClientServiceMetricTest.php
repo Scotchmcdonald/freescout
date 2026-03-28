@@ -11,17 +11,16 @@ use Tests\PureUnitTestCase;
  * Stub that removes DB dependency for date-cast attributes.
  */
 if (! class_exists(StubMetric::class)) {
-final class StubMetric extends ClientServiceMetric
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubMetric extends ClientServiceMetric
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 /**
  * Pure-unit tests for ClientServiceMetric computed attributes.
@@ -32,7 +31,7 @@ final class ClientServiceMetricTest extends PureUnitTestCase
 {
     private function make(array $attrs = []): StubMetric
     {
-        $m = new StubMetric();
+        $m = new StubMetric;
         foreach ($attrs as $key => $value) {
             $m->$key = $value;
         }

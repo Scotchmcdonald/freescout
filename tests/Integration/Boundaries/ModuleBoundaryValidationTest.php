@@ -36,8 +36,10 @@ test('unauthenticated requests to protected module routes return 403 or redirect
 
         // Must redirect to login (302) or return 403 — never 200
         expect($response->status())
-            ->toBeIn([302, 401, 403],
-                "Route {$method} {$uri} returned {$response->status()} without authentication");
+            ->toBeIn(
+                [302, 401, 403],
+                "Route {$method} {$uri} returned {$response->status()} without authentication"
+            );
     }
 });
 
@@ -53,8 +55,10 @@ test('non-admin users receive 403 on admin-only module settings', function () {
 
         // Must be 403 or redirect — never 200
         expect($response->status())
-            ->toBeIn([302, 403],
-                "Admin route {$method} {$uri} returned {$response->status()} for non-admin user");
+            ->toBeIn(
+                [302, 403],
+                "Admin route {$method} {$uri} returned {$response->status()} for non-admin user"
+            );
     }
 });
 
@@ -120,7 +124,8 @@ test('validation enforces maximum length constraints on user input', function ()
     ]);
 
     // Must either reject (422) or truncate — boundary must not crash
-    expect($response->status())->not->toBe(500,
+    expect($response->status())->not->toBe(
+        500,
         'Oversized input must be handled gracefully at the validation boundary'
     );
 });
@@ -133,7 +138,7 @@ test('RateLimiterService enforces throttle limits on repeated operations', funct
     }
 
     $limiter = app(RateLimiterService::class);
-    $key = 'test:rate_limit:' . uniqid();
+    $key = 'test:rate_limit:'.uniqid();
     $maxAttempts = 3;
     $callback = fn () => true;
 
@@ -161,7 +166,7 @@ test('login throttle returns 429 after exceeding attempt threshold', function ()
     for ($i = 0; $i < 6; $i++) {
         $this->post('/login', [
             'email' => 'throttle-test@example.com',
-            'password' => 'wrong-password-' . $i,
+            'password' => 'wrong-password-'.$i,
         ]);
     }
 

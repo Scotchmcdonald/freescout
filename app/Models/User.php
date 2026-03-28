@@ -146,8 +146,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if the user has access to the given company.
-     *
-     * @param  int|string|\Modules\Crm\Models\Company  $company
      */
     public function hasCompanyAccess(int|string|\Modules\Crm\Models\Company $company): bool
     {
@@ -575,8 +573,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * Format date according to user's timezone.
      *
      * @param  \DateTime|string|null  $date
-     * @param  string  $format
-     * @param  User|null  $user
      */
     public static function dateFormat(\DateTimeInterface|string|int|false|null $date, string $format = 'M j, Y', ?self $user = null): string
     {
@@ -630,8 +626,6 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * For string permissions: checks via RBAC (role_user → permission_role → permissions).
      * For integer permissions: legacy check via JSON column (deprecated).
-     *
-     * @param  int|string  $permission
      */
     public function hasPermission(int|string $permission, bool $checkOwnPermissions = true): bool
     {

@@ -18,10 +18,6 @@ if (! function_exists('csp_nonce')) {
 if (! function_exists('setting')) {
     /**
      * Get a billing setting value.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
      */
     function setting(string $key, mixed $default = null): mixed
     {
@@ -32,10 +28,6 @@ if (! function_exists('setting')) {
 if (! function_exists('money')) {
     /**
      * Format a number as currency.
-     *
-     * @param  mixed  $amount
-     * @param  string  $currency
-     * @return string
      */
     function money(mixed $amount, string $currency = '$'): string
     {

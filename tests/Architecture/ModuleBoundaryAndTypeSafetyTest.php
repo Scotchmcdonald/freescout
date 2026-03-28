@@ -21,4 +21,3 @@ arch('all module classes have strict types')
 arch('module models do not use http')
     ->expect('Modules\*\Models')
     ->not->toUse('Illuminate\Http');
-

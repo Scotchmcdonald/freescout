@@ -19,24 +19,24 @@ use Modules\Crm\Models\Company;
 
 beforeEach(function () {
     $this->company = Company::factory()->create();
-    $this->client  = Client::factory()->create(['company_id' => $this->company->id]);
+    $this->client = Client::factory()->create(['company_id' => $this->company->id]);
 });
 
 // ── State-machine violation rejection ────────────────────────────────────
 
 it('approving an already-approved quote throws a domain exception', function () {
     /** @var QuoteService $qs */
-    $qs    = app(QuoteService::class);
+    $qs = app(QuoteService::class);
     $quote = $qs->createQuote($this->client, [
-        'title'       => 'Rejection Test Quote',
+        'title' => 'Rejection Test Quote',
         'valid_until' => now()->addDays(30)->toDateString(),
     ]);
 
     $qs->addLineItem($quote, [
-        'description'       => 'Service',
-        'quantity'          => 1,
-        'unit_price'        => 500.00,
-        'is_recurring'      => false,
+        'description' => 'Service',
+        'quantity' => 1,
+        'unit_price' => 500.00,
+        'is_recurring' => false,
         'billing_frequency' => 'monthly',
     ]);
 
@@ -53,17 +53,17 @@ it('approving an already-approved quote throws a domain exception', function () 
 
 it('sending an already-sent quote throws a domain exception', function () {
     /** @var QuoteService $qs */
-    $qs    = app(QuoteService::class);
+    $qs = app(QuoteService::class);
     $quote = $qs->createQuote($this->client, [
-        'title'       => 'Double-Send Rejection Test',
+        'title' => 'Double-Send Rejection Test',
         'valid_until' => now()->addDays(30)->toDateString(),
     ]);
 
     $qs->addLineItem($quote, [
-        'description'       => 'Consulting',
-        'quantity'          => 1,
-        'unit_price'        => 200.00,
-        'is_recurring'      => false,
+        'description' => 'Consulting',
+        'quantity' => 1,
+        'unit_price' => 200.00,
+        'is_recurring' => false,
         'billing_frequency' => 'monthly',
     ]);
 
@@ -79,9 +79,9 @@ it('sending an already-sent quote throws a domain exception', function () {
 
 it('approving a quote that was never sent is rejected', function () {
     /** @var QuoteService $qs */
-    $qs    = app(QuoteService::class);
+    $qs = app(QuoteService::class);
     $quote = $qs->createQuote($this->client, [
-        'title'       => 'Draft-Only Rejection Test',
+        'title' => 'Draft-Only Rejection Test',
         'valid_until' => now()->addDays(30)->toDateString(),
     ]);
 
@@ -98,17 +98,17 @@ it('approving a quote that was never sent is rejected', function () {
 
 it('rejecting a quote prevents further state changes', function () {
     /** @var QuoteService $qs */
-    $qs    = app(QuoteService::class);
+    $qs = app(QuoteService::class);
     $quote = $qs->createQuote($this->client, [
-        'title'       => 'Rejected Quote Test',
+        'title' => 'Rejected Quote Test',
         'valid_until' => now()->addDays(30)->toDateString(),
     ]);
 
     $qs->addLineItem($quote, [
-        'description'       => 'Item',
-        'quantity'          => 1,
-        'unit_price'        => 100.00,
-        'is_recurring'      => false,
+        'description' => 'Item',
+        'quantity' => 1,
+        'unit_price' => 100.00,
+        'is_recurring' => false,
         'billing_frequency' => 'monthly',
     ]);
 
@@ -127,17 +127,17 @@ it('rejecting a quote prevents further state changes', function () {
 
 it('quote service validates that client authorization context is preserved across modules', function () {
     /** @var QuoteService $qs */
-    $qs     = app(QuoteService::class);
-    $quote  = $qs->createQuote($this->client, [
-        'title'       => 'Auth Boundary Test Quote',
+    $qs = app(QuoteService::class);
+    $quote = $qs->createQuote($this->client, [
+        'title' => 'Auth Boundary Test Quote',
         'valid_until' => now()->addDays(30)->toDateString(),
     ]);
 
     $qs->addLineItem($quote, [
-        'description'       => 'Service',
-        'quantity'          => 1,
-        'unit_price'        => 250.00,
-        'is_recurring'      => false,
+        'description' => 'Service',
+        'quantity' => 1,
+        'unit_price' => 250.00,
+        'is_recurring' => false,
         'billing_frequency' => 'monthly',
     ]);
 

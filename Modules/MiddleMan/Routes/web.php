@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Modules\MiddleMan\Http\Controllers\DashboardController;
 use Modules\MiddleMan\Http\Controllers\AdvancedController;
+use Modules\MiddleMan\Http\Controllers\DashboardController;
 use Modules\MiddleMan\Http\Controllers\InterceptController;
 use Modules\MiddleMan\Http\Controllers\LoggingController;
 use Modules\MiddleMan\Http\Controllers\MarshalController;
@@ -12,7 +12,6 @@ use Modules\MiddleMan\Http\Controllers\MutingController;
 use Modules\MiddleMan\Http\Controllers\ReplayController;
 
 Route::prefix('middleman')->middleware(['auth', 'verified', 'can:view_middleman'])->group(function () {
-
     // Dashboard — "Flight Deck"
     Route::get('/', [DashboardController::class, 'index'])->name('middleman.dashboard');
     Route::post('/circuit-breaker/reset', [DashboardController::class, 'resetCircuitBreaker'])

@@ -301,10 +301,14 @@ class PerformanceAndOptimizationTest extends IntegrationTestCase
         // Pagination enforces a bounded result — it's a validation gate on set size
         $paginated = Mailbox::paginate(5);
 
-        $this->assertLessThanOrEqual(5, $paginated->count(),
+        $this->assertLessThanOrEqual(
+            5,
+            $paginated->count(),
             'Validation boundary: paginated result must not exceed the declared page limit'
         );
-        $this->assertGreaterThan(1, $paginated->lastPage(),
+        $this->assertGreaterThan(
+            1,
+            $paginated->lastPage(),
             'Validation boundary: paginator must confirm that multiple pages exist for 15+ records'
         );
     }

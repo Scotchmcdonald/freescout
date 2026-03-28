@@ -157,8 +157,8 @@ class ModuleTest extends TestCase
             public function getModule(string $alias): ?array
             {
                 return [
-                    'name'         => 'Auth Boundary Module',
-                    'alias'        => $alias,
+                    'name' => 'Auth Boundary Module',
+                    'alias' => $alias,
                     'download_url' => null, // No authorized download URL
                 ];
             }
@@ -166,7 +166,9 @@ class ModuleTest extends TestCase
 
         $result = Module::updateModule('authboundarymodule');
 
-        $this->assertEquals('error', $result['status'],
+        $this->assertEquals(
+            'error',
+            $result['status'],
             'Authorization boundary: module update without download URL must be rejected'
         );
     }

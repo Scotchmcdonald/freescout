@@ -53,7 +53,7 @@ class MiddleManDispatcher extends Dispatcher
      * @param  string|object  $event
      * @param  mixed  $payload
      * @param  bool  $halt
-     * @return array|null
+     * @return array<int, mixed>|null
      */
     public function dispatch($event, $payload = [], $halt = false)
     {
@@ -84,6 +84,7 @@ class MiddleManDispatcher extends Dispatcher
             if (isset($this->ruleEngine) && $this->ruleEngine->shouldIntercept($eventClass)) {
                 $this->dispatchInterception($event, $eventClass, $eventId);
                 $this->circuitBreaker?->recordSuccess();
+
                 return null;
             }
 
@@ -104,7 +105,7 @@ class MiddleManDispatcher extends Dispatcher
      * Filters out any listeners that match the muted listener patterns.
      *
      * @param  string  $eventName
-     * @return array
+     * @return array<int, mixed>
      */
     public function getListeners($eventName)
     {
@@ -176,15 +177,15 @@ class MiddleManDispatcher extends Dispatcher
                 $serialized['payload'],
                 $metadata,
                 now()->toIso8601String(),
-            )->onConnection(config('middleman.queue_connection', 'redis'))
-             ->onQueue(config('middleman.queue_name', 'middleman'));
+            )->onConnection((string) config('middleman.queue_connection', 'redis')) // @phpstan-ignore cast.string
+                ->onQueue((string) config('middleman.queue_name', 'middleman')); // @phpstan-ignore cast.string
         } catch (\Throwable $e) {
             // Never let MiddleMan break the application.
             // Distinguish infrastructure failures (Redis/cache) from transient errors
             // so the circuit breaker emits the correct severity.
             if ($this->isInfrastructureException($e)) {
                 $this->circuitBreaker?->trip(
-                    'Cache/queue infrastructure failure during log dispatch: ' . $e->getMessage(),
+                    'Cache/queue infrastructure failure during log dispatch: '.$e->getMessage(),
                     isInfrastructureFailure: true,
                 );
             } else {
@@ -219,13 +220,13 @@ class MiddleManDispatcher extends Dispatcher
                 $serialized['payload'],
                 $metadata,
                 now()->toIso8601String(),
-            )->onConnection(config('middleman.queue_connection', 'redis'))
-             ->onQueue(config('middleman.queue_name', 'middleman'));
+            )->onConnection((string) config('middleman.queue_connection', 'redis')) // @phpstan-ignore cast.string
+                ->onQueue((string) config('middleman.queue_name', 'middleman')); // @phpstan-ignore cast.string
         } catch (\Throwable $e) {
             // If interception fails, let the event through normally.
             if ($this->isInfrastructureException($e)) {
                 $this->circuitBreaker?->trip(
-                    'Cache/queue infrastructure failure during intercept dispatch: ' . $e->getMessage(),
+                    'Cache/queue infrastructure failure during intercept dispatch: '.$e->getMessage(),
                     isInfrastructureFailure: true,
                 );
             } else {
@@ -282,7 +283,8 @@ class MiddleManDispatcher extends Dispatcher
 
         if (is_array($listener) && count($listener) === 2) {
             $class = is_object($listener[0]) ? get_class($listener[0]) : $listener[0];
-            return is_string($class) ? $class . '@' . $listener[1] : null;
+
+            return is_string($class) ? $class.'@'.$listener[1] : null;
         }
 
         // For closures that wrap class@method strings (Laravel's listener format),
@@ -297,7 +299,7 @@ class MiddleManDispatcher extends Dispatcher
     {
         try {
             logger()->info('MiddleMan: Muted listener', [
-                'event'    => $eventName,
+                'event' => $eventName,
                 'listener' => $listenerName,
             ]);
         } catch (\Throwable) {

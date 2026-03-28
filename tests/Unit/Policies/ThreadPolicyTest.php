@@ -111,7 +111,7 @@ class ThreadPolicyTest extends PureUnitTestCase
     {
         // Authorization boundary: draft threads authored by another user must not
         // be deletable — ownership validation is enforced at the policy layer
-        $owner    = $this->makeUser(1);
+        $owner = $this->makeUser(1);
         $intruder = $this->makeUser(2);
 
         $draft = new Thread([
@@ -121,7 +121,8 @@ class ThreadPolicyTest extends PureUnitTestCase
 
         $policy = new ThreadPolicy;
 
-        $this->assertFalse($policy->delete($intruder, $draft),
+        $this->assertFalse(
+            $policy->delete($intruder, $draft),
             'Authorization must deny deletion of another user\'s draft thread'
         );
     }

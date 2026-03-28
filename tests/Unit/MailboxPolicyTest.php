@@ -109,7 +109,8 @@ class MailboxPolicyTest extends PureUnitTestCase
         $user = $this->makeUser(false);
         $policy = new MailboxPolicy;
 
-        $this->assertFalse($policy->create($user),
+        $this->assertFalse(
+            $policy->create($user),
             'Unauthorized user must be forbidden from mailbox creation'
         );
     }
@@ -122,7 +123,8 @@ class MailboxPolicyTest extends PureUnitTestCase
         $mailbox = $this->makeMailbox(99);
         $policy = new MailboxPolicy;
 
-        $this->assertFalse($policy->update($user, $mailbox),
+        $this->assertFalse(
+            $policy->update($user, $mailbox),
             'Unauthorized user must be forbidden from mailbox update'
         );
     }
@@ -135,7 +137,8 @@ class MailboxPolicyTest extends PureUnitTestCase
         $mailbox = $this->makeMailbox(99);
         $policy = new MailboxPolicy;
 
-        $this->assertFalse($policy->delete($user, $mailbox),
+        $this->assertFalse(
+            $policy->delete($user, $mailbox),
             'Unauthorized user must be forbidden from mailbox deletion'
         );
     }

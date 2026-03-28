@@ -162,18 +162,47 @@ it('authorization boundary: suspended workspace users are surfaced as non-active
     // systems can deny their portal authorization.
     config(['google.domain' => 'example.com']);
 
-    $name = new class {
-        public function getFullName(): string { return 'Suspended User'; }
+    $name = new class
+    {
+        public function getFullName(): string
+        {
+            return 'Suspended User';
+        }
     };
 
-    $suspendedUser = new class($name) {
+    $suspendedUser = new class($name)
+    {
         public function __construct(private object $n) {}
-        public function getName(): object { return $this->n; }
-        public function getPrimaryEmail(): string { return 'suspended@example.com'; }
-        public function getSuspended(): bool { return true; }
-        public function getIsEnrolledIn2Sv(): bool { return false; }
-        public function getLastLoginTime(): string { return '2026-01-01T00:00:00Z'; }
-        public function getOrgUnitPath(): string { return '/Suspended'; }
+
+        public function getName(): object
+        {
+            return $this->n;
+        }
+
+        public function getPrimaryEmail(): string
+        {
+            return 'suspended@example.com';
+        }
+
+        public function getSuspended(): bool
+        {
+            return true;
+        }
+
+        public function getIsEnrolledIn2Sv(): bool
+        {
+            return false;
+        }
+
+        public function getLastLoginTime(): string
+        {
+            return '2026-01-01T00:00:00Z';
+        }
+
+        public function getOrgUnitPath(): string
+        {
+            return '/Suspended';
+        }
     };
 
     $service = Mockery::mock(GoogleWorkspaceService::class);

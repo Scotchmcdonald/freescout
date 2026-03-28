@@ -18,7 +18,6 @@ declare(strict_types=1);
  *   4. Module listeners are classes
  *   5. Module requests extend FormRequest
  */
-
 test('module services have Service suffix')
     ->expect([
         'Modules\PIB\Services',

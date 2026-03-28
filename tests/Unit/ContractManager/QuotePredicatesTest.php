@@ -9,17 +9,16 @@ use Modules\ContractManager\Models\Quote;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubQuote::class)) {
-final class StubQuote extends Quote
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubQuote extends Quote
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class QuotePredicatesTest extends PureUnitTestCase
 {
@@ -179,7 +178,8 @@ final class QuotePredicatesTest extends PureUnitTestCase
         $q = new StubQuote;
         $q->status = 'approved';
 
-        $this->assertFalse($q->canBeRejected(),
+        $this->assertFalse(
+            $q->canBeRejected(),
             'Authorization boundary: once approved, a quote must not be rejectable'
         );
     }

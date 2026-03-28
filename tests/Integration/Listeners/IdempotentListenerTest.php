@@ -135,7 +135,8 @@ class IdempotentListenerTest extends TestCase
     public function test_unauthorized_duplicate_event_is_blocked_by_idempotency_guard(): void
     {
         // Authorization boundary: second invocation of the same event is not authorized
-        $event = new class {
+        $event = new class
+        {
             public string $eventId = 'auth-boundary-idempotent-01';
         };
 
@@ -152,7 +153,8 @@ class IdempotentListenerTest extends TestCase
     public function test_validates_idempotency_authorization_is_scoped_per_handler_class(): void
     {
         // Validation boundary: same event_id is authorized independently per handler class
-        $event = new class {
+        $event = new class
+        {
             public string $eventId = 'cross-handler-auth-validation';
         };
 
@@ -160,16 +162,24 @@ class IdempotentListenerTest extends TestCase
         $handler1Count = 0;
         $handler2Count = 0;
 
-        $listener1 = new class($handler1Count) extends IdempotentListener {
+        $listener1 = new class($handler1Count) extends IdempotentListener
+        {
             public function __construct(private int &$c) {}
 
-            protected function handleIdempotent(object $event): void { $this->c++; }
+            protected function handleIdempotent(object $event): void
+            {
+                $this->c++;
+            }
         };
 
-        $listener2 = new class($handler2Count) extends IdempotentListener {
+        $listener2 = new class($handler2Count) extends IdempotentListener
+        {
             public function __construct(private int &$c) {}
 
-            protected function handleIdempotent(object $event): void { $this->c++; }
+            protected function handleIdempotent(object $event): void
+            {
+                $this->c++;
+            }
         };
 
         $listener1->handle($event);

@@ -8,12 +8,11 @@ use Modules\PIB\Models\ServiceUsage;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubServiceUsage::class)) {
-final class StubServiceUsage extends ServiceUsage
-{
-    protected static function booted(): void {}
+    final class StubServiceUsage extends ServiceUsage
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 final class ServiceUsagePredicatesTest extends PureUnitTestCase
 {
@@ -188,7 +187,8 @@ final class ServiceUsagePredicatesTest extends PureUnitTestCase
         $u = new StubServiceUsage;
         $u->status = ServiceUsage::STATUS_BILLED;
 
-        $this->assertFalse($u->canApprove(),
+        $this->assertFalse(
+            $u->canApprove(),
             'Authorization boundary: billed service usage must be locked from re-approval'
         );
     }
@@ -227,10 +227,12 @@ final class ServiceUsagePredicatesTest extends PureUnitTestCase
         $u = new StubServiceUsage;
         $u->status = 'draft';
 
-        $this->assertTrue($u->isDraft(),
+        $this->assertTrue(
+            $u->isDraft(),
             'Draft service usage must be unauthorized for active billing operations'
         );
-        $this->assertFalse($u->isPending(),
+        $this->assertFalse(
+            $u->isPending(),
             'Draft status must not pass the authorization check for pending state'
         );
     }
@@ -242,10 +244,12 @@ final class ServiceUsagePredicatesTest extends PureUnitTestCase
         $u = new StubServiceUsage;
         $u->status = 'pending_approval';
 
-        $this->assertFalse($u->isDraft(),
+        $this->assertFalse(
+            $u->isDraft(),
             'Pending approval usage must be forbidden from passing the draft validation boundary'
         );
-        $this->assertTrue($u->isPending(),
+        $this->assertTrue(
+            $u->isPending(),
             'Pending approval status passes the authorization check for pending state'
         );
     }

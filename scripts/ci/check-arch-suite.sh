@@ -16,12 +16,14 @@ set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REPORTS_DIR="$ROOT_DIR/reports"
+TEST_PROCESSES="${TEST_PROCESSES:-10}"
 
 mkdir -p "$REPORTS_DIR"
 
 echo ""
 echo "📋 Architecture Suite: running arch rules + arch file suites"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Parallel workers: ${TEST_PROCESSES}"
 
 ARCH_DIR_EXIT=0
 ARCH_FILE_EXIT=0
@@ -30,11 +32,11 @@ ARCH_FILE_EXIT=0
 # captured directly.  The previous `if ! cmd; then EXIT=$?` pattern set $? to
 # the negated exit of the condition expression (always 0), masking failures.
 echo "→ Running tests/Architecture/ ..."
-php "$ROOT_DIR/artisan" test tests/Architecture || ARCH_DIR_EXIT=$?
+php "$ROOT_DIR/artisan" test tests/Architecture --parallel --processes="$TEST_PROCESSES" || ARCH_DIR_EXIT=$?
 
 echo ""
 echo "→ Running tests/ArchTest.php ..."
-php "$ROOT_DIR/artisan" test tests/ArchTest.php || ARCH_FILE_EXIT=$?
+php "$ROOT_DIR/artisan" test tests/ArchTest.php --parallel --processes="$TEST_PROCESSES" || ARCH_FILE_EXIT=$?
 
 OVERALL=0
 if [ "$ARCH_DIR_EXIT" -ne 0 ] || [ "$ARCH_FILE_EXIT" -ne 0 ]; then

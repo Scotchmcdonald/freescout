@@ -219,13 +219,15 @@ class DraftTest extends TestCase
         // authorization context requirement (drafts belong to a conversation).
         $data = [
             'conversation_id' => $this->conversation->id,
-            'body'            => 'Authorization context draft',
-            'to'              => ['requiredrecipient@example.com'],
+            'body' => 'Authorization context draft',
+            'to' => ['requiredrecipient@example.com'],
         ];
 
         $thread = Draft::save($data, $this->user);
 
-        $this->assertEquals($this->conversation->id, $thread->conversation_id,
+        $this->assertEquals(
+            $this->conversation->id,
+            $thread->conversation_id,
             'Draft authorization context: conversation_id must match the originating conversation'
         );
     }

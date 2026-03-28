@@ -20,10 +20,10 @@ function getMiddleManBrowserAdmin(): User
 {
     /** @var User $admin */
     $admin = User::firstOrCreate(['email' => 'middleman-browser-admin@example.com'], [
-        'password'          => bcrypt('password'),
-        'role'              => User::ROLE_ADMIN,
-        'first_name'        => 'MiddleMan',
-        'last_name'         => 'Admin',
+        'password' => bcrypt('password'),
+        'role' => User::ROLE_ADMIN,
+        'first_name' => 'MiddleMan',
+        'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
 
@@ -58,12 +58,12 @@ it('admin can view an intercepted event detail', function (): void {
 
     // Seed a pending intercept
     $intercept = MiddleManIntercept::create([
-        'event_class'    => 'App\\Events\\BrowserTestEvent',
-        'event_name'     => 'BrowserTestEvent',
-        'payload'        => ['greeting' => 'hello world'],
-        'metadata'       => ['class' => 'App\\Events\\BrowserTestEvent'],
-        'status'         => MiddleManIntercept::STATUS_PENDING,
-        'sort_order'     => 1,
+        'event_class' => 'App\\Events\\BrowserTestEvent',
+        'event_name' => 'BrowserTestEvent',
+        'payload' => ['greeting' => 'hello world'],
+        'metadata' => ['class' => 'App\\Events\\BrowserTestEvent'],
+        'status' => MiddleManIntercept::STATUS_PENDING,
+        'sort_order' => 1,
         'intercepted_at' => now(),
     ]);
 

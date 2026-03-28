@@ -37,8 +37,6 @@ class ModuleInstall extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
     public function handle(): int
     {
@@ -120,8 +118,6 @@ class ModuleInstall extends Command
     /**
      * Create a public symlink for the module.
      *
-     * @param  \Nwidart\Modules\Module  $module
-     * @return void
      *
      * @throws \Exception
      */

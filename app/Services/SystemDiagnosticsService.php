@@ -30,10 +30,10 @@ final class SystemDiagnosticsService
             $driver = $this->db->connection()->getDriverName();
 
             return match ($driver) {
-                'mysql'  => $this->db->select('SELECT VERSION() as version')[0]->version ?? 'Unknown',
+                'mysql' => $this->db->select('SELECT VERSION() as version')[0]->version ?? 'Unknown',
                 'sqlite' => $this->db->select('SELECT sqlite_version() as version')[0]->version ?? 'Unknown',
-                'pgsql'  => $this->db->select('SELECT version()')[0]->version ?? 'Unknown',
-                default  => 'Unknown',
+                'pgsql' => $this->db->select('SELECT version()')[0]->version ?? 'Unknown',
+                default => 'Unknown',
             };
         } catch (\Throwable) {
             return 'Unknown';

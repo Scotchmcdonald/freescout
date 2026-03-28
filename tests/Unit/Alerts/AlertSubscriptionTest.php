@@ -10,12 +10,11 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubAlertSubscription::class)) {
-final class StubAlertSubscription extends AlertSubscription
-{
-    protected static function booted(): void {}
+    final class StubAlertSubscription extends AlertSubscription
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ final class AlertSubscriptionTest extends PureUnitTestCase
 {
     private function sub(array $rawAttrs): StubAlertSubscription
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->setRawAttributes($rawAttrs);
 
         return $s;
@@ -71,21 +70,21 @@ final class AlertSubscriptionTest extends PureUnitTestCase
 
     public function test_applies_to_client_when_id_is_in_list(): void
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->forceFill(['client_ids' => [10, 20, 30]]);
         $this->assertTrue($s->appliesToClient(20));
     }
 
     public function test_applies_to_client_when_id_not_in_list(): void
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->forceFill(['client_ids' => [10, 20]]);
         $this->assertFalse($s->appliesToClient(99));
     }
 
     public function test_applies_to_client_with_null_id_and_nonempty_list(): void
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->forceFill(['client_ids' => [10, 20]]);
         $this->assertFalse($s->appliesToClient(null));
     }
@@ -94,14 +93,14 @@ final class AlertSubscriptionTest extends PureUnitTestCase
 
     public function test_has_channel_returns_true_for_present_channel(): void
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->forceFill(['channels' => ['email', 'slack']]);
         $this->assertTrue($s->hasChannel('email'));
     }
 
     public function test_has_channel_returns_false_for_absent_channel(): void
     {
-        $s = new StubAlertSubscription();
+        $s = new StubAlertSubscription;
         $s->forceFill(['channels' => ['email']]);
         $this->assertFalse($s->hasChannel('sms'));
     }

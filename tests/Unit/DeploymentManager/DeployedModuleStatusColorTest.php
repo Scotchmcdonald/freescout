@@ -10,12 +10,11 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubDeployedModule::class)) {
-final class StubDeployedModule extends DeployedModule
-{
-    protected static function booted(): void {}
+    final class StubDeployedModule extends DeployedModule
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ final class DeployedModuleStatusColorTest extends PureUnitTestCase
 {
     private function module(string $status): StubDeployedModule
     {
-        $m = new StubDeployedModule();
+        $m = new StubDeployedModule;
         $m->setRawAttributes(['status' => $status]);
 
         return $m;

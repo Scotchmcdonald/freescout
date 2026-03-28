@@ -13,27 +13,26 @@ use Tests\PureUnitTestCase;
  * purely-computational Milestone methods without a DB connection.
  */
 if (! class_exists(StubMilestone::class)) {
-final class StubMilestone extends Milestone
-{
-    protected static function booted(): void {}
-
-    /** Bypass DB connection lookup for date formatting. */
-    public function getDateFormat(): string
+    final class StubMilestone extends Milestone
     {
-        return 'Y-m-d H:i:s';
-    }
+        protected static function booted(): void {}
 
-    public function update(array $attributes = [], array $options = []): bool
-    {
-        foreach ($attributes as $k => $v) {
-            $this->attributes[$k] = $v;
+        /** Bypass DB connection lookup for date formatting. */
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
         }
 
-        return true;
+        public function update(array $attributes = [], array $options = []): bool
+        {
+            foreach ($attributes as $k => $v) {
+                $this->attributes[$k] = $v;
+            }
+
+            return true;
+        }
     }
 }
-}
-
 
 /**
  * Milestone model — status helpers and billing logic.
@@ -42,7 +41,7 @@ final class MilestoneModelHelpersTest extends PureUnitTestCase
 {
     private function make(string $status, array $extra = []): StubMilestone
     {
-        $m = new StubMilestone();
+        $m = new StubMilestone;
         $m->status = $status;
         foreach ($extra as $k => $v) {
             $m->$k = $v;
@@ -188,7 +187,7 @@ final class MilestoneModelHelpersTest extends PureUnitTestCase
     public function test_milestone_has_status_constants_via_string_literals(): void
     {
         // Milestone uses string status values, not constants — verify model exists
-        $m = new Milestone();
+        $m = new Milestone;
         $this->assertInstanceOf(Milestone::class, $m);
     }
 }

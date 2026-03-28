@@ -25,22 +25,24 @@ class WriteInterceptEntryJob implements ShouldQueue
     public function __construct(
         private readonly string $eventClass,
         private readonly string $eventName,
-        private readonly array  $payload,
-        private readonly array  $metadata,
+        /** @var array<string, mixed> */
+        private readonly array $payload,
+        /** @var array<string, mixed> */
+        private readonly array $metadata,
         private readonly string $interceptedAt,
     ) {}
 
     public function handle(): void
     {
-        $maxOrder = MiddleManIntercept::pending()->max('sort_order') ?? 0;
+        $maxOrder = MiddleManIntercept::pending()->max('sort_order');
 
         MiddleManIntercept::create([
-            'event_class'    => $this->eventClass,
-            'event_name'     => $this->eventName,
-            'payload'        => $this->payload,
-            'metadata'       => $this->metadata,
-            'status'         => MiddleManIntercept::STATUS_PENDING,
-            'sort_order'     => $maxOrder + 1,
+            'event_class' => $this->eventClass,
+            'event_name' => $this->eventName,
+            'payload' => $this->payload,
+            'metadata' => $this->metadata,
+            'status' => MiddleManIntercept::STATUS_PENDING,
+            'sort_order' => ((int) $maxOrder) + 1, // @phpstan-ignore cast.int
             'intercepted_at' => $this->interceptedAt,
         ]);
     }

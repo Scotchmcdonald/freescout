@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Http\Controllers\DashboardController;
-use Tests\IntegrationTestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\IntegrationTestCase;
 
 class DashboardControllerTest extends IntegrationTestCase
 {
@@ -30,11 +30,11 @@ class DashboardControllerTest extends IntegrationTestCase
     public function test_client_is_redirected_to_portal_dashboard(): void
     {
         $user = User::factory()->create([
-            'type' => User::TYPE_CLIENT
+            'type' => User::TYPE_CLIENT,
         ]);
-        
+
         $response = $this->actingAs($user)->get(route('dashboard'));
-        
+
         $response->assertRedirect(route('portal.dashboard'));
     }
 }

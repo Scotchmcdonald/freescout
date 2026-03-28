@@ -8,39 +8,37 @@ use Modules\KnowledgeBase\Models\Article;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubArticle::class)) {
-final class StubArticle extends Article
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubArticle extends Article
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 /**
  * Minimal user stub that supports isClient().
  */
 if (! class_exists(StubClientUser::class)) {
-final class StubClientUser
-{
-    public function __construct(private readonly bool $client = false) {}
-
-    public function isClient(): bool
+    final class StubClientUser
     {
-        return $this->client;
+        public function __construct(private readonly bool $client = false) {}
+
+        public function isClient(): bool
+        {
+            return $this->client;
+        }
     }
 }
-}
-
 
 final class ArticleTest extends PureUnitTestCase
 {
     private function article(array $attrs): StubArticle
     {
-        $a = new StubArticle();
+        $a = new StubArticle;
         $a->setRawAttributes($attrs);
 
         return $a;
@@ -80,7 +78,7 @@ final class ArticleTest extends PureUnitTestCase
     {
         // An object without isClient() method — falls through to internal path
         $a = $this->article(['internal_content' => 'Internal', 'content' => 'Default']);
-        $user = new \stdClass(); // no isClient() method
+        $user = new \stdClass; // no isClient() method
         $this->assertSame('Internal', $a->getContentForUser($user));
     }
 
@@ -122,12 +120,14 @@ final class ArticleTest extends PureUnitTestCase
         // users as valid — deprecation is a content authorization gate that
         // prevents stale or inaccurate information from being surfaced.
         $deprecated = $this->article(['verification_status' => 'deprecated', 'expires_at' => null]);
-        $verified   = $this->article(['verification_status' => 'verified',    'expires_at' => null]);
+        $verified = $this->article(['verification_status' => 'verified',    'expires_at' => null]);
 
-        $this->assertTrue($deprecated->isDeprecated(),
+        $this->assertTrue(
+            $deprecated->isDeprecated(),
             'Authorization boundary: deprecated article must be flagged'
         );
-        $this->assertFalse($verified->isDeprecated(),
+        $this->assertFalse(
+            $verified->isDeprecated(),
             'Authorization boundary: verified article must pass the presentation gate'
         );
     }

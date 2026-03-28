@@ -10,7 +10,6 @@ declare(strict_types=1);
  * - Module services must not import controllers
  * - Services must not extend controllers
  */
-
 arch('services do not depend on Http layer')
     ->expect('App\Services')
     ->not->toUse([
@@ -46,8 +45,8 @@ arch('module services do not extend controllers')
  */
 test('non-final service class count does not regress', function () {
     $root = dirname(__DIR__, 2);
-    $appServices = glob($root . '/app/Services/*.php');
-    $moduleServices = glob($root . '/Modules/*/Services/*.php');
+    $appServices = glob($root.'/app/Services/*.php');
+    $moduleServices = glob($root.'/Modules/*/Services/*.php');
     $allServices = array_merge($appServices ?: [], $moduleServices ?: []);
 
     $nonFinalCount = 0;
@@ -69,7 +68,8 @@ test('non-final service class count does not regress', function () {
     // This number must NOT increase. Reduce to 60 by 2026-06-30.
     $baselineMax = 80;
 
-    expect($nonFinalCount)->toBeLessThanOrEqual($baselineMax,
+    expect($nonFinalCount)->toBeLessThanOrEqual(
+        $baselineMax,
         "Non-final service count ({$nonFinalCount}) exceeds baseline ({$baselineMax}). "
         .'New services MUST be declared final. Do not increase this baseline.'
     );

@@ -60,7 +60,9 @@ class AppLayoutTest extends IntegrationTestCase
         $component = new AppLayout;
         $view = $component->render();
 
-        $this->assertNotEquals('layouts.guest', $view->name(),
+        $this->assertNotEquals(
+            'layouts.guest',
+            $view->name(),
             'Authenticated app layout must not serve the unauthenticated shell'
         );
         $this->assertEquals('layouts.app', $view->name());

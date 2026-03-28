@@ -37,7 +37,7 @@ return [
     |
     */
     'queue_connection' => env('MIDDLEMAN_QUEUE_CONNECTION', 'redis'),
-    'queue_name'       => env('MIDDLEMAN_QUEUE', 'middleman'),
+    'queue_name' => env('MIDDLEMAN_QUEUE', 'middleman'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,9 +65,9 @@ return [
     |
     */
     'prune' => [
-        'logs_days'       => (int) env('MIDDLEMAN_PRUNE_LOGS_DAYS', 7),
+        'logs_days' => (int) env('MIDDLEMAN_PRUNE_LOGS_DAYS', 7),
         'intercepts_days' => (int) env('MIDDLEMAN_PRUNE_INTERCEPTS_DAYS', 14),
-        'audit_days'      => (int) env('MIDDLEMAN_PRUNE_AUDIT_DAYS', 90),
+        'audit_days' => (int) env('MIDDLEMAN_PRUNE_AUDIT_DAYS', 90),
     ],
 
     /*
@@ -123,10 +123,10 @@ return [
     |
     */
     'cache_keys' => [
-        'rules'            => 'middleman:rules',
-        'logging_active'   => 'middleman:logging_active',
+        'rules' => 'middleman:rules',
+        'logging_active' => 'middleman:logging_active',
         'intercept_active' => 'middleman:intercept_active',
-        'muted_listeners'  => 'middleman:muted_listeners',
+        'muted_listeners' => 'middleman:muted_listeners',
     ],
 
     /*
@@ -141,19 +141,19 @@ return [
     */
     'circuit_breaker' => [
         // Number of consecutive failures before tripping the breaker
-        'failure_threshold'        => (int) env('MIDDLEMAN_CB_FAILURE_THRESHOLD', 5),
+        'failure_threshold' => (int) env('MIDDLEMAN_CB_FAILURE_THRESHOLD', 5),
 
         // Max events per second before storm detection trips the breaker (memory protection)
         'storm_threshold_per_second' => (int) env('MIDDLEMAN_CB_STORM_THRESHOLD', 500),
 
         // Max queued jobs before backpressure trips the breaker
-        'queue_depth_limit'        => (int) env('MIDDLEMAN_CB_QUEUE_DEPTH', 10000),
+        'queue_depth_limit' => (int) env('MIDDLEMAN_CB_QUEUE_DEPTH', 10000),
 
         // Seconds to wait before attempting half-open recovery
-        'cooldown_seconds'         => (int) env('MIDDLEMAN_CB_COOLDOWN', 60),
+        'cooldown_seconds' => (int) env('MIDDLEMAN_CB_COOLDOWN', 60),
 
         // Seconds between cache syncs (local state is used between syncs for speed)
-        'sync_interval_seconds'    => (int) env('MIDDLEMAN_CB_SYNC_INTERVAL', 5),
+        'sync_interval_seconds' => (int) env('MIDDLEMAN_CB_SYNC_INTERVAL', 5),
     ],
 
     /*
@@ -188,8 +188,8 @@ return [
     |
     */
     'kroki' => [
-        'enabled'         => (bool) env('MIDDLEMAN_KROKI_ENABLED', false),
-        'base_url'        => env('MIDDLEMAN_KROKI_URL', 'http://kroki:8000'),
+        'enabled' => (bool) env('MIDDLEMAN_KROKI_ENABLED', false),
+        'base_url' => env('MIDDLEMAN_KROKI_URL', 'http://kroki:8000'),
         'timeout_seconds' => (int) env('MIDDLEMAN_KROKI_TIMEOUT', 10),
     ],
 ];

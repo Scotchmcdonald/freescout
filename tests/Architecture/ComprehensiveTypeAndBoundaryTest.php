@@ -40,7 +40,7 @@ arch('policies only depend on models and auth')
     ->not->toUse([
         'Illuminate\Support\Facades\DB',
         'Illuminate\Http\Request',
-        'Illuminate\Http\Response'
+        'Illuminate\Http\Response',
     ]);
 
 arch('jobs do not depend on http requests')

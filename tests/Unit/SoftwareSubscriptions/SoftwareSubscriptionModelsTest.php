@@ -10,43 +10,40 @@ use Modules\SoftwareSubscriptions\Models\SoftwareProduct;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubSoftwareProduct::class)) {
-final class StubSoftwareProduct extends SoftwareProduct
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubSoftwareProduct extends SoftwareProduct
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 if (! class_exists(StubClientSoftwareSubscription::class)) {
-final class StubClientSoftwareSubscription extends ClientSoftwareSubscription
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubClientSoftwareSubscription extends ClientSoftwareSubscription
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 if (! class_exists(StubSoftwareAssignment::class)) {
-final class StubSoftwareAssignment extends SoftwareAssignment
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubSoftwareAssignment extends SoftwareAssignment
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class SoftwareSubscriptionModelsTest extends PureUnitTestCase
 {

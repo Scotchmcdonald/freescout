@@ -8,17 +8,16 @@ use Modules\Crm\Models\Client;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubCrmClient::class)) {
-final class StubCrmClient extends Client
-{
-    protected static function booted(): void {}
-
-    protected function casts(): array
+    final class StubCrmClient extends Client
     {
-        return [];
+        protected static function booted(): void {}
+
+        protected function casts(): array
+        {
+            return [];
+        }
     }
 }
-}
-
 
 final class ClientIsActiveTest extends PureUnitTestCase
 {
@@ -72,7 +71,8 @@ final class ClientIsActiveTest extends PureUnitTestCase
             $client = new StubCrmClient;
             $client->status = $status;
 
-            $this->assertFalse($client->isActive(),
+            $this->assertFalse(
+                $client->isActive(),
                 "Status '$status' should not pass the authorization boundary check"
             );
         }

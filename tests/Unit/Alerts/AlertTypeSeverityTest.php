@@ -10,12 +10,11 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubAlertType::class)) {
-final class StubAlertType extends AlertType
-{
-    protected static function booted(): void {}
+    final class StubAlertType extends AlertType
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ final class AlertTypeSeverityTest extends PureUnitTestCase
 {
     private function alertType(string $severity): StubAlertType
     {
-        $t = new StubAlertType();
+        $t = new StubAlertType;
         $t->setRawAttributes(['severity' => $severity]);
 
         return $t;

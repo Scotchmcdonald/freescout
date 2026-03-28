@@ -12,18 +12,17 @@ use Tests\PureUnitTestCase;
  * from interfering with pure-logic tests.
  */
 if (! class_exists(StubCustomerField::class)) {
-final class StubCustomerField extends CustomerField
-{
-    protected static function booted(): void {}
-
-    /** Disable Rememberable so no cache driver is needed. */
-    public function remember(int $minutes, string $cacheTag = null): static
+    final class StubCustomerField extends CustomerField
     {
-        return $this;
+        protected static function booted(): void {}
+
+        /** Disable Rememberable so no cache driver is needed. */
+        public function remember(int $minutes, ?string $cacheTag = null): static
+        {
+            return $this;
+        }
     }
 }
-}
-
 
 final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
 {
@@ -224,7 +223,7 @@ final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
 
     public function test_get_as_text_multiselect_adds_spaces_after_delimiters(): void
     {
-        $delimiterPair = CustomerField::MULTISELECT_DELIMITER . CustomerField::MULTISELECT_DELIMITER; // delimiter appears between values
+        $delimiterPair = CustomerField::MULTISELECT_DELIMITER.CustomerField::MULTISELECT_DELIMITER; // delimiter appears between values
         $field = new StubCustomerField;
         $delimiter = CustomerField::MULTISELECT_DELIMITER;
         $raw = "A{$delimiter}B{$delimiter}C";
@@ -235,7 +234,7 @@ final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
 
         $result = $field->getAsText();
         // Every delimiter should be followed by a space
-        $this->assertStringContainsString($delimiter . ' ', $result);
+        $this->assertStringContainsString($delimiter.' ', $result);
         $this->assertStringContainsString('A', $result);
         $this->assertStringContainsString('C', $result);
     }
@@ -255,7 +254,7 @@ final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
     {
         $field = new StubCustomerField;
         $field->setRawAttributes([
-            'type'  => CustomerField::TYPE_NUMBER,
+            'type' => CustomerField::TYPE_NUMBER,
             'value' => null,
         ]);
 

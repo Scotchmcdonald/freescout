@@ -31,7 +31,7 @@ final class UserDirectoryRegistryServiceTest extends PureUnitTestCase
         $logManager->shouldReceive('error')->byDefault();
         Log::swap($logManager);
 
-        $this->service = new UserDirectoryRegistryService();
+        $this->service = new UserDirectoryRegistryService;
     }
 
     protected function tearDown(): void

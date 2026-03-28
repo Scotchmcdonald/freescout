@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Console\Commands;
 
 use Illuminate\Support\Facades\Artisan;
-use Nwidart\Modules\Facades\Module as ModuleFacade;
 use Mockery;
+use Nwidart\Modules\Facades\Module as ModuleFacade;
 
 // TestCase and RefreshDatabase are inherited from Pest.php Feature binding
 
@@ -106,4 +106,3 @@ it('reports no modules found', function () {
         ->expectsOutput('No modules found.')
         ->assertExitCode(0);
 });
-

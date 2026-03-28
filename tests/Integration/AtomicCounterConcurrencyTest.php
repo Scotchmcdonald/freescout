@@ -156,7 +156,6 @@ class AtomicCounterConcurrencyTest extends TestCase
 
         try {
             // Start all processes simultaneously
-            $this->info("Starting {$processCount} parallel processes...");
             foreach ($processes as $process) {
                 $process->start();
             }
@@ -177,8 +176,6 @@ class AtomicCounterConcurrencyTest extends TestCase
                 "Expected {$expectedFinalCount} but got {$finalCount}. ".
                 'This indicates a race condition in AtomicCounterService.'
             );
-
-            $this->info("✅ PASSED: All {$expectedFinalCount} increments were atomic!");
         } finally {
             $this->stopRunningProcesses($processes);
         }

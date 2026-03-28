@@ -8,17 +8,16 @@ use Modules\Payment\Models\ClientCreditLedger;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubClientCreditLedger::class)) {
-final class StubClientCreditLedger extends ClientCreditLedger
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubClientCreditLedger extends ClientCreditLedger
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class ClientCreditLedgerTest extends PureUnitTestCase
 {

@@ -38,10 +38,14 @@ class ConfigureGmailMailboxCommandTest extends PureUnitTestCase
         // that only mailbox:configure-gmail handles Gmail OAuth credentials.
         $command = new ConfigureGmailMailbox;
 
-        $this->assertStringContainsString('gmail', $command->getName(),
+        $this->assertStringContainsString(
+            'gmail',
+            $command->getName(),
             'Validation boundary: command name must identify the Gmail authorization scope'
         );
-        $this->assertStringContainsString('mailbox', $command->getName(),
+        $this->assertStringContainsString(
+            'mailbox',
+            $command->getName(),
             'Validation boundary: command must be namespaced under mailbox for routing authorization'
         );
     }

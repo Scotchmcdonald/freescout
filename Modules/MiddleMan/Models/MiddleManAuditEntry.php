@@ -7,6 +7,15 @@ namespace Modules\MiddleMan\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $action
+ * @property string|null $subject_type
+ * @property int|null $subject_id
+ * @property array<string, mixed>|null $details
+ * @property \Illuminate\Support\Carbon|null $created_at
+ */
 class MiddleManAuditEntry extends Model
 {
     public $timestamps = false;
@@ -24,7 +33,7 @@ class MiddleManAuditEntry extends Model
     protected function casts(): array
     {
         return [
-            'details'    => 'array',
+            'details' => 'array',
             'created_at' => 'datetime',
         ];
     }
@@ -35,16 +44,16 @@ class MiddleManAuditEntry extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const ACTION_RULE_CREATED       = 'rule_created';
-    public const ACTION_RULE_DELETED       = 'rule_deleted';
-    public const ACTION_LOGGING_TOGGLED    = 'logging_toggled';
-    public const ACTION_INTERCEPT_TOGGLED  = 'intercept_toggled';
-    public const ACTION_INTERCEPT_FIRED    = 'intercept_fired';
+    public const ACTION_RULE_CREATED = 'rule_created';
+    public const ACTION_RULE_DELETED = 'rule_deleted';
+    public const ACTION_LOGGING_TOGGLED = 'logging_toggled';
+    public const ACTION_INTERCEPT_TOGGLED = 'intercept_toggled';
+    public const ACTION_INTERCEPT_FIRED = 'intercept_fired';
     public const ACTION_INTERCEPT_DISCARDED = 'intercept_discarded';
-    public const ACTION_PAYLOAD_EDITED     = 'payload_edited';
-    public const ACTION_EVENT_MARSHALLED   = 'event_marshalled';
-    public const ACTION_BATCH_FIRED        = 'batch_fired';
-    public const ACTION_ORDER_CHANGED      = 'order_changed';
+    public const ACTION_PAYLOAD_EDITED = 'payload_edited';
+    public const ACTION_EVENT_MARSHALLED = 'event_marshalled';
+    public const ACTION_BATCH_FIRED = 'batch_fired';
+    public const ACTION_ORDER_CHANGED = 'order_changed';
 
     /*
     |--------------------------------------------------------------------------
@@ -52,6 +61,7 @@ class MiddleManAuditEntry extends Model
     |--------------------------------------------------------------------------
     */
 
+    /** @return BelongsTo<\App\Models\User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class);
@@ -63,14 +73,15 @@ class MiddleManAuditEntry extends Model
     |--------------------------------------------------------------------------
     */
 
-    public static function record(int $userId, string $action, ?string $subjectType = null, ?int $subjectId = null, ?array $details = null): static
+    /** @param array<string, mixed>|null $details */
+    public static function record(int $userId, string $action, ?string $subjectType = null, ?int $subjectId = null, ?array $details = null): self
     {
         return static::create([
-            'user_id'      => $userId,
-            'action'       => $action,
+            'user_id' => $userId,
+            'action' => $action,
             'subject_type' => $subjectType,
-            'subject_id'   => $subjectId,
-            'details'      => $details,
+            'subject_id' => $subjectId,
+            'details' => $details,
         ]);
     }
 }

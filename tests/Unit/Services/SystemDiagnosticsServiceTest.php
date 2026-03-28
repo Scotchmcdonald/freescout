@@ -37,7 +37,7 @@ final class SystemDiagnosticsServiceTest extends PureUnitTestCase
         parent::setUp();
 
         $this->connection = Mockery::mock(Connection::class);
-        $this->db         = Mockery::mock(DatabaseManager::class);
+        $this->db = Mockery::mock(DatabaseManager::class);
         $this->db->shouldReceive('connection')->andReturn($this->connection)->byDefault();
 
         $this->service = new SystemDiagnosticsService($this->db);

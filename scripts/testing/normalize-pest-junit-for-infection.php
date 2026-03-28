@@ -14,7 +14,6 @@ declare(strict_types=1);
  * which makes Infection's strict XPath assertion fail. This script rewrites JUnit
  * metadata into a deterministic form that Infection can consume.
  */
-
 if ($argc < 2) {
     fwrite(STDERR, "Usage: php scripts/testing/normalize-pest-junit-for-infection.php <junit-xml-path>\n");
     exit(2);
@@ -38,9 +37,6 @@ if (! $dom->load($junitPath, LIBXML_PARSEHUGE)) {
 
 $xpath = new DOMXPath($dom);
 
-/**
- * @param string $class
- */
 function normalize_namespace_separators(string $class): string
 {
     $trimmed = trim($class);

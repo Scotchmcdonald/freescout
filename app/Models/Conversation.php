@@ -478,8 +478,6 @@ class Conversation extends Model
 
     /**
      * Set a follow-up reminder for this conversation.
-     *
-     * @param  \Illuminate\Support\Carbon|string|null  $date
      */
     public function setFollowUp(\Illuminate\Support\Carbon|string|null $date = null): void
     {

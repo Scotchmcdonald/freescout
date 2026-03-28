@@ -150,7 +150,7 @@ test('widget metadata contracts are stable', function () {
 test('widgets enforce authorization by rendering only for appropriate roles', function () {
     // Authorization boundary: admin widget must return null for non-admin users,
     // enforcing role-based authorization at the render layer
-    $admin    = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $nonAdmin = User::factory()->create(['role' => User::ROLE_USER]);
 
     $adminWidget = new AdminDashboardWidget;

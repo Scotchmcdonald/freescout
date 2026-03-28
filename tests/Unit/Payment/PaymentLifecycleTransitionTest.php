@@ -138,13 +138,14 @@ class PaymentLifecycleTransitionTest extends PureUnitTestCase
         // Authorization boundary: only successful payments may be refunded;
         // failed payments must be refused at the refund authorization gate.
         $payment = $this->payment([
-            'status'          => 'failed',
-            'total_amount'    => '100.00',
+            'status' => 'failed',
+            'total_amount' => '100.00',
             'refunded_amount' => '0.00',
-            'dispute_status'  => null,
+            'dispute_status' => null,
         ]);
 
-        $this->assertFalse($payment->canBeRefunded(),
+        $this->assertFalse(
+            $payment->canBeRefunded(),
             'Authorization boundary: failed payments must not be eligible for refunds'
         );
     }

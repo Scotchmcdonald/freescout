@@ -17,13 +17,13 @@ use Illuminate\Support\Str;
  *
  * Usage: resolve from container (singleton) — never instantiate directly.
  */
-class MiddleManContext
+final class MiddleManContext
 {
     private string $correlationId;
     private ?string $causationId = null;
     private int $depth = 0;
 
-    /** @var list<string> Stack of causation IDs for nested dispatches */
+    /** @var list<string|null> Stack of causation IDs for nested dispatches */
     private array $causationStack = [];
 
     public function __construct()
@@ -115,8 +115,8 @@ class MiddleManContext
     {
         return [
             'correlation_id' => $this->correlationId,
-            'causation_id'   => $this->causationId,
-            'depth'          => $this->depth,
+            'causation_id' => $this->causationId,
+            'depth' => $this->depth,
         ];
     }
 

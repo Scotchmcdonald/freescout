@@ -133,7 +133,9 @@ class UserObserverTest extends TestCase
         // observer logic must be idempotent
         $admin->save();
 
-        $this->assertEquals($foldersBefore, Folder::where('user_id', $admin->id)->count(),
+        $this->assertEquals(
+            $foldersBefore,
+            Folder::where('user_id', $admin->id)->count(),
             'Observer must not create duplicate folders on update events'
         );
     }
@@ -146,7 +148,9 @@ class UserObserverTest extends TestCase
         // Regular users must not get personal admin folders — authorization boundary
         $folders = Folder::where('user_id', $regularUser->id)->count();
 
-        $this->assertEquals(0, $folders,
+        $this->assertEquals(
+            0,
+            $folders,
             'Non-admin users must not receive admin-authorization personal folders'
         );
     }

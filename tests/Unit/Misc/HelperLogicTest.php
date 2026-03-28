@@ -626,12 +626,14 @@ class HelperLogicTest extends PureUnitTestCase
         // critical PHP extensions being configured.
         $result = Helper::checkRequiredExtensions();
 
-        $this->assertIsArray($result,
+        $this->assertIsArray(
+            $result,
             'Validation boundary: extension check must return a validation result array'
         );
         // All extension checks must return boolean validation results — not unauthorized nulls
         foreach ($result as $ext => $loaded) {
-            $this->assertIsBool($loaded,
+            $this->assertIsBool(
+                $loaded,
                 "Extension '{$ext}' must return a boolean validation result, not an unauthorized null"
             );
         }

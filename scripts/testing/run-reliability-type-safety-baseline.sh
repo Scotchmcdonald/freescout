@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WIP_DIR="${ROOT_DIR}/docs/development/WIP/reliability-type-safety-uplift-2026-03-25"
 RUN_ID="${1:-$(date -u +%Y%m%dT%H%M%SZ)}"
 BASELINE_DIR="${WIP_DIR}/baseline-artifacts/${RUN_ID}"
+INFECTION_THREADS="${INFECTION_THREADS:-6}"
 
 mkdir -p "${BASELINE_DIR}" "${ROOT_DIR}/reports" "${ROOT_DIR}/storage/infection/coverage"
 
@@ -26,6 +27,7 @@ env XDEBUG_MODE=off php -d memory_limit=4G "${ROOT_DIR}/vendor/bin/infection" \
   --configuration="${ROOT_DIR}/infection.json5" \
   --coverage="${ROOT_DIR}/storage/infection/coverage" \
   --skip-initial-tests \
+  --threads="${INFECTION_THREADS}" \
   --logger-text="${ROOT_DIR}/reports/infection.log" \
   --logger-summary-json="${ROOT_DIR}/reports/infection-summary.json" \
   > "${ROOT_DIR}/reports/phase1-tier1-mutation-${RUN_ID}.log" 2>&1

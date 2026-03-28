@@ -19,7 +19,7 @@ use Modules\MiddleMan\Services\MiddleManContext;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 test('context initialises with a uuid correlation_id and null causation', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
 
     expect($context->correlationId())->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-/');
     expect($context->causationId())->toBeNull();
@@ -27,7 +27,7 @@ test('context initialises with a uuid correlation_id and null causation', functi
 });
 
 test('pushCausation sets causation_id and increments depth', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
 
     $context->pushCausation('event-aaa');
 
@@ -36,7 +36,7 @@ test('pushCausation sets causation_id and increments depth', function (): void {
 });
 
 test('nested pushCausation forms a LIFO stack', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
 
     $context->pushCausation('event-aaa');
     $context->pushCausation('event-bbb');
@@ -56,7 +56,7 @@ test('nested pushCausation forms a LIFO stack', function (): void {
 });
 
 test('popCausation on empty stack does not go below zero depth', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
 
     $context->popCausation();
     $context->popCausation();
@@ -66,7 +66,7 @@ test('popCausation on empty stack does not go below zero depth', function (): vo
 });
 
 test('setCorrelationId overrides the auto-generated uuid', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
     $customId = 'custom-correlation-id-123';
 
     $context->setCorrelationId($customId);
@@ -75,7 +75,7 @@ test('setCorrelationId overrides the auto-generated uuid', function (): void {
 });
 
 test('setCausationId sets causation without affecting stack', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
 
     $context->setCausationId('parent-event-xyz');
 
@@ -84,7 +84,7 @@ test('setCausationId sets causation without affecting stack', function (): void 
 });
 
 test('envelope returns tracing metadata array', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
     $context->setCorrelationId('corr-001');
     $context->pushCausation('cause-001');
 
@@ -92,13 +92,13 @@ test('envelope returns tracing metadata array', function (): void {
 
     expect($envelope)->toBe([
         'correlation_id' => 'corr-001',
-        'causation_id'   => 'cause-001',
-        'depth'          => 1,
+        'causation_id' => 'cause-001',
+        'depth' => 1,
     ]);
 });
 
 test('reset restores context to clean state', function (): void {
-    $context = new MiddleManContext();
+    $context = new MiddleManContext;
     $originalId = $context->correlationId();
 
     $context->setCorrelationId('temp');
@@ -120,32 +120,32 @@ test('reset restores context to clean state', function (): void {
 test('extractSchema maps payload keys to scalar type strings', function (): void {
     $payload = [
         'user_id' => 42,
-        'email'   => 'test@example.com',
-        'active'  => true,
-        'score'   => 3.14,
-        'tags'    => ['a', 'b'],
-        'meta'    => ['key' => 'value'],
+        'email' => 'test@example.com',
+        'active' => true,
+        'score' => 3.14,
+        'tags' => ['a', 'b'],
+        'meta' => ['key' => 'value'],
         'nothing' => null,
     ];
 
     $schema = \Modules\MiddleMan\Models\MiddleManSchema::extractSchema($payload);
 
     expect($schema)->toBe([
-        'active'  => 'boolean',
-        'email'   => 'string',
-        'meta'    => 'object',
+        'active' => 'boolean',
+        'email' => 'string',
+        'meta' => 'object',
         'nothing' => 'null',
-        'score'   => 'double',
-        'tags'    => 'array',
+        'score' => 'double',
+        'tags' => 'array',
         'user_id' => 'integer',
     ]);
 });
 
 test('extractSchema skips keys starting with underscore', function (): void {
     $payload = [
-        '_type'  => 'SomeClass',
-        '_id'    => 123,
-        'name'   => 'visible',
+        '_type' => 'SomeClass',
+        '_id' => 123,
+        'name' => 'visible',
     ];
 
     $schema = \Modules\MiddleMan\Models\MiddleManSchema::extractSchema($payload);
@@ -162,7 +162,7 @@ test('extractSchema returns sorted keys', function (): void {
 });
 
 test('detectDrift returns no drift when payload matches baseline', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill([
         'schema' => ['email' => 'string', 'user_id' => 'integer'],
     ]);
@@ -176,7 +176,7 @@ test('detectDrift returns no drift when payload matches baseline', function (): 
 });
 
 test('detectDrift detects added properties', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill([
         'schema' => ['email' => 'string'],
     ]);
@@ -189,7 +189,7 @@ test('detectDrift detects added properties', function (): void {
 });
 
 test('detectDrift detects removed properties', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill([
         'schema' => ['email' => 'string', 'phone' => 'string'],
     ]);
@@ -202,7 +202,7 @@ test('detectDrift detects removed properties', function (): void {
 });
 
 test('detectDrift detects type changes', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill([
         'schema' => ['user_id' => 'integer', 'email' => 'string'],
     ]);
@@ -217,14 +217,14 @@ test('detectDrift detects type changes', function (): void {
 });
 
 test('detectDrift handles simultaneous add, remove, and type change', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill([
         'schema' => ['name' => 'string', 'age' => 'integer', 'legacy' => 'boolean'],
     ]);
 
     $drift = $baselineModel->detectDrift([
-        'name'      => 'Alice',
-        'age'       => 'thirty',   // type change: integer → string
+        'name' => 'Alice',
+        'age' => 'thirty',   // type change: integer → string
         'new_field' => 42,         // added
         // 'legacy' removed
     ]);
@@ -236,7 +236,7 @@ test('detectDrift handles simultaneous add, remove, and type change', function (
 });
 
 test('detectDrift with empty baseline schema treats all keys as added', function (): void {
-    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $baselineModel = new \Modules\MiddleMan\Models\MiddleManSchema;
     $baselineModel->forceFill(['schema' => []]);
 
     $drift = $baselineModel->detectDrift(['a' => 1, 'b' => 'hello']);
@@ -295,7 +295,7 @@ test('serializer uses MiddleManLoggable interface when implemented', function ()
     $event = new StubLoggableEvent('test', 42);
 
     expect($event->toLogPayload())->toBe([
-        'custom_name'  => 'test',
+        'custom_name' => 'test',
         'custom_count' => 42,
     ]);
 });
@@ -318,7 +318,7 @@ test('sanitizeValue strips closures to placeholder string', function (): void {
 test('dispatcher without services falls through to parent dispatch', function (): void {
     // Without calling setMiddleManServices(), the ruleEngine property is unset.
     // The isset() checks should allow events to pass through to parent::dispatch().
-    $container = new \Illuminate\Container\Container();
+    $container = new \Illuminate\Container\Container;
     $dispatcher = new \Modules\MiddleMan\Services\MiddleManDispatcher($container);
 
     // String events (framework internal) should always pass through
@@ -329,7 +329,7 @@ test('dispatcher without services falls through to parent dispatch', function ()
 });
 
 test('dispatcher skips string events that are not class names', function (): void {
-    $container = new \Illuminate\Container\Container();
+    $container = new \Illuminate\Container\Container;
     $dispatcher = new \Modules\MiddleMan\Services\MiddleManDispatcher($container);
 
     // "eloquent.saving: App\Models\User" is not a class_exists() match
@@ -339,7 +339,7 @@ test('dispatcher skips string events that are not class names', function (): voi
 });
 
 test('dispatchBypassing sets and clears bypass flag correctly', function (): void {
-    $container = new \Illuminate\Container\Container();
+    $container = new \Illuminate\Container\Container;
     $dispatcher = new \Modules\MiddleMan\Services\MiddleManDispatcher($container);
 
     // Even with no services, dispatchBypassing should work without error
@@ -382,27 +382,27 @@ test('audit entry action constants are distinct', function (): void {
 });
 
 test('intercept model isPending returns true for pending status', function (): void {
-    $model = new \Modules\MiddleMan\Models\MiddleManIntercept();
+    $model = new \Modules\MiddleMan\Models\MiddleManIntercept;
     $model->setRawAttributes(['status' => 'pending']);
 
     expect($model->isPending())->toBeTrue();
 });
 
 test('intercept model isPending returns false for fired status', function (): void {
-    $model = new \Modules\MiddleMan\Models\MiddleManIntercept();
+    $model = new \Modules\MiddleMan\Models\MiddleManIntercept;
     $model->setRawAttributes(['status' => 'fired']);
 
     expect($model->isPending())->toBeFalse();
 });
 
 test('log model table name is middleman_logs', function (): void {
-    $model = new \Modules\MiddleMan\Models\MiddleManLog();
+    $model = new \Modules\MiddleMan\Models\MiddleManLog;
 
     expect($model->getTable())->toBe('middleman_logs');
 });
 
 test('schema model table name is middleman_schemas', function (): void {
-    $model = new \Modules\MiddleMan\Models\MiddleManSchema();
+    $model = new \Modules\MiddleMan\Models\MiddleManSchema;
 
     expect($model->getTable())->toBe('middleman_schemas');
 });

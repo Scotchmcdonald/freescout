@@ -22,7 +22,7 @@ use Throwable;
  *   - Handles model references that no longer exist (soft-deletes, purged data)
  *   - Validates constructor signatures against stored payload before attempting hydration
  */
-class ReplayEngine
+final class ReplayEngine
 {
     public function __construct(
         private readonly MiddleManContext $context,
@@ -39,10 +39,10 @@ class ReplayEngine
 
         if ($log === null) {
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => 'unknown',
-                'message'     => "Log entry [{$logId}] does not exist.",
-                'corrupted'   => false,
+                'message' => "Log entry [{$logId}] does not exist.",
+                'corrupted' => false,
             ];
         }
 
@@ -54,10 +54,10 @@ class ReplayEngine
             $this->flagCorrupted($log, "Event class [{$eventClass}] no longer exists in the codebase.");
 
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Event class [{$eventClass}] no longer exists. Record flagged as corrupted.",
-                'corrupted'   => true,
+                'message' => "Event class [{$eventClass}] no longer exists. Record flagged as corrupted.",
+                'corrupted' => true,
             ];
         }
 
@@ -67,10 +67,10 @@ class ReplayEngine
             $this->flagCorrupted($log, $compatibilityCheck);
 
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Schema mismatch: {$compatibilityCheck}",
-                'corrupted'   => true,
+                'message' => "Schema mismatch: {$compatibilityCheck}",
+                'corrupted' => true,
             ];
         }
 
@@ -81,10 +81,10 @@ class ReplayEngine
             $this->flagCorrupted($log, "Hydration failed: {$e->getMessage()}");
 
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Failed to rehydrate event: {$e->getMessage()}",
-                'corrupted'   => true,
+                'message' => "Failed to rehydrate event: {$e->getMessage()}",
+                'corrupted' => true,
             ];
         }
 
@@ -99,18 +99,18 @@ class ReplayEngine
             }
         } catch (Throwable $e) {
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Event hydrated but dispatch failed: {$e->getMessage()}",
-                'corrupted'   => false,
+                'message' => "Event hydrated but dispatch failed: {$e->getMessage()}",
+                'corrupted' => false,
             ];
         }
 
         return [
-            'success'     => true,
+            'success' => true,
             'event_class' => $eventClass,
-            'message'     => "Event [{$eventClass}] replayed successfully.",
-            'corrupted'   => false,
+            'message' => "Event [{$eventClass}] replayed successfully.",
+            'corrupted' => false,
         ];
     }
 
@@ -134,10 +134,10 @@ class ReplayEngine
             ]);
 
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Event class [{$eventClass}] no longer exists. Intercept flagged as corrupted.",
-                'corrupted'   => true,
+                'message' => "Event class [{$eventClass}] no longer exists. Intercept flagged as corrupted.",
+                'corrupted' => true,
             ];
         }
 
@@ -153,10 +153,10 @@ class ReplayEngine
             ]);
 
             return [
-                'success'     => false,
+                'success' => false,
                 'event_class' => $eventClass,
-                'message'     => "Hydration failed: {$e->getMessage()}",
-                'corrupted'   => true,
+                'message' => "Hydration failed: {$e->getMessage()}",
+                'corrupted' => true,
             ];
         }
 
@@ -169,10 +169,10 @@ class ReplayEngine
         }
 
         return [
-            'success'     => true,
+            'success' => true,
             'event_class' => $eventClass,
-            'message'     => "Intercepted event [{$eventClass}] dispatched successfully.",
-            'corrupted'   => false,
+            'message' => "Intercepted event [{$eventClass}] dispatched successfully.",
+            'corrupted' => false,
         ];
     }
 
@@ -192,9 +192,12 @@ class ReplayEngine
      *
      * All model references are resolved defensively — a missing model
      * returns null (or throws if the parameter is non-nullable).
+     *
+     * @param array<string, mixed> $payload
      */
     private function rehydrate(string $eventClass, array $payload): object
     {
+        /** @var class-string $eventClass */
         $ref = new ReflectionClass($eventClass);
         $constructor = $ref->getConstructor();
 
@@ -257,7 +260,7 @@ class ReplayEngine
                     }
 
                     throw new \RuntimeException(
-                        "Model [{$modelClass}] with ID [{$value['_id']}] no longer exists and parameter [{$param->getName()}] is non-nullable."
+                        "Model [{$modelClass}] with ID [" . (string) ($value['_id'] ?? '') . "] no longer exists and parameter [{$param->getName()}] is non-nullable." // @phpstan-ignore cast.string
                     );
                 }
 
@@ -273,13 +276,15 @@ class ReplayEngine
             // Backed enum coercion
             if (class_exists($typeName) && is_subclass_of($typeName, \BackedEnum::class)) {
                 try {
-                    return $typeName::from($value);
+                    /** @var int|string $enumValue */
+                    $enumValue = $value;
+                    return $typeName::from($enumValue);
                 } catch (Throwable) {
                     if ($param->allowsNull()) {
                         return null;
                     }
                     throw new \RuntimeException(
-                        "Cannot coerce value '{$value}' to enum [{$typeName}]."
+                        "Cannot coerce value '" . (is_scalar($value) ? (string) $value : gettype($value)) . "' to enum [{$typeName}]."
                     );
                 }
             }
@@ -297,10 +302,13 @@ class ReplayEngine
     /**
      * Pre-validate that the stored payload is compatible with the current constructor.
      * Returns null if compatible, or an error message if not.
+     *
+     * @param array<string, mixed> $payload
      */
     private function validateConstructorCompatibility(string $eventClass, array $payload): ?string
     {
         try {
+            /** @var class-string $eventClass */
             $ref = new ReflectionClass($eventClass);
             $constructor = $ref->getConstructor();
 
@@ -334,7 +342,7 @@ class ReplayEngine
 
             $log->update([
                 'has_schema_drift' => true,
-                'metadata'         => $metadata,
+                'metadata' => $metadata,
             ]);
         } catch (Throwable) {
             // Non-critical — absorb

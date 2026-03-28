@@ -175,10 +175,13 @@ final class GoogleLicenseDiscoveredDataTest extends PureUnitTestCase
             clientId: 5,
         );
 
-        $this->assertNotEmpty($dto->userEmail,
+        $this->assertNotEmpty(
+            $dto->userEmail,
             'Validation boundary: userEmail must be present as the authorization lookup key'
         );
-        $this->assertSame($dto->userEmail, $dto->toArray()['user_email'],
+        $this->assertSame(
+            $dto->userEmail,
+            $dto->toArray()['user_email'],
             'Validation boundary: user_email must be preserved in the serialized output'
         );
     }

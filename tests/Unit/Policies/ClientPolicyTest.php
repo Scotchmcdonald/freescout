@@ -44,10 +44,10 @@ class ClientPolicyTest extends PureUnitTestCase
     private function makeClient(int $id, ?int $companyId = null, bool $isActive = true): Client
     {
         // Client::isActive() simply checks $this->status === 'active', so no mock needed.
-        $client             = new Client;
-        $client->id         = $id;
+        $client = new Client;
+        $client->id = $id;
         $client->company_id = $companyId;
-        $client->status     = $isActive ? 'active' : 'archived';
+        $client->status = $isActive ? 'active' : 'archived';
 
         return $client;
     }

@@ -136,13 +136,14 @@ class AdvancedPolicyTest extends PureUnitTestCase
     {
         // Authorization validation: the UserPolicy must deny deletion of other
         // accounts when the acting user has no admin role
-        $actor  = $this->makeUser();
+        $actor = $this->makeUser();
         $target = $this->makeUser();
 
         $policy = new UserPolicy;
 
         // Non-admin acting on another account must be denied
-        $this->assertFalse($policy->delete($actor, $target),
+        $this->assertFalse(
+            $policy->delete($actor, $target),
             'Authorization must deny non-admin deletion of other user accounts'
         );
     }

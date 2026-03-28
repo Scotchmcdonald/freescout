@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Services;
 
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Cache\Factory as CacheFactory;
 
 /**
  * In-memory rule engine backed by Redis/cache.
@@ -14,21 +14,23 @@ use Illuminate\Support\Facades\Cache;
  *
  * All reads go to cache — never to the database during dispatch.
  */
-class RuleEngine
+final class RuleEngine
 {
     private string $cacheStore;
     private string $rulesKey;
     private string $loggingKey;
     private string $interceptKey;
     private string $mutedListenersKey;
+    private CacheFactory $cache;
 
-    public function __construct()
+    public function __construct(CacheFactory $cache)
     {
-        $this->cacheStore        = config('middleman.cache_store', 'redis');
-        $this->rulesKey          = config('middleman.cache_keys.rules', 'middleman:rules');
-        $this->loggingKey        = config('middleman.cache_keys.logging_active', 'middleman:logging_active');
-        $this->interceptKey      = config('middleman.cache_keys.intercept_active', 'middleman:intercept_active');
-        $this->mutedListenersKey = config('middleman.cache_keys.muted_listeners', 'middleman:muted_listeners');
+        $this->cache = $cache;
+        $this->cacheStore = (string) config('middleman.cache_store', 'redis'); // @phpstan-ignore cast.string
+        $this->rulesKey = (string) config('middleman.cache_keys.rules', 'middleman:rules'); // @phpstan-ignore cast.string
+        $this->loggingKey = (string) config('middleman.cache_keys.logging_active', 'middleman:logging_active'); // @phpstan-ignore cast.string
+        $this->interceptKey = (string) config('middleman.cache_keys.intercept_active', 'middleman:intercept_active'); // @phpstan-ignore cast.string
+        $this->mutedListenersKey = (string) config('middleman.cache_keys.muted_listeners', 'middleman:muted_listeners'); // @phpstan-ignore cast.string
     }
 
     /*
@@ -68,16 +70,20 @@ class RuleEngine
      */
     public function getRules(): array
     {
-        return $this->store()->get($this->rulesKey, [
-            'log'       => [],
+        /** @var array{log: string[], intercept: string[]} $rules */
+        $rules = $this->store()->get($this->rulesKey, [
+            'log' => [],
             'intercept' => [],
         ]);
+
+        return $rules;
     }
 
+    /** @param array{log?: string[], intercept?: string[]} $rules */
     public function setRules(array $rules): void
     {
         $this->store()->forever($this->rulesKey, [
-            'log'       => array_values(array_unique($rules['log'] ?? [])),
+            'log' => array_values(array_unique($rules['log'] ?? [])),
             'intercept' => array_values(array_unique($rules['intercept'] ?? [])),
         ]);
     }
@@ -129,9 +135,13 @@ class RuleEngine
      */
     public function getMutedListeners(): array
     {
-        return $this->store()->get($this->mutedListenersKey, []);
+        /** @var string[] $listeners */
+        $listeners = $this->store()->get($this->mutedListenersKey, []);
+
+        return $listeners;
     }
 
+    /** @param string[] $listeners */
     public function setMutedListeners(array $listeners): void
     {
         $this->store()->forever(
@@ -191,6 +201,7 @@ class RuleEngine
         return $this->matchesAny($eventClass, $this->getRules()['intercept'] ?? []);
     }
 
+    /** @param string[] $patterns */
     private function matchesAny(string $eventClass, array $patterns): bool
     {
         foreach ($patterns as $pattern) {
@@ -214,6 +225,6 @@ class RuleEngine
 
     private function store(): \Illuminate\Contracts\Cache\Repository
     {
-        return Cache::store($this->cacheStore);
+        return $this->cache->store($this->cacheStore);
     }
 }

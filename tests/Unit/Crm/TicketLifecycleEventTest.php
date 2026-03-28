@@ -8,23 +8,22 @@ use Modules\Crm\Models\TicketLifecycleEvent;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubTicketLifecycleEvent::class)) {
-final class StubTicketLifecycleEvent extends TicketLifecycleEvent
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubTicketLifecycleEvent extends TicketLifecycleEvent
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class TicketLifecycleEventTest extends PureUnitTestCase
 {
     private function event(string $type, ?int $timeSinceOpen = null): StubTicketLifecycleEvent
     {
-        $e = new StubTicketLifecycleEvent();
+        $e = new StubTicketLifecycleEvent;
         $attrs = ['event_type' => $type];
         if ($timeSinceOpen !== null) {
             $attrs['time_since_open_minutes'] = $timeSinceOpen;
@@ -117,7 +116,7 @@ final class TicketLifecycleEventTest extends PureUnitTestCase
 
     public function test_formatted_time_returns_null_when_not_set(): void
     {
-        $e = new StubTicketLifecycleEvent();
+        $e = new StubTicketLifecycleEvent;
         $e->setRawAttributes(['event_type' => 'opened']);
         $this->assertNull($e->formatted_time_since_open);
     }
@@ -159,7 +158,8 @@ final class TicketLifecycleEventTest extends PureUnitTestCase
         $unauthorized = ['opened', 'closed', 'reopened', 'status_changed'];
 
         foreach ($unauthorized as $type) {
-            $this->assertFalse($this->event($type)->isAssignmentEvent(),
+            $this->assertFalse(
+                $this->event($type)->isAssignmentEvent(),
                 "Event type '{$type}' must not pass the authorization check for assignment events"
             );
         }
@@ -172,7 +172,8 @@ final class TicketLifecycleEventTest extends PureUnitTestCase
         $unauthorized = ['assigned', 'unassigned'];
 
         foreach ($unauthorized as $type) {
-            $this->assertFalse($this->event($type)->isStatusChangeEvent(),
+            $this->assertFalse(
+                $this->event($type)->isStatusChangeEvent(),
                 "Event type '{$type}' must be forbidden from passing the status-change authorization gate"
             );
         }

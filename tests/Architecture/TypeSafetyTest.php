@@ -9,7 +9,6 @@ declare(strict_types=1);
  * Complements the broader 'strict types' rules in ArchTest.php with
  * per-layer coverage to catch drift in specific high-risk namespaces.
  */
-
 arch('models have strict types')
     ->expect('App\Models')
     ->toUseStrictTypes()

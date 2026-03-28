@@ -23,7 +23,7 @@ class ReplayController extends Controller
 
         if ($result['success']) {
             MiddleManAuditEntry::record(
-                $request->user()->id,
+                (int) $request->user()?->id,
                 'event_replayed',
                 'middleman_log',
                 $logId,
@@ -106,7 +106,7 @@ class ReplayController extends Controller
         }
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'sequence_replayed',
             null,
             null,

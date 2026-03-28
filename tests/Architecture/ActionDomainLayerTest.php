@@ -16,7 +16,6 @@ declare(strict_types=1);
  *  6. DTOs are classes (not interfaces/traits)
  *  7. Notifications extend Illuminate\Notifications\Notification
  */
-
 test('action classes have Action suffix')
     ->expect('App\Actions')
     ->toHaveSuffix('Action');

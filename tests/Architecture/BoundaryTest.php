@@ -9,7 +9,6 @@ declare(strict_types=1);
  * service layer directly into the database, and that module boundaries are
  * respected by not allowing direct cross-module controller imports.
  */
-
 arch('controllers do not use raw SQL or DB::statement for mutations')
     ->expect('App\Http\Controllers')
     ->not->toUse('Illuminate\Support\Facades\DB');

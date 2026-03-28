@@ -206,7 +206,8 @@ class UserPermissionLogicTest extends PureUnitTestCase
         // unauthorized — hasPermission must return false, not silently allow.
         $user = new User(['role' => User::ROLE_USER]);
 
-        $this->assertFalse($user->hasPermission(User::PERM_EDIT_USERS),
+        $this->assertFalse(
+            $user->hasPermission(User::PERM_EDIT_USERS),
             'Unauthorized user must not pass the permission authorization check'
         );
     }
@@ -217,7 +218,8 @@ class UserPermissionLogicTest extends PureUnitTestCase
         // This is by design but must be explicitly validated as a boundary case.
         $user = new User(['role' => User::ROLE_ADMIN]);
 
-        $this->assertTrue($user->hasPermission(User::PERM_EDIT_USERS),
+        $this->assertTrue(
+            $user->hasPermission(User::PERM_EDIT_USERS),
             'Admin authorization must grant all permission checks without explicit assignment'
         );
     }
@@ -230,7 +232,8 @@ class UserPermissionLogicTest extends PureUnitTestCase
 
         $user = new User(['role' => User::ROLE_USER]);
 
-        $this->assertFalse($user->hasPermission(User::PERM_EDIT_USERS),
+        $this->assertFalse(
+            $user->hasPermission(User::PERM_EDIT_USERS),
             'User must be forbidden when permission is absent from the authorization config'
         );
     }

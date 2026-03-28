@@ -10,14 +10,16 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubMilestoneForStatus::class)) {
-final class StubMilestoneForStatus extends Milestone
-{
-    protected static function booted(): void {}
+    final class StubMilestoneForStatus extends Milestone
+    {
+        protected static function booted(): void {}
 
-    public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -25,7 +27,7 @@ final class MilestoneStatusTest extends PureUnitTestCase
 {
     private function milestone(string $status, ?string $targetDate = null): StubMilestoneForStatus
     {
-        $m = new StubMilestoneForStatus();
+        $m = new StubMilestoneForStatus;
         $attrs = ['status' => $status];
         if ($targetDate !== null) {
             $attrs['target_date'] = $targetDate;

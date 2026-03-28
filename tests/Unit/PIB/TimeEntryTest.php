@@ -8,17 +8,16 @@ use Modules\PIB\Models\TimeEntry;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubTimeEntry::class)) {
-final class StubTimeEntry extends TimeEntry
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubTimeEntry extends TimeEntry
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class TimeEntryTest extends PureUnitTestCase
 {
@@ -32,7 +31,7 @@ final class TimeEntryTest extends PureUnitTestCase
             $attrs['service_usage_id'] = $serviceUsageId;
         }
 
-        $e = new StubTimeEntry();
+        $e = new StubTimeEntry;
         $e->setRawAttributes($attrs);
 
         return $e;

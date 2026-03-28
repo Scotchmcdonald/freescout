@@ -257,7 +257,6 @@ class HelcimServiceTest extends IntegrationTestCase
         return new HelcimService($rateLimiter, $circuitBreaker);
     }
 
-
     private function readProperty(object $target, string $property): mixed
     {
         $reflection = new \ReflectionProperty($target, $property);

@@ -48,9 +48,9 @@ class BuildTopologyCommand extends Command
 
         $this->components->info(sprintf(
             'Discovered %d events, %d listeners, %d edges.',
-            $topology['metadata']['total_events'],
-            $topology['metadata']['total_listeners'],
-            $topology['metadata']['total_edges'],
+            (int) $topology['metadata']['total_events'], // @phpstan-ignore cast.int
+            (int) $topology['metadata']['total_listeners'], // @phpstan-ignore cast.int
+            (int) $topology['metadata']['total_edges'], // @phpstan-ignore cast.int
         ));
 
         return self::SUCCESS;

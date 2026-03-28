@@ -9,17 +9,16 @@ use Modules\ContractManager\Models\BillingTemplate;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubBillingTemplate::class)) {
-final class StubBillingTemplate extends BillingTemplate
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubBillingTemplate extends BillingTemplate
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class BillingTemplatePredicatesTest extends PureUnitTestCase
 {
@@ -146,11 +145,12 @@ final class BillingTemplatePredicatesTest extends PureUnitTestCase
         // due for invoice generation — termination is an authorization revocation.
         $bt = new StubBillingTemplate;
         $bt->setRawAttributes([
-            'status'            => 'terminated',
+            'status' => 'terminated',
             'next_invoice_date' => Carbon::now()->subDay()->toDateString(),
         ]);
 
-        $this->assertFalse($bt->isDue(),
+        $this->assertFalse(
+            $bt->isDue(),
             'Validation boundary: terminated templates must not be due for billing'
         );
     }

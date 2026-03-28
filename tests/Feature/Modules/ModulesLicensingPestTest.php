@@ -99,7 +99,7 @@ test('unauthorized guest cannot activate or deactivate license', function () {
     // from license management endpoints — must not return 200.
     $this->postJson(route('modules.ajax'), [
         'action' => 'activate_license',
-        'alias'   => 'some-module',
+        'alias' => 'some-module',
         'license' => 'xxx',
     ])->assertUnauthorized();
 });

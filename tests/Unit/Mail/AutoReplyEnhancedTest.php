@@ -335,7 +335,9 @@ class AutoReplyEnhancedTest extends PureUnitTestCase
 
         $envelope = (new AutoReply($conversation, $mailbox))->envelope();
 
-        $this->assertStringContainsString('Urgent Help Request', $envelope->subject,
+        $this->assertStringContainsString(
+            'Urgent Help Request',
+            $envelope->subject,
             'Validation boundary: auto-reply subject must contain the original conversation subject'
         );
     }

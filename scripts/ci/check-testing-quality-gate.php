@@ -15,98 +15,97 @@ declare(strict_types=1);
  * Writes report to reports/testing-quality-gate-latest.md.
  * Exits non-zero if any mandatory check fails.
  */
-
-const DEFAULT_MIN_COVERAGE     = 70.0;
-const DEFAULT_MIN_MSI          = 70.0;
-const DEFAULT_MIN_BOUNDARY     = 50;
-const DEFAULT_MIN_ARCH_FILES   = 3;
+const DEFAULT_MIN_COVERAGE = 70.0;
+const DEFAULT_MIN_MSI = 70.0;
+const DEFAULT_MIN_BOUNDARY = 50;
+const DEFAULT_MIN_ARCH_FILES = 3;
 const DEFAULT_MIN_TYPE_COVERAGE = 100.0;
 
-$root        = dirname(__DIR__, 2);
-$reportsDir  = $root . '/reports';
-$reportFile  = $reportsDir . '/testing-quality-gate-latest.md';
+$root = dirname(__DIR__, 2);
+$reportsDir = $root.'/reports';
+$reportFile = $reportsDir.'/testing-quality-gate-latest.md';
 
 // ── Inputs ─────────────────────────────────────────────────────────────────
-$minCoverage   = envFloat('TEST_MIN_COVERAGE',           DEFAULT_MIN_COVERAGE);
-$minMsi        = envFloat('TEST_MIN_MSI',                DEFAULT_MIN_MSI);
-$minBoundary   = envInt('TEST_MIN_BOUNDARY_MATCHES',     DEFAULT_MIN_BOUNDARY);
-$minArchFiles  = envInt('TEST_MIN_ARCH_FILES',           DEFAULT_MIN_ARCH_FILES);
-$minTypeCov    = envFloat('TEST_MIN_TYPE_COVERAGE',      DEFAULT_MIN_TYPE_COVERAGE);
+$minCoverage = envFloat('TEST_MIN_COVERAGE', DEFAULT_MIN_COVERAGE);
+$minMsi = envFloat('TEST_MIN_MSI', DEFAULT_MIN_MSI);
+$minBoundary = envInt('TEST_MIN_BOUNDARY_MATCHES', DEFAULT_MIN_BOUNDARY);
+$minArchFiles = envInt('TEST_MIN_ARCH_FILES', DEFAULT_MIN_ARCH_FILES);
+$minTypeCov = envFloat('TEST_MIN_TYPE_COVERAGE', DEFAULT_MIN_TYPE_COVERAGE);
 
 // Optional timing context: env vars first, then JSON side-channel fallback
 $phaseTimes = loadPhaseTimes($reportsDir);
 
 // ── Metric Collection ──────────────────────────────────────────────────────
-$coverage  = parseCoverage($reportsDir);
-$msi       = parseMsi($reportsDir);
-$boundary  = boundaryInventory($root . '/tests');
-$arch      = archInventory($root . '/tests/Architecture');
+$coverage = parseCoverage($reportsDir);
+$msi = parseMsi($reportsDir);
+$boundary = boundaryInventory($root.'/tests');
+$arch = archInventory($root.'/tests/Architecture');
 $archSuite = parseArchSuite($reportsDir);
-$typeCov   = parseTypeCoverage($reportsDir);
+$typeCov = parseTypeCoverage($reportsDir);
 
 // ── Gate Checks ────────────────────────────────────────────────────────────
 $checks = [
     [
-        'name'     => 'Line coverage',
-        'actual'   => $coverage['value'],
-        'minimum'  => $minCoverage,
-        'unit'     => '%',
+        'name' => 'Line coverage',
+        'actual' => $coverage['value'],
+        'minimum' => $minCoverage,
+        'unit' => '%',
         'optional' => true,   // slow-CI gate — warn when no artifact, fail only if artifact exists but is below threshold
-        'status'   => $coverage['value'] === null || $coverage['value'] >= $minCoverage,
-        'detail'   => $coverage['value'] === null
+        'status' => $coverage['value'] === null || $coverage['value'] >= $minCoverage,
+        'detail' => $coverage['value'] === null
             ? 'No artifact — run: bash scripts/ci/test-with-coverage-and-mutation.sh'
-            : 'source: ' . $coverage['source'],
+            : 'source: '.$coverage['source'],
     ],
     [
-        'name'     => 'Mutation MSI',
-        'actual'   => $msi['value'],
-        'minimum'  => $minMsi,
-        'unit'     => '%',
+        'name' => 'Mutation MSI',
+        'actual' => $msi['value'],
+        'minimum' => $minMsi,
+        'unit' => '%',
         'optional' => true,   // slow-CI gate — warn when no artifact, fail only if artifact exists but is below threshold
-        'status'   => $msi['value'] === null || $msi['value'] >= $minMsi,
-        'detail'   => $msi['value'] === null
+        'status' => $msi['value'] === null || $msi['value'] >= $minMsi,
+        'detail' => $msi['value'] === null
             ? 'No artifact — run: bash scripts/ci/check-mutation-tier2.sh'
-            : 'source: ' . $msi['source'],
+            : 'source: '.$msi['source'],
     ],
     [
-        'name'    => 'Boundary inventory',
-        'actual'  => (float) $boundary['matches'],
+        'name' => 'Boundary inventory',
+        'actual' => (float) $boundary['matches'],
         'minimum' => (float) $minBoundary,
-        'unit'    => ' hits',
+        'unit' => ' hits',
         'optional' => false,
-        'status'  => $boundary['matches'] >= $minBoundary,
-        'detail'  => 'validation/auth/throttle keywords across ' . $boundary['files'] . ' test files',
+        'status' => $boundary['matches'] >= $minBoundary,
+        'detail' => 'validation/auth/throttle keywords across '.$boundary['files'].' test files',
     ],
     [
-        'name'    => 'Architecture test files',
-        'actual'  => (float) $arch['files'],
+        'name' => 'Architecture test files',
+        'actual' => (float) $arch['files'],
         'minimum' => (float) $minArchFiles,
-        'unit'    => ' files',
+        'unit' => ' files',
         'optional' => false,
-        'status'  => $arch['files'] >= $minArchFiles,
-        'detail'  => 'PHP arch-test files in tests/Architecture/',
+        'status' => $arch['files'] >= $minArchFiles,
+        'detail' => 'PHP arch-test files in tests/Architecture/',
     ],
     [
-        'name'     => 'Architecture suite pass',
-        'actual'   => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
-        'minimum'  => 1.0,
-        'unit'     => ' (1=pass)',
+        'name' => 'Architecture suite pass',
+        'actual' => $archSuite['passed'] === null ? null : ($archSuite['passed'] ? 1.0 : 0.0),
+        'minimum' => 1.0,
+        'unit' => ' (1=pass)',
         'optional' => false,
-        'status'   => $archSuite['passed'] === true,
-        'detail'   => $archSuite['passed'] === null
+        'status' => $archSuite['passed'] === true,
+        'detail' => $archSuite['passed'] === null
             ? 'No arch artifact. Run: bash scripts/ci/check-arch-suite.sh'
-            : 'source: ' . $archSuite['source'],
+            : 'source: '.$archSuite['source'],
     ],
     [
-        'name'     => 'Type declaration coverage',
-        'actual'   => $typeCov['value'],
-        'minimum'  => $minTypeCov,
-        'unit'     => '%',
+        'name' => 'Type declaration coverage',
+        'actual' => $typeCov['value'],
+        'minimum' => $minTypeCov,
+        'unit' => '%',
         'optional' => true,   // optional gate — warn when no artifact
-        'status'   => $typeCov['value'] === null || $typeCov['value'] >= $minTypeCov,
-        'detail'   => $typeCov['value'] === null
+        'status' => $typeCov['value'] === null || $typeCov['value'] >= $minTypeCov,
+        'detail' => $typeCov['value'] === null
             ? 'No artifact — run: bash scripts/ci/check-type-coverage.sh'
-            : 'source: ' . $typeCov['source'],
+            : 'source: '.$typeCov['source'],
     ],
 ];
 
@@ -123,12 +122,12 @@ if (! is_dir($reportsDir)) {
     mkdir($reportsDir, 0775, true);
 }
 
-$now   = date('c');
+$now = date('c');
 $lines = [];
 
 $lines[] = '# Testing Quality Gate';
 $lines[] = '';
-$lines[] = '> Generated: ' . $now;
+$lines[] = '> Generated: '.$now;
 $lines[] = '';
 $lines[] = '## KPI Checks';
 $lines[] = '';
@@ -136,8 +135,8 @@ $lines[] = '| Check | Actual | Minimum | Status | Notes |';
 $lines[] = '| :--- | ---: | ---: | :---: | :--- |';
 
 foreach ($checks as $c) {
-    $actual  = $c['actual'] === null ? 'n/a' : number_format($c['actual'], 2) . $c['unit'];
-    $minimum = number_format($c['minimum'], 2) . $c['unit'];
+    $actual = $c['actual'] === null ? 'n/a' : number_format($c['actual'], 2).$c['unit'];
+    $minimum = number_format($c['minimum'], 2).$c['unit'];
     if ($c['actual'] === null && ($c['optional'] ?? false)) {
         $status = '⚠️ WARN';
     } else {
@@ -159,8 +158,8 @@ foreach ($phaseTimes as $phase => $elapsed) {
         $lines[] = sprintf('| %s | n/a | %ds | — |', $phase, $budgets[$phase]);
         continue;
     }
-    $ok      = $elapsed <= $budgets[$phase];
-    $status  = $ok ? '✅' : '⚠️ over budget';
+    $ok = $elapsed <= $budgets[$phase];
+    $status = $ok ? '✅' : '⚠️ over budget';
     $lines[] = sprintf('| %s | %.1f | %ds | %s |', $phase, $elapsed, $budgets[$phase], $status);
 }
 
@@ -168,10 +167,10 @@ foreach ($phaseTimes as $phase => $elapsed) {
 $lines[] = '';
 $lines[] = '## Architecture Test Inventory';
 $lines[] = '';
-$lines[] = 'Files in `tests/Architecture/`: **' . $arch['files'] . '**';
+$lines[] = 'Files in `tests/Architecture/`: **'.$arch['files'].'**';
 $lines[] = '';
 foreach ($arch['list'] as $f) {
-    $lines[] = '- ' . $f;
+    $lines[] = '- '.$f;
 }
 
 // ── Boundary section ───────────────────────────────────────────────────────
@@ -195,7 +194,7 @@ $report = implode(PHP_EOL, $lines);
 file_put_contents($reportFile, $report);
 
 echo $report;
-echo PHP_EOL . 'Report saved to: reports/testing-quality-gate-latest.md' . PHP_EOL;
+echo PHP_EOL.'Report saved to: reports/testing-quality-gate-latest.md'.PHP_EOL;
 
 // ── JSONL trend tracking ───────────────────────────────────────────────────
 appendTrendEntry($reportsDir, $checks, $allPass);
@@ -213,6 +212,7 @@ exit(0);
 function envFloat(string $key, float $default): float
 {
     $v = getenv($key);
+
     return ($v !== false && trim($v) !== '') ? (float) $v : $default;
 }
 
@@ -224,7 +224,7 @@ function envFloat(string $key, float $default): float
 function loadPhaseTimes(string $reportsDir): array
 {
     $fromEnv = [
-        'tests'    => envFloat('TIMING_TESTS_S',    0.0),
+        'tests' => envFloat('TIMING_TESTS_S', 0.0),
         'coverage' => envFloat('TIMING_COVERAGE_S', 0.0),
         'mutation' => envFloat('TIMING_MUTATION_S', 0.0),
     ];
@@ -234,7 +234,7 @@ function loadPhaseTimes(string $reportsDir): array
         return $fromEnv;
     }
 
-    $sideChannel = $reportsDir . '/ci-timing-latest.json';
+    $sideChannel = $reportsDir.'/ci-timing-latest.json';
     if (! is_file($sideChannel)) {
         return $fromEnv;
     }
@@ -245,7 +245,7 @@ function loadPhaseTimes(string $reportsDir): array
     }
 
     return [
-        'tests'    => isset($data['tests_s'])    ? (float) $data['tests_s']    : 0.0,
+        'tests' => isset($data['tests_s']) ? (float) $data['tests_s'] : 0.0,
         'coverage' => isset($data['coverage_s']) ? (float) $data['coverage_s'] : 0.0,
         'mutation' => isset($data['mutation_s']) ? (float) $data['mutation_s'] : 0.0,
     ];
@@ -254,33 +254,34 @@ function loadPhaseTimes(string $reportsDir): array
 /**
  * Append a single JSONL entry to the quality-gate history file for trend tracking.
  *
- * @param list<array{name:string,actual:float|null,minimum:float,status:bool}> $checks
+ * @param  list<array{name:string,actual:float|null,minimum:float,status:bool}>  $checks
  */
 function appendTrendEntry(string $reportsDir, array $checks, bool $allPass): void
 {
-    $historyFile = $reportsDir . '/quality-gate-history.jsonl';
+    $historyFile = $reportsDir.'/quality-gate-history.jsonl';
 
     $entry = [
-        'ts'      => date('c'),
-        'pass'    => $allPass,
-        'checks'  => [],
+        'ts' => date('c'),
+        'pass' => $allPass,
+        'checks' => [],
     ];
 
     foreach ($checks as $c) {
         $entry['checks'][] = [
-            'name'   => $c['name'],
+            'name' => $c['name'],
             'actual' => $c['actual'],
-            'min'    => $c['minimum'],
-            'pass'   => $c['status'],
+            'min' => $c['minimum'],
+            'pass' => $c['status'],
         ];
     }
 
-    file_put_contents($historyFile, json_encode($entry) . PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($historyFile, json_encode($entry).PHP_EOL, FILE_APPEND | LOCK_EX);
 }
 
 function envInt(string $key, int $default): int
 {
     $v = getenv($key);
+
     return ($v !== false && trim($v) !== '') ? (int) $v : $default;
 }
 
@@ -291,7 +292,7 @@ function parseCoverage(string $reportsDir): array
 {
     // 1. JSON from Pest/PHPUnit Coverage HTML summary
     foreach (['coverage-summary.json', 'clover.json'] as $f) {
-        $path = $reportsDir . '/' . $f;
+        $path = $reportsDir.'/'.$f;
         if (! is_file($path)) {
             continue;
         }
@@ -306,7 +307,7 @@ function parseCoverage(string $reportsDir): array
     }
 
     // 2. Plain text coverage report
-    $path = $reportsDir . '/coverage-final.txt';
+    $path = $reportsDir.'/coverage-final.txt';
     if (is_file($path)) {
         $content = (string) file_get_contents($path);
         if (preg_match('/Lines:\s*([0-9]+(?:\.[0-9]+)?)%/', $content, $m)) {
@@ -315,14 +316,14 @@ function parseCoverage(string $reportsDir): array
     }
 
     // 3. Clover XML
-    $path = $reportsDir . '/clover.xml';
+    $path = $reportsDir.'/clover.xml';
     if (is_file($path)) {
         $xml = @simplexml_load_file($path);
         if ($xml !== false) {
             $metrics = $xml->project->metrics;
             if ($metrics !== null) {
-                $stmts    = (int) $metrics['statements'];
-                $covered  = (int) $metrics['coveredstatements'];
+                $stmts = (int) $metrics['statements'];
+                $covered = (int) $metrics['coveredstatements'];
                 if ($stmts > 0) {
                     return ['value' => round($covered / $stmts * 100, 2), 'source' => 'clover.xml'];
                 }
@@ -340,7 +341,7 @@ function parseMsi(string $reportsDir): array
 {
     // 1. Preferred: JSON summary files written by Infection
     foreach (['infection-extended-summary.json', 'infection-summary.json'] as $f) {
-        $path = $reportsDir . '/' . $f;
+        $path = $reportsDir.'/'.$f;
         if (! is_file($path)) {
             continue;
         }
@@ -352,7 +353,7 @@ function parseMsi(string $reportsDir): array
 
     // 2. Fallback: text log
     foreach (['infection-extended-summary.log', 'infection-summary.log', 'infection.log'] as $f) {
-        $path = $reportsDir . '/' . $f;
+        $path = $reportsDir.'/'.$f;
         if (! is_file($path)) {
             continue;
         }
@@ -374,12 +375,12 @@ function boundaryInventory(string $testsDir): array
         return ['files' => 0, 'matches' => 0, 'namespaces' => []];
     }
 
-    $pattern   = '/\b(validation|authorize|authorization|throttle|rate\s*limit|rate[_-]?limiter|403|422|429)\b/i';
+    $pattern = '/\b(validation|authorize|authorization|throttle|rate\s*limit|rate[_-]?limiter|403|422|429)\b/i';
     $totalFiles = 0;
-    $totalHits  = 0;
+    $totalHits = 0;
 
     // Top-level sub-dirs == namespaces for grouping
-    $nsBuckets  = [];
+    $nsBuckets = [];
 
     $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($testsDir));
     /** @var SplFileInfo $file */
@@ -390,13 +391,13 @@ function boundaryInventory(string $testsDir): array
 
         $totalFiles++;
         $content = (string) file_get_contents($file->getPathname());
-        $hits    = preg_match_all($pattern, $content, $m) ?: 0;
+        $hits = preg_match_all($pattern, $content, $m) ?: 0;
         $totalHits += $hits;
 
         // Determine namespace bucket from path relative to $testsDir
-        $rel   = ltrim(str_replace($testsDir, '', $file->getPathname()), '/');
+        $rel = ltrim(str_replace($testsDir, '', $file->getPathname()), '/');
         $parts = explode('/', $rel);
-        $ns    = count($parts) > 1 ? $parts[0] : 'root';
+        $ns = count($parts) > 1 ? $parts[0] : 'root';
 
         if (! isset($nsBuckets[$ns])) {
             $nsBuckets[$ns] = ['files' => 0, 'hits' => 0];
@@ -406,7 +407,7 @@ function boundaryInventory(string $testsDir): array
     }
 
     // Sort by hits descending
-    uasort($nsBuckets, fn($a, $b) => $b['hits'] <=> $a['hits']);
+    uasort($nsBuckets, fn ($a, $b) => $b['hits'] <=> $a['hits']);
 
     return ['files' => $totalFiles, 'matches' => $totalHits, 'namespaces' => $nsBuckets];
 }
@@ -421,7 +422,7 @@ function archInventory(string $archDir): array
     }
 
     $list = [];
-    $rii  = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($archDir));
+    $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($archDir));
     foreach ($rii as $file) {
         if ($file->isFile() && $file->getExtension() === 'php') {
             $list[] = basename($file->getPathname());
@@ -439,7 +440,7 @@ function archInventory(string $archDir): array
  */
 function parseArchSuite(string $reportsDir): array
 {
-    $path = $reportsDir . '/arch-suite-latest.json';
+    $path = $reportsDir.'/arch-suite-latest.json';
 
     if (! is_file($path)) {
         return ['passed' => null, 'source' => 'none'];
@@ -461,7 +462,7 @@ function parseArchSuite(string $reportsDir): array
  */
 function parseTypeCoverage(string $reportsDir): array
 {
-    $path = $reportsDir . '/type-coverage-summary.json';
+    $path = $reportsDir.'/type-coverage-summary.json';
 
     if (! is_file($path)) {
         return ['value' => null, 'source' => 'none'];

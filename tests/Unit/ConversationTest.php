@@ -10,14 +10,16 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubConversation::class)) {
-final class StubConversation extends Conversation
-{
-    protected static function booted(): void {}
+    final class StubConversation extends Conversation
+    {
+        protected static function booted(): void {}
 
-    public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -25,7 +27,7 @@ final class ConversationTest extends PureUnitTestCase
 {
     private function conv(array $rawAttrs): StubConversation
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes($rawAttrs);
 
         return $c;
@@ -111,7 +113,7 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_get_cc_array_returns_cast_array(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->forceFill(['cc' => ['a@x.com', 'b@x.com']]);
         $this->assertSame(['a@x.com', 'b@x.com'], $c->getCcArray());
     }
@@ -120,7 +122,7 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_has_follow_up_scheduled_when_date_is_set(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes(['follow_up_date' => now()->addDay()->format('Y-m-d H:i:s')]);
         $this->assertTrue($c->hasFollowUpScheduled());
     }
@@ -132,7 +134,7 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_has_follow_up_been_reminded_when_reminded_at_is_set(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes(['follow_up_reminded_at' => now()->subHour()->format('Y-m-d H:i:s')]);
         $this->assertTrue($c->hasFollowUpBeenReminded());
     }
@@ -144,9 +146,9 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_is_follow_up_overdue_when_past_and_not_reminded(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes([
-            'follow_up_date'        => now()->subDays(2)->format('Y-m-d H:i:s'),
+            'follow_up_date' => now()->subDays(2)->format('Y-m-d H:i:s'),
             'follow_up_reminded_at' => null,
         ]);
         $this->assertTrue($c->isFollowUpOverdue());
@@ -154,9 +156,9 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_is_not_overdue_when_reminded_already(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes([
-            'follow_up_date'        => now()->subDays(2)->format('Y-m-d H:i:s'),
+            'follow_up_date' => now()->subDays(2)->format('Y-m-d H:i:s'),
             'follow_up_reminded_at' => now()->subDay()->format('Y-m-d H:i:s'),
         ]);
         $this->assertFalse($c->isFollowUpOverdue());
@@ -164,9 +166,9 @@ final class ConversationTest extends PureUnitTestCase
 
     public function test_is_not_overdue_when_date_in_future(): void
     {
-        $c = new StubConversation();
+        $c = new StubConversation;
         $c->setRawAttributes([
-            'follow_up_date'        => now()->addDays(5)->format('Y-m-d H:i:s'),
+            'follow_up_date' => now()->addDays(5)->format('Y-m-d H:i:s'),
             'follow_up_reminded_at' => null,
         ]);
         $this->assertFalse($c->isFollowUpOverdue());

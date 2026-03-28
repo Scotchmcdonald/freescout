@@ -8,17 +8,16 @@ use Modules\Crm\Models\ClientConversation;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubClientConversation::class)) {
-final class StubClientConversation extends ClientConversation
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubClientConversation extends ClientConversation
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class ClientConversationTest extends PureUnitTestCase
 {
@@ -49,14 +48,14 @@ final class ClientConversationTest extends PureUnitTestCase
 
     public function test_is_open_returns_true_when_closed_at_is_null(): void
     {
-        $conv = new StubClientConversation();
+        $conv = new StubClientConversation;
         $conv->setRawAttributes(['closed_at' => null]);
         $this->assertTrue($conv->isOpen());
     }
 
     public function test_is_open_returns_false_when_closed_at_is_set(): void
     {
-        $conv = new StubClientConversation();
+        $conv = new StubClientConversation;
         $conv->setRawAttributes(['closed_at' => '2024-01-15 10:00:00']);
         $this->assertFalse($conv->isOpen());
     }
@@ -65,21 +64,21 @@ final class ClientConversationTest extends PureUnitTestCase
 
     public function test_resolution_time_returns_null_when_not_closed(): void
     {
-        $conv = new StubClientConversation();
+        $conv = new StubClientConversation;
         $conv->setRawAttributes(['opened_at' => '2024-01-15 09:00:00', 'closed_at' => null]);
         $this->assertNull($conv->getResolutionTimeMinutes());
     }
 
     public function test_resolution_time_returns_null_when_opened_at_missing(): void
     {
-        $conv = new StubClientConversation();
+        $conv = new StubClientConversation;
         $conv->setRawAttributes(['opened_at' => null, 'closed_at' => '2024-01-15 10:00:00']);
         $this->assertNull($conv->getResolutionTimeMinutes());
     }
 
     public function test_resolution_time_returns_difference_in_minutes(): void
     {
-        $conv = new StubClientConversation();
+        $conv = new StubClientConversation;
         $conv->setRawAttributes([
             'opened_at' => '2024-01-15 09:00:00',
             'closed_at' => '2024-01-15 10:30:00',

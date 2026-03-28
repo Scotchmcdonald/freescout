@@ -22,23 +22,22 @@ declare(strict_types=1);
  * Threshold:  TYPE_COVERAGE_MIN env var, default 80%
  * Exit code:  0 = pass, 1 = below threshold
  */
-
-$root       = dirname(__DIR__, 2);
-$reportsDir = $root . '/reports';
-$minPct     = (float) (getenv('TYPE_COVERAGE_MIN') ?: '80');
+$root = dirname(__DIR__, 2);
+$reportsDir = $root.'/reports';
+$minPct = (float) (getenv('TYPE_COVERAGE_MIN') ?: '80');
 
 $scanDirs = [
-    $root . '/app',
-    $root . '/Modules',
+    $root.'/app',
+    $root.'/Modules',
 ];
 
 // ── Scan ──────────────────────────────────────────────────────────────────
-$totalMethods    = 0;
-$typedMethods    = 0;
-$totalParams     = 0;
-$typedParams     = 0;
-$namespaceStats  = [];
-$violations      = [];
+$totalMethods = 0;
+$typedMethods = 0;
+$totalParams = 0;
+$typedParams = 0;
+$namespaceStats = [];
+$violations = [];
 
 foreach ($scanDirs as $dir) {
     $iterator = new RecursiveIteratorIterator(
@@ -58,12 +57,12 @@ foreach ($scanDirs as $dir) {
             continue;
         }
 
-        $code     = (string) file_get_contents($filePath);
+        $code = (string) file_get_contents($filePath);
 
         // Derive a short namespace key from path (e.g. "app/Services" or "Modules/Payment/Services")
-        $relPath   = ltrim(str_replace($root, '', $filePath), '/');
-        $parts     = explode('/', $relPath);
-        $nsKey     = implode('/', array_slice($parts, 0, min(3, count($parts) - 1)));
+        $relPath = ltrim(str_replace($root, '', $filePath), '/');
+        $parts = explode('/', $relPath);
+        $nsKey = implode('/', array_slice($parts, 0, min(3, count($parts) - 1)));
 
         try {
             $tokens = token_get_all($code, TOKEN_PARSE);
@@ -72,9 +71,9 @@ foreach ($scanDirs as $dir) {
         }
 
         $inClassBody = 0; // brace depth when class body starts
-        $classDepth  = 0;
-        $braceDepth  = 0;
-        $inClass     = false;
+        $classDepth = 0;
+        $braceDepth = 0;
+        $inClass = false;
 
         $methodsInFile = analyzeMethodSignatures($code);
 
@@ -93,9 +92,9 @@ foreach ($scanDirs as $dir) {
                 }
                 if (! $hasReturn) {
                     $violations[] = [
-                        'file'   => $relPath,
+                        'file' => $relPath,
                         'method' => $method['name'],
-                        'param'  => '(return type)',
+                        'param' => '(return type)',
                     ];
                 }
             }
@@ -106,9 +105,9 @@ foreach ($scanDirs as $dir) {
                     $typedParams++;
                 } else {
                     $violations[] = [
-                        'file'   => $relPath,
+                        'file' => $relPath,
                         'method' => $method['name'],
-                        'param'  => $param['name'],
+                        'param' => $param['name'],
                     ];
                 }
             }
@@ -116,9 +115,9 @@ foreach ($scanDirs as $dir) {
 
         if ($methodsInFile !== []) {
             $namespaceStats[$nsKey] = $namespaceStats[$nsKey] ?? ['methods' => 0, 'typed' => 0, 'params' => 0, 'typedParams' => 0];
-            $namespaceStats[$nsKey]['methods']     += count($methodsInFile);
-            $namespaceStats[$nsKey]['typed']       += array_sum(array_column($methodsInFile, 'hasReturn')) === 1 ? 1 : 0;
-            $namespaceStats[$nsKey]['params']      += array_sum(array_map(fn ($m) => count($m['params']), $methodsInFile));
+            $namespaceStats[$nsKey]['methods'] += count($methodsInFile);
+            $namespaceStats[$nsKey]['typed'] += array_sum(array_column($methodsInFile, 'hasReturn')) === 1 ? 1 : 0;
+            $namespaceStats[$nsKey]['params'] += array_sum(array_map(fn ($m) => count($m['params']), $methodsInFile));
             $namespaceStats[$nsKey]['typedParams'] += array_sum(array_map(fn ($m) => array_sum(array_column($m['params'], 'hasType')), $methodsInFile));
         }
     }
@@ -128,12 +127,12 @@ foreach ($scanDirs as $dir) {
 // Overall score: ratio of (typed return + typed param) over (total return slots + total param slots)
 $totalSlots = $totalMethods + $totalParams;
 $typedSlots = $typedMethods + $typedParams;
-$pct        = $totalSlots > 0 ? round($typedSlots / $totalSlots * 100, 2) : 0.0;
+$pct = $totalSlots > 0 ? round($typedSlots / $totalSlots * 100, 2) : 0.0;
 
 $pass = $pct >= $minPct;
 
 // ── Report ─────────────────────────────────────────────────────────────────
-$lines   = [];
+$lines = [];
 $lines[] = '# Type Declaration Density Report';
 $lines[] = '';
 $lines[] = sprintf('> Generated: %s', date('c'));
@@ -167,21 +166,21 @@ $lines[] = sprintf('## Result: %s', $pass ? '✅ PASS' : '❌ FAIL');
 
 $report = implode(PHP_EOL, $lines);
 @mkdir($reportsDir, 0755, true);
-file_put_contents($reportsDir . '/type-coverage-latest.txt', $report);
+file_put_contents($reportsDir.'/type-coverage-latest.txt', $report);
 
 // Machine-readable
-file_put_contents($reportsDir . '/type-coverage-summary.json', json_encode([
-    'type_coverage'     => $pct,
-    'minimum'           => $minPct,
-    'total_methods'     => $totalMethods,
-    'typed_methods'     => $typedMethods,
-    'total_params'      => $totalParams,
-    'typed_params'      => $typedParams,
-    'generated_at'      => date('c'),
+file_put_contents($reportsDir.'/type-coverage-summary.json', json_encode([
+    'type_coverage' => $pct,
+    'minimum' => $minPct,
+    'total_methods' => $totalMethods,
+    'typed_methods' => $typedMethods,
+    'total_params' => $totalParams,
+    'typed_params' => $typedParams,
+    'generated_at' => date('c'),
 ], JSON_PRETTY_PRINT));
 
-echo $report . PHP_EOL;
-echo 'Report saved → reports/type-coverage-latest.txt' . PHP_EOL;
+echo $report.PHP_EOL;
+echo 'Report saved → reports/type-coverage-latest.txt'.PHP_EOL;
 
 if (! $pass) {
     fprintf(STDERR, "❌ Type coverage %.1f%% is below the %.1f%% minimum.\n", $pct, $minPct);
@@ -218,9 +217,9 @@ function analyzeMethodSignatures(string $code): array
     }
 
     foreach ($matches as $match) {
-        $name      = $match[1];
-        $paramStr  = trim($match[2]);
-        $fullSig   = $match[0];
+        $name = $match[1];
+        $paramStr = trim($match[2]);
+        $fullSig = $match[0];
 
         // Detect return type: presence of ": type" between ) and { or ;
         $hasReturn = (bool) preg_match('/\)\s*:\s*[\w\\\\|?]/', $fullSig);
@@ -251,14 +250,14 @@ function analyzeMethodSignatures(string $code): array
                 // Extract the variable name
                 preg_match('/\$(\w+)/', $param, $vm);
                 $paramName = $vm[1] ?? $param;
-                $params[]  = ['name' => $paramName, 'hasType' => $hasType];
+                $params[] = ['name' => $paramName, 'hasType' => $hasType];
             }
         }
 
         $methods[] = [
-            'name'      => $name,
+            'name' => $name,
             'hasReturn' => $hasReturn,
-            'params'    => $params,
+            'params' => $params,
         ];
     }
 

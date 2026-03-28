@@ -97,7 +97,7 @@
             "@test:fast"
         ],
         "test:fast": [
-            "APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync php -d pcov.directory=. artisan test"
+            "APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync php -d pcov.directory=. artisan test --parallel --processes=${TEST_PROCESSES:-10}"
         ],
         "analyse": [
             "vendor/bin/phpstan analyse"

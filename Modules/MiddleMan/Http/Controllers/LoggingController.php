@@ -7,6 +7,7 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManLog;
 use Modules\MiddleMan\Services\EventDiscoveryService;
@@ -14,7 +15,7 @@ use Modules\MiddleMan\Services\RuleEngine;
 
 class LoggingController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery): View
     {
         $loggingActive = $ruleEngine->isLoggingActive();
         $rules = $ruleEngine->getRules();
@@ -39,7 +40,7 @@ class LoggingController extends Controller
         $ruleEngine->setLoggingActive($active);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_LOGGING_TOGGLED,
             null,
             null,
@@ -58,7 +59,7 @@ class LoggingController extends Controller
         $ruleEngine->addLogRule($validated['event_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_RULE_CREATED,
             null,
             null,
@@ -77,7 +78,7 @@ class LoggingController extends Controller
         $ruleEngine->removeLogRule($validated['event_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             MiddleManAuditEntry::ACTION_RULE_DELETED,
             null,
             null,
@@ -99,7 +100,7 @@ class LoggingController extends Controller
         $deleted = MiddleManLog::query()->delete();
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'logs_cleared',
             null,
             null,
@@ -118,10 +119,10 @@ class LoggingController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = (string) $request->input('search'); // @phpstan-ignore cast.string
             $query->where(function ($q) use ($search) {
                 $q->where('event_name', 'like', "%{$search}%")
-                  ->orWhere('event_class', 'like', "%{$search}%");
+                    ->orWhere('event_class', 'like', "%{$search}%");
             });
         }
 

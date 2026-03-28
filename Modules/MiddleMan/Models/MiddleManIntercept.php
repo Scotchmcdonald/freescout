@@ -4,9 +4,25 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $event_class
+ * @property string $event_name
+ * @property array<string, mixed>|null $payload
+ * @property array<string, mixed>|null $metadata
+ * @property string $status
+ * @property int $sort_order
+ * @property \Illuminate\Support\Carbon|null $intercepted_at
+ * @property \Illuminate\Support\Carbon|null $fired_at
+ * @property int|null $fired_by
+ * @property string|null $resolution_notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class MiddleManIntercept extends Model
 {
     protected $table = 'middleman_intercepts';
@@ -27,11 +43,11 @@ class MiddleManIntercept extends Model
     protected function casts(): array
     {
         return [
-            'payload'        => 'array',
-            'metadata'       => 'array',
+            'payload' => 'array',
+            'metadata' => 'array',
             'intercepted_at' => 'datetime',
-            'fired_at'       => 'datetime',
-            'sort_order'     => 'integer',
+            'fired_at' => 'datetime',
+            'sort_order' => 'integer',
         ];
     }
 
@@ -41,8 +57,8 @@ class MiddleManIntercept extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const STATUS_PENDING   = 'pending';
-    public const STATUS_FIRED     = 'fired';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_FIRED = 'fired';
     public const STATUS_DISCARDED = 'discarded';
     public const STATUS_CORRUPTED = 'corrupted';
 
@@ -52,6 +68,7 @@ class MiddleManIntercept extends Model
     |--------------------------------------------------------------------------
     */
 
+    /** @return BelongsTo<\App\Models\User, $this> */
     public function firedByUser(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'fired_by');
@@ -63,12 +80,16 @@ class MiddleManIntercept extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function scopePending($query)
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    public function scopePending(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_PENDING);
     }
 
-    public function scopeOrdered($query)
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('intercepted_at');
     }
@@ -87,7 +108,7 @@ class MiddleManIntercept extends Model
     public function markFired(int $userId): void
     {
         $this->update([
-            'status'   => self::STATUS_FIRED,
+            'status' => self::STATUS_FIRED,
             'fired_at' => now(),
             'fired_by' => $userId,
         ]);
@@ -107,7 +128,7 @@ class MiddleManIntercept extends Model
     public function markCorrupted(string $reason): void
     {
         $this->update([
-            'status'           => self::STATUS_CORRUPTED,
+            'status' => self::STATUS_CORRUPTED,
             'resolution_notes' => mb_substr($reason, 0, 5000),
         ]);
     }

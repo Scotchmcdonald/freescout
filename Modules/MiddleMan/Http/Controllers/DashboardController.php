@@ -7,6 +7,7 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Models\MiddleManIntercept;
 use Modules\MiddleMan\Models\MiddleManLog;
@@ -15,17 +16,17 @@ use Modules\MiddleMan\Services\RuleEngine;
 
 class DashboardController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, CircuitBreaker $circuitBreaker)
+    public function index(RuleEngine $ruleEngine, CircuitBreaker $circuitBreaker): View
     {
         $rules = $ruleEngine->getRules();
 
         $metrics = [
-            'total_logs'           => MiddleManLog::count(),
-            'logs_last_hour'       => MiddleManLog::recent(60)->count(),
-            'pending_intercepts'   => MiddleManIntercept::pending()->count(),
-            'fired_intercepts'     => MiddleManIntercept::where('status', MiddleManIntercept::STATUS_FIRED)->count(),
+            'total_logs' => MiddleManLog::count(),
+            'logs_last_hour' => MiddleManLog::recent(60)->count(),
+            'pending_intercepts' => MiddleManIntercept::pending()->count(),
+            'fired_intercepts' => MiddleManIntercept::where('status', MiddleManIntercept::STATUS_FIRED)->count(),
             'discarded_intercepts' => MiddleManIntercept::where('status', MiddleManIntercept::STATUS_DISCARDED)->count(),
-            'unique_event_types'   => MiddleManLog::distinct('event_class')->count('event_class'),
+            'unique_event_types' => MiddleManLog::distinct('event_class')->count('event_class'),
         ];
 
         $recentAudit = MiddleManAuditEntry::with('user')
@@ -33,9 +34,9 @@ class DashboardController extends Controller
             ->limit(20)
             ->get();
 
-        $loggingActive   = $ruleEngine->isLoggingActive();
+        $loggingActive = $ruleEngine->isLoggingActive();
         $interceptActive = $ruleEngine->isInterceptActive();
-        $moduleEnabled   = (bool) config('middleman.enabled');
+        $moduleEnabled = (bool) config('middleman.enabled');
         $circuitBreakerStatus = $circuitBreaker->diagnostics();
 
         return view('middleman::dashboard.index', compact(
@@ -54,10 +55,10 @@ class DashboardController extends Controller
      */
     public function resetCircuitBreaker(Request $request, CircuitBreaker $circuitBreaker): JsonResponse
     {
-        $circuitBreaker->close('Manual reset by user #' . $request->user()->id);
+        $circuitBreaker->close('Manual reset by user #'.($request->user()?->id ?? 0)); // @phpstan-ignore nullsafe.neverNull
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'circuit_breaker_reset',
             null,
             null,

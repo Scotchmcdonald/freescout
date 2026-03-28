@@ -54,7 +54,6 @@ class WpApi
      * Make HTTP request.
      *
      * @param  array<string, mixed>  $params
-     * @return \Illuminate\Http\Client\Response
      */
     public static function httpRequest(string $method, string $url, array $params): \Illuminate\Http\Client\Response
     {

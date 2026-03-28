@@ -61,7 +61,7 @@ class DetectSchemaDriftJob implements ShouldQueue
 
             $log->update([
                 'has_schema_drift' => true,
-                'metadata'         => $metadata,
+                'metadata' => $metadata,
             ]);
         }
     }

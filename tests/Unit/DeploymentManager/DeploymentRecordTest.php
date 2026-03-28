@@ -10,12 +10,11 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubDeploymentRecord::class)) {
-final class StubDeploymentRecord extends DeploymentRecord
-{
-    protected static function booted(): void {}
+    final class StubDeploymentRecord extends DeploymentRecord
+    {
+        protected static function booted(): void {}
+    }
 }
-}
-
 
 // ── DeploymentRecordTest ──────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ final class DeploymentRecordTest extends PureUnitTestCase
 {
     private function record(string $status): StubDeploymentRecord
     {
-        $r = new StubDeploymentRecord();
+        $r = new StubDeploymentRecord;
         $r->setRawAttributes(['status' => $status]);
 
         return $r;

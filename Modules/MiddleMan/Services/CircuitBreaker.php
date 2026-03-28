@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Services;
 
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Psr\Log\LoggerInterface;
 
 /**
  * Circuit Breaker for MiddleMan — guarantees zero production impact.
@@ -25,13 +25,13 @@ use Illuminate\Support\Facades\Log;
  */
 final class CircuitBreaker
 {
-    public const STATE_CLOSED   = 'closed';
-    public const STATE_OPEN     = 'open';
-    public const STATE_HALF     = 'half_open';
+    public const STATE_CLOSED = 'closed';
+    public const STATE_OPEN = 'open';
+    public const STATE_HALF = 'half_open';
 
-    private const CACHE_KEY          = 'middleman:circuit_breaker';
-    private const COUNTER_KEY        = 'middleman:cb_failures';
-    private const RATE_WINDOW_KEY    = 'middleman:cb_rate_window';
+    private const CACHE_KEY = 'middleman:circuit_breaker';
+    private const COUNTER_KEY = 'middleman:cb_failures';
+    private const RATE_WINDOW_KEY = 'middleman:cb_rate_window'; // @phpstan-ignore classConstant.unused
 
     /**
      * Fallback flag file written to local disk when primary cache (Redis) is
@@ -54,15 +54,19 @@ final class CircuitBreaker
     private int $cooldownSeconds;
     private int $syncIntervalSeconds;
     private string $cacheStore;
+    private CacheFactory $cache;
+    private LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(CacheFactory $cache, LoggerInterface $logger)
     {
-        $this->failureThreshold       = (int) config('middleman.circuit_breaker.failure_threshold', 5);
-        $this->stormThresholdPerSecond = (int) config('middleman.circuit_breaker.storm_threshold_per_second', 500);
-        $this->queueDepthLimit        = (int) config('middleman.circuit_breaker.queue_depth_limit', 10000);
-        $this->cooldownSeconds        = (int) config('middleman.circuit_breaker.cooldown_seconds', 60);
-        $this->syncIntervalSeconds    = (int) config('middleman.circuit_breaker.sync_interval_seconds', 5);
-        $this->cacheStore             = config('middleman.cache_store', 'redis');
+        $this->cache = $cache;
+        $this->logger = $logger;
+        $this->failureThreshold = (int) config('middleman.circuit_breaker.failure_threshold', 5); // @phpstan-ignore cast.int
+        $this->stormThresholdPerSecond = (int) config('middleman.circuit_breaker.storm_threshold_per_second', 500); // @phpstan-ignore cast.int
+        $this->queueDepthLimit = (int) config('middleman.circuit_breaker.queue_depth_limit', 10000); // @phpstan-ignore cast.int
+        $this->cooldownSeconds = (int) config('middleman.circuit_breaker.cooldown_seconds', 60); // @phpstan-ignore cast.int
+        $this->syncIntervalSeconds = (int) config('middleman.circuit_breaker.sync_interval_seconds', 5); // @phpstan-ignore cast.int
+        $this->cacheStore = (string) config('middleman.cache_store', 'redis'); // @phpstan-ignore cast.string
     }
 
     /**
@@ -81,10 +85,12 @@ final class CircuitBreaker
             // Rate-limit check (in-process only, no I/O)
             if ($this->isEventStorm()) {
                 $this->trip('Event storm detected: rate exceeded threshold');
+
                 return false;
             }
 
             $this->recordEventTick();
+
             return true;
         }
 
@@ -135,12 +141,13 @@ final class CircuitBreaker
         }
 
         try {
-            $connection = config('middleman.queue_connection', 'redis');
-            $queueName  = config('middleman.queue_name', 'middleman');
-            $size       = app('queue')->connection($connection)->size($queueName);
+            $connection = (string) config('middleman.queue_connection', 'redis'); // @phpstan-ignore cast.string
+            $queueName = (string) config('middleman.queue_name', 'middleman'); // @phpstan-ignore cast.string
+            $size = app('queue')->connection($connection)->size($queueName);
 
             if ($size > $this->queueDepthLimit) {
                 $this->trip("Queue backpressure: {$size} jobs exceeds limit of {$this->queueDepthLimit}");
+
                 return true;
             }
         } catch (\Throwable $e) {
@@ -165,10 +172,10 @@ final class CircuitBreaker
 
         // Sync from cache
         try {
-            $cached = Cache::store($this->cacheStore)->get(self::CACHE_KEY);
+            $cached = $this->cache->store($this->cacheStore)->get(self::CACHE_KEY);
 
             if (is_array($cached)) {
-                self::$localState = $cached['state'] ?? self::STATE_CLOSED;
+                self::$localState = is_string($cached['state'] ?? null) ? $cached['state'] : self::STATE_CLOSED;
 
                 // Auto-transition from OPEN → HALF-OPEN after cooldown
                 if (self::$localState === self::STATE_OPEN) {
@@ -189,10 +196,10 @@ final class CircuitBreaker
             $this->writeFallbackFlag(self::STATE_OPEN);
             self::$localState = self::STATE_OPEN;
 
-            Log::emergency('MiddleMan CircuitBreaker: PRIMARY CACHE FAILURE — breaker force-OPEN', [
+            $this->logger->emergency('MiddleMan CircuitBreaker: PRIMARY CACHE FAILURE — breaker force-OPEN', [
                 'exception' => $cacheException->getMessage(),
-                'class'     => get_class($cacheException),
-                'action'    => 'All event processing bypassed until cache recovers.',
+                'class' => get_class($cacheException),
+                'action' => 'All event processing bypassed until cache recovers.',
             ]);
         }
 
@@ -214,7 +221,7 @@ final class CircuitBreaker
         $this->resetFailureCounterForce();
         $this->clearFallbackFlag();
 
-        Log::info('MiddleMan CircuitBreaker: CLOSED', ['reason' => $reason]);
+        $this->logger->info('MiddleMan CircuitBreaker: CLOSED', ['reason' => $reason]);
     }
 
     /**
@@ -239,14 +246,14 @@ final class CircuitBreaker
         $this->writeFallbackFlag(self::STATE_OPEN);
 
         if ($isInfrastructureFailure) {
-            Log::emergency('MiddleMan CircuitBreaker: TRIPPED — INFRASTRUCTURE FAILURE (OPEN)', [
-                'reason'           => $reason,
+            $this->logger->emergency('MiddleMan CircuitBreaker: TRIPPED — INFRASTRUCTURE FAILURE (OPEN)', [
+                'reason' => $reason,
                 'cooldown_seconds' => $this->cooldownSeconds,
-                'action'           => 'All MiddleMan processing bypassed. Restore cache/queue to recover.',
+                'action' => 'All MiddleMan processing bypassed. Restore cache/queue to recover.',
             ]);
         } else {
-            Log::warning('MiddleMan CircuitBreaker: TRIPPED (OPEN)', [
-                'reason'           => $reason,
+            $this->logger->warning('MiddleMan CircuitBreaker: TRIPPED (OPEN)', [
+                'reason' => $reason,
                 'cooldown_seconds' => $this->cooldownSeconds,
             ]);
         }
@@ -260,13 +267,13 @@ final class CircuitBreaker
     public function diagnostics(): array
     {
         return [
-            'state'                    => $this->getState(),
-            'events_in_window'         => self::$eventsInWindow,
-            'storm_threshold'          => $this->stormThresholdPerSecond,
-            'failure_threshold'        => $this->failureThreshold,
-            'queue_depth_limit'        => $this->queueDepthLimit,
-            'cooldown_seconds'         => $this->cooldownSeconds,
-            'local_state_age_seconds'  => time() - self::$localStateCheckedAt,
+            'state' => $this->getState(),
+            'events_in_window' => self::$eventsInWindow,
+            'storm_threshold' => $this->stormThresholdPerSecond,
+            'failure_threshold' => $this->failureThreshold,
+            'queue_depth_limit' => $this->queueDepthLimit,
+            'cooldown_seconds' => $this->cooldownSeconds,
+            'local_state_age_seconds' => time() - self::$localStateCheckedAt,
         ];
     }
 
@@ -320,8 +327,8 @@ final class CircuitBreaker
     private function incrementFailureCounter(): int
     {
         try {
-            $store = Cache::store($this->cacheStore);
-            $current = (int) $store->get(self::COUNTER_KEY, 0);
+            $store = $this->cache->store($this->cacheStore);
+            $current = (int) $store->get(self::COUNTER_KEY, 0); // @phpstan-ignore cast.int
             $current++;
             $store->put(self::COUNTER_KEY, $current, $this->cooldownSeconds * 2);
 
@@ -329,6 +336,7 @@ final class CircuitBreaker
         } catch (\Throwable) {
             // Cache failure while counting failures — trip immediately
             $this->trip('Cache unavailable during failure counting');
+
             return $this->failureThreshold;
         }
     }
@@ -350,7 +358,7 @@ final class CircuitBreaker
     private function resetFailureCounterForce(): void
     {
         try {
-            Cache::store($this->cacheStore)->forget(self::COUNTER_KEY);
+            $this->cache->store($this->cacheStore)->forget(self::COUNTER_KEY);
         } catch (\Throwable) {
             // Swallow — non-critical
         }
@@ -365,10 +373,10 @@ final class CircuitBreaker
     private function persistState(string $state, string $reason): void
     {
         try {
-            Cache::store($this->cacheStore)->forever(self::CACHE_KEY, [
-                'state'      => $state,
-                'reason'     => $reason,
-                'opened_at'  => $state === self::STATE_OPEN ? time() : null,
+            $this->cache->store($this->cacheStore)->forever(self::CACHE_KEY, [
+                'state' => $state,
+                'reason' => $reason,
+                'opened_at' => $state === self::STATE_OPEN ? time() : null,
                 'changed_at' => time(),
             ]);
         } catch (\Throwable) {
@@ -397,14 +405,14 @@ final class CircuitBreaker
     {
         try {
             $path = $this->fallbackFlagPath();
-            $dir  = dirname($path);
+            $dir = dirname($path);
 
             if (! is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
 
             file_put_contents($path, json_encode([
-                'state'      => $state,
+                'state' => $state,
                 'written_at' => time(),
             ], JSON_THROW_ON_ERROR), LOCK_EX);
         } catch (\Throwable) {

@@ -64,14 +64,14 @@ test('login endpoint returns 429 after rate limit is exceeded', function () {
     // Exhaust the quota with failed attempts.
     for ($i = 0; $i < 5; $i++) {
         $this->post('/login', [
-            'email'    => 'bruteforce@example.com',
+            'email' => 'bruteforce@example.com',
             'password' => 'wrong-password',
         ]);
     }
 
     // 6th attempt must be rate-limited.
     $this->post('/login', [
-        'email'    => 'bruteforce@example.com',
+        'email' => 'bruteforce@example.com',
         'password' => 'wrong-password',
     ])->assertStatus(429);
 });

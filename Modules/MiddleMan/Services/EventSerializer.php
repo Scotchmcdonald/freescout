@@ -18,17 +18,17 @@ use Throwable;
  *  3. Fallback → Reflection-based extraction of public properties,
  *     stripping closures, PDO connections, and heavy objects.
  */
-class EventSerializer
+final class EventSerializer
 {
     private int $maxBytes;
 
     public function __construct()
     {
-        $this->maxBytes = (int) config('middleman.max_payload_bytes', 65536);
+        $this->maxBytes = (int) config('middleman.max_payload_bytes', 65536); // @phpstan-ignore cast.int
     }
 
     /**
-     * @return array{payload: array, metadata: array}
+     * @return array{payload: array<string, mixed>, metadata: array<string, mixed>}
      */
     public function serialize(object $event): array
     {
@@ -46,7 +46,7 @@ class EventSerializer
         }
 
         return [
-            'payload'  => $payload,
+            'payload' => $payload,
             'metadata' => $metadata,
         ];
     }
@@ -55,7 +55,8 @@ class EventSerializer
      * Deserialize a stored payload back into a best-effort representation.
      * Returns the raw array — callers reconstruct events as needed.
      */
-    public function deserialize(array $storedPayload): array
+    /** @param array<string, mixed> $storedPayload */
+    public function deserialize(array $storedPayload): mixed
     {
         return $storedPayload;
     }
@@ -66,6 +67,7 @@ class EventSerializer
     |--------------------------------------------------------------------------
     */
 
+    /** @return array<string, mixed> */
     private function extractPayload(object $event): array
     {
         // Strategy 1: Custom loggable interface
@@ -77,6 +79,7 @@ class EventSerializer
         return $this->extractViaReflection($event);
     }
 
+    /** @return array<string, mixed> */
     private function extractViaReflection(object $event): array
     {
         $data = [];
@@ -116,6 +119,7 @@ class EventSerializer
             foreach ($value as $k => $v) {
                 $clean[$k] = $this->sanitizeValue($v, (string) $k, $depth + 1);
             }
+
             return $clean;
         }
 
@@ -130,8 +134,8 @@ class EventSerializer
         // Eloquent models: extract key attributes
         if ($value instanceof \Illuminate\Database\Eloquent\Model) {
             return [
-                '_type'  => get_class($value),
-                '_id'    => $value->getKey(),
+                '_type' => get_class($value),
+                '_id' => $value->getKey(),
                 '_table' => $value->getTable(),
             ];
         }
@@ -151,44 +155,49 @@ class EventSerializer
                     );
                 }
 
-                return $props ?: ['_type' => get_class($value), '_string' => '[object]'];
+                return $props;
             } catch (Throwable) {
                 return ['_type' => get_class($value), '_string' => '[unserializable]'];
             }
         }
 
         if (is_resource($value)) {
-            return '[resource: ' . get_resource_type($value) . ']';
+            return '[resource: '.get_resource_type($value).']';
         }
 
         return '[unknown type]';
     }
 
+    /** @return array<string, mixed> */
     private function buildMetadata(object $event): array
     {
         return [
-            'class'       => get_class($event),
+            'class' => get_class($event),
             'memory_peak' => memory_get_peak_usage(true),
-            'timestamp'   => now()->toIso8601String(),
-            'php_sapi'    => PHP_SAPI,
+            'timestamp' => now()->toIso8601String(),
+            'php_sapi' => PHP_SAPI,
         ];
     }
 
     /**
      * Build a size-limited summary when payload exceeds max bytes.
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
      */
     private function summarize(array $payload): array
     {
         $summary = [];
         foreach ($payload as $key => $value) {
             if (is_array($value)) {
-                $summary[$key] = '[array: ' . count($value) . ' items]';
+                $summary[$key] = '[array: '.count($value).' items]';
             } elseif (is_string($value) && strlen($value) > 200) {
-                $summary[$key] = substr($value, 0, 200) . '…';
+                $summary[$key] = substr($value, 0, 200).'…';
             } else {
                 $summary[$key] = $value;
             }
         }
+
         return $summary;
     }
 }

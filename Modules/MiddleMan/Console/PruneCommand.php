@@ -37,16 +37,16 @@ class PruneCommand extends Command
 
     public function handle(): int
     {
-        $logsDays       = (int) ($this->option('logs-days')       ?: config('middleman.prune.logs_days', 7));
-        $interceptsDays = (int) ($this->option('intercepts-days') ?: config('middleman.prune.intercepts_days', 14));
-        $auditDays      = (int) ($this->option('audit-days')      ?: config('middleman.prune.audit_days', 90));
-        $batchSize      = (int) $this->option('batch');
-        $dryRun         = (bool) $this->option('dry-run');
-        $includeAudit   = (bool) $this->option('include-audit');
+        $logsDays = (int) ($this->option('logs-days') ?: config('middleman.prune.logs_days', 7)); // @phpstan-ignore cast.int
+        $interceptsDays = (int) ($this->option('intercepts-days') ?: config('middleman.prune.intercepts_days', 14)); // @phpstan-ignore cast.int
+        $auditDays = (int) ($this->option('audit-days') ?: config('middleman.prune.audit_days', 90)); // @phpstan-ignore cast.int
+        $batchSize = (int) $this->option('batch');
+        $dryRun = (bool) $this->option('dry-run');
+        $includeAudit = (bool) $this->option('include-audit');
 
-        $logsCutoff       = now()->subDays($logsDays);
+        $logsCutoff = now()->subDays($logsDays);
         $interceptsCutoff = now()->subDays($interceptsDays);
-        $auditCutoff      = now()->subDays($auditDays);
+        $auditCutoff = now()->subDays($auditDays);
 
         $this->info(sprintf(
             'MiddleMan Prune — logs: %d days, intercepts: %d days, audit: %d days',
@@ -114,11 +114,13 @@ class PruneCommand extends Command
 
         if ($total === 0) {
             $this->line("  [{$label}] No records to prune.");
+
             return 0;
         }
 
         if ($dryRun) {
             $this->line("  [{$label}] Would delete {$total} records.");
+
             return $total;
         }
 

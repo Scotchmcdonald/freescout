@@ -8,17 +8,16 @@ use Modules\EmailMigration\Models\MigrationBatch;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubMigrationBatch::class)) {
-final class StubMigrationBatch extends MigrationBatch
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubMigrationBatch extends MigrationBatch
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class MigrationBatchProgressTest extends PureUnitTestCase
 {

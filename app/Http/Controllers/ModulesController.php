@@ -624,8 +624,6 @@ class ModulesController extends Controller
 
     /**
      * Stream installation progress via Server-Sent Events.
-     *
-     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function installWithProgress(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
     {

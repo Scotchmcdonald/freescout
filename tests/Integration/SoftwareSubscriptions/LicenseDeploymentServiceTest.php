@@ -249,7 +249,8 @@ class LicenseDeploymentServiceTest extends IntegrationTestCase
 
         $result = $service->retryDeployment($assignment);
 
-        $this->assertFalse($result,
+        $this->assertFalse(
+            $result,
             'Non-failed assignment must be unauthorized for retry — validation boundary enforced'
         );
     }

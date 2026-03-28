@@ -14,7 +14,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 {
     public function test_register_resolver_stores_resolver(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver = $this->createMockResolver();
 
         $engine->registerResolver('test_product', $resolver);
@@ -24,7 +24,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_register_multiple_resolvers(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver1 = $this->createMockResolver();
         $resolver2 = $this->createMockResolver();
         $resolver3 = $this->createMockResolver();
@@ -40,7 +40,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_register_resolver_overwrites_existing(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $oldResult = new \App\DataTransferObjects\EntitlementResult(
             amount: 100.0,
             quantity: 1,
@@ -72,7 +72,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_calls_registered_resolver(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('silver_plan');
         $expectedResult = new \App\DataTransferObjects\EntitlementResult(
             amount: 99.99,
@@ -91,7 +91,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_throws_on_unregistered_product_type(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('unknown_product');
 
         $this->expectException(\Exception::class);
@@ -102,7 +102,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_with_different_product_types(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $goldResult = new \App\DataTransferObjects\EntitlementResult(
             amount: 299.99,
             quantity: 10,
@@ -136,13 +136,13 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_has_resolver_returns_false_for_unregistered(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $this->assertFalse($engine->hasResolver('nonexistent'));
     }
 
     public function test_has_resolver_returns_true_for_registered(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver = $this->createMockResolver();
         $engine->registerResolver('exists', $resolver);
 
@@ -151,7 +151,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_get_registered_product_types_returns_all(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver = $this->createMockResolver();
         $engine->registerResolver('product_a', $resolver);
         $engine->registerResolver('product_b', $resolver);
@@ -168,7 +168,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
     public function test_get_registered_product_types_empty_on_no_registrations(): void
     {
         // Fresh instance with no registrations
-        $freshEngine = new EntitlementEngineService();
+        $freshEngine = new EntitlementEngineService;
 
         $types = $freshEngine->getRegisteredProductTypes();
 
@@ -177,7 +177,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_empty_product_type_throws(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('');
 
         $this->expectException(\Exception::class);
@@ -187,7 +187,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_register_resolver_with_empty_product_type(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver = $this->createMockResolver();
 
         // Should not throw, but registration should occur
@@ -199,7 +199,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_get_registered_product_types_preserves_order(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver = $this->createMockResolver();
         $expected = ['zebra', 'apple', 'banana', 'cherry'];
 
@@ -214,7 +214,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_uses_template_product_type(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('custom_type');
         $result = new \App\DataTransferObjects\EntitlementResult(
             amount: 50.0,
@@ -233,7 +233,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_result_properties_preserved(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('test');
         $expectedResult = new \App\DataTransferObjects\EntitlementResult(
             amount: 123.45,
@@ -252,7 +252,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_multiple_resolves_same_template(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('repeatable');
         $result = new \App\DataTransferObjects\EntitlementResult(
             amount: 100.0,
@@ -271,7 +271,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_resolve_with_different_template_instances(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $result = new \App\DataTransferObjects\EntitlementResult(
             amount: 50.0,
             quantity: 1,
@@ -293,7 +293,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_error_message_includes_product_type(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $template = $this->createMockTemplate('specific_missing_type');
 
         try {
@@ -306,7 +306,7 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     public function test_registered_product_types_after_overwrite(): void
     {
-        $engine = new EntitlementEngineService();
+        $engine = new EntitlementEngineService;
         $resolver1 = $this->createMockResolver();
         $resolver2 = $this->createMockResolver();
 
@@ -332,12 +332,12 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
             breakdown: [['description' => 'Default', 'quantity' => 1, 'rate' => 100.0, 'amount' => 100.0, 'cost' => null]]
         );
 
-        return new class($expectedTemplate, $result) implements EntitlementResolver {
+        return new class($expectedTemplate, $result) implements EntitlementResolver
+        {
             public function __construct(
                 private ?BillingTemplateInterface $expectedTemplate,
                 private EntitlementResult $result,
-            ) {
-            }
+            ) {}
 
             public function calculate(BillingTemplateInterface $template): EntitlementResult
             {
@@ -352,10 +352,9 @@ class EntitlementEngineServiceTest extends IntegrationTestCase
 
     private function createMockTemplate(string $productType): BillingTemplateInterface
     {
-        return new class($productType) implements BillingTemplateInterface {
-            public function __construct(private string $productType)
-            {
-            }
+        return new class($productType) implements BillingTemplateInterface
+        {
+            public function __construct(private string $productType) {}
 
             public function getProductType(): string
             {

@@ -61,7 +61,9 @@ class GuestLayoutTest extends IntegrationTestCase
         $component = new GuestLayout;
         $view = $component->render();
 
-        $this->assertEquals('layouts.guest', $view->name(),
+        $this->assertEquals(
+            'layouts.guest',
+            $view->name(),
             'Guest layout must render the unauthenticated shell view'
         );
     }

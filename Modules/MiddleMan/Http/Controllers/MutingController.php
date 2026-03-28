@@ -7,13 +7,14 @@ namespace Modules\MiddleMan\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Modules\MiddleMan\Models\MiddleManAuditEntry;
 use Modules\MiddleMan\Services\EventDiscoveryService;
 use Modules\MiddleMan\Services\RuleEngine;
 
 class MutingController extends Controller
 {
-    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery)
+    public function index(RuleEngine $ruleEngine, EventDiscoveryService $discovery): View|JsonResponse
     {
         $listenerMap = $discovery->getListenerMap();
 
@@ -54,7 +55,7 @@ class MutingController extends Controller
         $ruleEngine->addMutedListener($validated['listener_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'listener_muted',
             null,
             null,
@@ -62,8 +63,8 @@ class MutingController extends Controller
         );
 
         return response()->json([
-            'success'          => true,
-            'muted_listeners'  => $ruleEngine->getMutedListeners(),
+            'success' => true,
+            'muted_listeners' => $ruleEngine->getMutedListeners(),
         ]);
     }
 
@@ -76,7 +77,7 @@ class MutingController extends Controller
         $ruleEngine->removeMutedListener($validated['listener_class']);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'listener_unmuted',
             null,
             null,
@@ -84,8 +85,8 @@ class MutingController extends Controller
         );
 
         return response()->json([
-            'success'          => true,
-            'muted_listeners'  => $ruleEngine->getMutedListeners(),
+            'success' => true,
+            'muted_listeners' => $ruleEngine->getMutedListeners(),
         ]);
     }
 
@@ -95,7 +96,7 @@ class MutingController extends Controller
         $ruleEngine->setMutedListeners([]);
 
         MiddleManAuditEntry::record(
-            $request->user()->id,
+            (int) $request->user()?->id,
             'muted_listeners_cleared',
             null,
             null,
@@ -103,9 +104,9 @@ class MutingController extends Controller
         );
 
         return response()->json([
-            'success'          => true,
-            'cleared'          => $count,
-            'muted_listeners'  => [],
+            'success' => true,
+            'cleared' => $count,
+            'muted_listeners' => [],
         ]);
     }
 }

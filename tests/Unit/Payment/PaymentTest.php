@@ -10,14 +10,16 @@ use Tests\PureUnitTestCase;
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
 if (! class_exists(StubPayment::class)) {
-final class StubPayment extends Payment
-{
-    protected static function booted(): void {}
+    final class StubPayment extends Payment
+    {
+        protected static function booted(): void {}
 
-    public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
+    }
 }
-}
-
 
 // ── Test class ────────────────────────────────────────────────────────────────
 
@@ -25,7 +27,7 @@ final class PaymentTest extends PureUnitTestCase
 {
     private function payment(array $rawAttrs): StubPayment
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes($rawAttrs);
 
         return $p;
@@ -98,65 +100,65 @@ final class PaymentTest extends PureUnitTestCase
 
     public function test_can_be_refunded_when_conditions_met(): void
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes([
-            'status'           => 'successful',
-            'refunded_amount'  => '0.00',
-            'total_amount'     => '100.00',
-            'created_at'       => now()->subDays(10)->format('Y-m-d H:i:s'),
-            'dispute_status'   => null,
+            'status' => 'successful',
+            'refunded_amount' => '0.00',
+            'total_amount' => '100.00',
+            'created_at' => now()->subDays(10)->format('Y-m-d H:i:s'),
+            'dispute_status' => null,
         ]);
         $this->assertTrue($p->canBeRefunded());
     }
 
     public function test_cannot_be_refunded_when_not_successful(): void
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes([
-            'status'           => 'pending',
-            'refunded_amount'  => '0.00',
-            'total_amount'     => '100.00',
-            'created_at'       => now()->subDays(10)->format('Y-m-d H:i:s'),
-            'dispute_status'   => null,
+            'status' => 'pending',
+            'refunded_amount' => '0.00',
+            'total_amount' => '100.00',
+            'created_at' => now()->subDays(10)->format('Y-m-d H:i:s'),
+            'dispute_status' => null,
         ]);
         $this->assertFalse($p->canBeRefunded());
     }
 
     public function test_cannot_be_refunded_when_fully_refunded(): void
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes([
-            'status'           => 'successful',
-            'refunded_amount'  => '100.00',
-            'total_amount'     => '100.00',
-            'created_at'       => now()->subDays(10)->format('Y-m-d H:i:s'),
-            'dispute_status'   => null,
+            'status' => 'successful',
+            'refunded_amount' => '100.00',
+            'total_amount' => '100.00',
+            'created_at' => now()->subDays(10)->format('Y-m-d H:i:s'),
+            'dispute_status' => null,
         ]);
         $this->assertFalse($p->canBeRefunded());
     }
 
     public function test_cannot_be_refunded_outside_180_day_window(): void
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes([
-            'status'           => 'successful',
-            'refunded_amount'  => '0.00',
-            'total_amount'     => '100.00',
-            'created_at'       => now()->subDays(200)->format('Y-m-d H:i:s'),
-            'dispute_status'   => null,
+            'status' => 'successful',
+            'refunded_amount' => '0.00',
+            'total_amount' => '100.00',
+            'created_at' => now()->subDays(200)->format('Y-m-d H:i:s'),
+            'dispute_status' => null,
         ]);
         $this->assertFalse($p->canBeRefunded());
     }
 
     public function test_cannot_be_refunded_when_disputed(): void
     {
-        $p = new StubPayment();
+        $p = new StubPayment;
         $p->setRawAttributes([
-            'status'           => 'successful',
-            'refunded_amount'  => '0.00',
-            'total_amount'     => '100.00',
-            'created_at'       => now()->subDays(10)->format('Y-m-d H:i:s'),
-            'dispute_status'   => 'open',
+            'status' => 'successful',
+            'refunded_amount' => '0.00',
+            'total_amount' => '100.00',
+            'created_at' => now()->subDays(10)->format('Y-m-d H:i:s'),
+            'dispute_status' => 'open',
         ]);
         $this->assertFalse($p->canBeRefunded());
     }

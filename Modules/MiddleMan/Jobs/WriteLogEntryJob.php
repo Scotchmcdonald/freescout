@@ -26,12 +26,14 @@ class WriteLogEntryJob implements ShouldQueue
     public function __construct(
         private readonly string $eventClass,
         private readonly string $eventName,
-        private readonly array  $payload,
-        private readonly array  $metadata,
+        /** @var array<string, mixed> */
+        private readonly array $payload,
+        /** @var array<string, mixed> */
+        private readonly array $metadata,
         private readonly string $firedAt,
         private readonly ?string $correlationId = null,
         private readonly ?string $causationId = null,
-        private readonly bool   $isReplay = false,
+        private readonly bool $isReplay = false,
     ) {}
 
     /** @return list<object> */
@@ -47,20 +49,20 @@ class WriteLogEntryJob implements ShouldQueue
     public function handle(): void
     {
         $log = MiddleManLog::create([
-            'event_class'      => $this->eventClass,
-            'event_name'       => $this->eventName,
-            'payload'          => $this->payload,
-            'metadata'         => $this->metadata,
-            'fired_at'         => $this->firedAt,
-            'correlation_id'   => $this->correlationId ?? ($this->metadata['correlation_id'] ?? null),
-            'causation_id'     => $this->causationId ?? ($this->metadata['causation_id'] ?? null),
-            'is_replay'        => $this->isReplay,
+            'event_class' => $this->eventClass,
+            'event_name' => $this->eventName,
+            'payload' => $this->payload,
+            'metadata' => $this->metadata,
+            'fired_at' => $this->firedAt,
+            'correlation_id' => $this->correlationId ?? ($this->metadata['correlation_id'] ?? null),
+            'causation_id' => $this->causationId ?? ($this->metadata['causation_id'] ?? null),
+            'is_replay' => $this->isReplay,
             'has_schema_drift' => false,
         ]);
 
         // Dispatch async schema drift detection
         DetectSchemaDriftJob::dispatch($log->id)
-            ->onConnection(config('middleman.queue_connection', 'redis'))
-            ->onQueue(config('middleman.queue_name', 'middleman'));
+            ->onConnection((string) config('middleman.queue_connection', 'redis')) // @phpstan-ignore cast.string
+            ->onQueue((string) config('middleman.queue_name', 'middleman')); // @phpstan-ignore cast.string
     }
 }

@@ -29,7 +29,7 @@ class MiddleManServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../Config/config.php', 'middleman');
+        $this->mergeConfigFrom(__DIR__.'/../Config/config.php', 'middleman');
 
         // Always register singletons so they can be resolved even when disabled
         $this->app->singleton(RuleEngine::class);
@@ -94,7 +94,7 @@ class MiddleManServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerViews();
         $this->registerCommands();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
         $this->registerNavigation();
     }
 
@@ -108,7 +108,7 @@ class MiddleManServiceProvider extends ServiceProvider
     {
         Route::middleware('web')
             ->namespace($this->moduleNamespace)
-            ->group(__DIR__ . '/../Routes/web.php');
+            ->group(__DIR__.'/../Routes/web.php');
     }
 
     /*
@@ -133,7 +133,7 @@ class MiddleManServiceProvider extends ServiceProvider
 
     public function registerViews(): void
     {
-        $sourcePath = __DIR__ . '/../resources/views';
+        $sourcePath = __DIR__.'/../resources/views';
 
         $this->publishes([
             $sourcePath => resource_path('views/modules/middleman'),
@@ -160,7 +160,7 @@ class MiddleManServiceProvider extends ServiceProvider
                 continue;
             }
 
-            $dir = $path . '/modules/middleman';
+            $dir = $path.'/modules/middleman';
             if (is_dir($dir)) {
                 $paths[] = $dir;
             }

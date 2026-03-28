@@ -11,7 +11,7 @@ use Modules\Crm\Models\Company;
 use Symfony\Component\HttpFoundation\Response;
 
 it('returns only public tabs for guests and preserves sort order', function () {
-    $registry = new PortalTabRegistry();
+    $registry = new PortalTabRegistry;
 
     $registry->registerTab('Private', 'private-view', 'portal.view', 'heroicon-o-lock-closed', 50);
     $registry->registerTab('Public', 'public-view', 'public', 'heroicon-o-globe-alt', 20);
@@ -27,7 +27,7 @@ it('returns authenticated tabs in display order and can clear the registry', fun
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $this->actingAs($user);
 
-    $registry = new PortalTabRegistry();
+    $registry = new PortalTabRegistry;
     $registry->registerTab('Allowed', 'allowed-view', '', null, 30);
     $registry->registerTab('Denied', 'denied-view', 'definitely-missing-permission', null, 5);
 
@@ -42,7 +42,7 @@ it('returns authenticated tabs in display order and can clear the registry', fun
 });
 
 it('redirects non-client users to the portal login screen', function () {
-    $middleware = new AuthenticateClient();
+    $middleware = new AuthenticateClient;
     $user = User::factory()->create([
         'type' => User::TYPE_INTERNAL,
         'role' => User::ROLE_USER,
@@ -58,7 +58,7 @@ it('redirects non-client users to the portal login screen', function () {
 });
 
 it('allows client users through the client authentication middleware', function () {
-    $middleware = new AuthenticateClient();
+    $middleware = new AuthenticateClient;
     $user = User::factory()->create([
         'type' => User::TYPE_CLIENT,
         'role' => User::ROLE_USER,
@@ -74,7 +74,7 @@ it('allows client users through the client authentication middleware', function 
 });
 
 it('blocks users without an active company in the active-client middleware', function () {
-    $middleware = new EnsureClientIsActive();
+    $middleware = new EnsureClientIsActive;
     $user = User::factory()->create([
         'type' => User::TYPE_CLIENT,
         'status' => User::STATUS_ACTIVE,
@@ -92,7 +92,7 @@ it('blocks users without an active company in the active-client middleware', fun
 });
 
 it('allows users with an active primary company in the active-client middleware', function () {
-    $middleware = new EnsureClientIsActive();
+    $middleware = new EnsureClientIsActive;
     $user = User::factory()->create([
         'type' => User::TYPE_CLIENT,
         'status' => User::STATUS_ACTIVE,

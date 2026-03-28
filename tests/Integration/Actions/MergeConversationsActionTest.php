@@ -58,7 +58,7 @@ class MergeConversationsActionTest extends TestCase
         $result = (new MergeConversationsAction)->execute($source, $target, $user);
 
         $this->assertTrue($result['success']);
-        $this->assertSame("Conversation #101 merged into #102", $result['message']);
+        $this->assertSame('Conversation #101 merged into #102', $result['message']);
         $this->assertSame($target->id, $sourceThread->fresh()->conversation_id);
         $this->assertSame(Conversation::STATE_DELETED, $source->fresh()->state);
         $this->assertSame($target->id, $source->fresh()->meta['merged_into_id']);

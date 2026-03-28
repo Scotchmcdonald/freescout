@@ -87,22 +87,22 @@ class AppServiceProvider extends ServiceProvider
 
         $nullEventy = new class
         {
-            public function addFilter($tag, $callback, $priority = 10, $accepted_args = 1)
+            public function addFilter(string $tag, callable $callback, int $priority = 10, int $accepted_args = 1): bool
             {
                 return true;
             }
 
-            public function addAction($tag, $callback, $priority = 10, $accepted_args = 1)
+            public function addAction(string $tag, callable $callback, int $priority = 10, int $accepted_args = 1): bool
             {
                 return true;
             }
 
-            public function filter($tag, $value)
+            public function filter(string $tag, mixed $value): mixed
             {
                 return $value;
             }
 
-            public function action($tag, ...$args)
+            public function action(string $tag, mixed ...$args): null
             {
                 return null;
             }

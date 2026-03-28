@@ -87,7 +87,7 @@ test('portal login returns 401/redirect for wrong credentials', function () {
     User::factory()->create(['email' => 'portal-user@example.com', 'type' => User::TYPE_CLIENT]);
 
     $this->post('/portal/login', [
-        'email'    => 'portal-user@example.com',
+        'email' => 'portal-user@example.com',
         'password' => 'completely-wrong',
     ])->assertSessionHasErrors();
 });

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\MiddleMan\Services;
 
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -29,23 +29,27 @@ use Throwable;
  */
 final class EventDiscoveryService
 {
-    private const CACHE_KEY         = 'middleman:discovered_events';
-    private const LISTENERS_KEY     = 'middleman:discovered_listeners';
-    private const MODULE_HASH_KEY   = 'middleman:module_hash';
+    private const CACHE_KEY = 'middleman:discovered_events';
+    private const LISTENERS_KEY = 'middleman:discovered_listeners';
+    private const MODULE_HASH_KEY = 'middleman:module_hash';
 
     private string $cacheStore;
     private int $cacheTtl;
+    private CacheFactory $cache;
+    private LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(CacheFactory $cache, LoggerInterface $logger)
     {
-        $this->cacheStore = config('middleman.cache_store', 'redis');
-        $this->cacheTtl   = (int) config('middleman.discovery_cache_ttl', 300);
+        $this->cache = $cache;
+        $this->logger = $logger;
+        $this->cacheStore = (string) config('middleman.cache_store', 'redis'); // @phpstan-ignore cast.string
+        $this->cacheTtl = (int) config('middleman.discovery_cache_ttl', 300); // @phpstan-ignore cast.int
     }
 
     /**
      * Get all discovered events with constructor signatures.
      *
-     * @return array<int, array{class: string, name: string, module: string, parameters: array, listener_count: int}>
+     * @return array<int, array{class: string, name: string, module: string, parameters: array<int, mixed>, listener_count: int}>
      */
     public function discover(): array
     {
@@ -55,6 +59,7 @@ final class EventDiscoveryService
 
                 // If module landscape changed, invalidate
                 if ($cached !== null && $this->moduleHashMatches()) {
+                    /** @var array<int, array{class: string, name: string, module: string, parameters: array<int, mixed>, listener_count: int}> $cached */
                     return $cached;
                 }
             } catch (Throwable) {
@@ -79,7 +84,7 @@ final class EventDiscoveryService
     /**
      * Get constructor parameters for a specific event class.
      *
-     * @return array<int, array{name: string, type: string, required: bool, default: mixed, is_model: bool, model_class: string|null, is_enum: bool, enum_cases: array}>
+     * @return array<int, array{name: string, type: string, required: bool, default: mixed, is_model: bool, model_class: string|null, is_enum: bool, enum_cases: array<int, array{name: string, value: int|string}>}>
      */
     public function getParameters(string $eventClass): array
     {
@@ -107,13 +112,14 @@ final class EventDiscoveryService
     /**
      * Get all discovered event→listener relationships.
      *
-     * @return array<string, string[]>
+     * @return array<string, array<int, string>>
      */
     public function getListenerMap(): array
     {
         try {
             $cached = $this->store()->get(self::LISTENERS_KEY);
             if ($cached !== null) {
+                /** @var array<string, array<int, string>> $cached */
                 return $cached;
             }
         } catch (Throwable) {
@@ -153,7 +159,7 @@ final class EventDiscoveryService
     */
 
     /**
-     * @return array<int, array{class: string, name: string, module: string, parameters: array, listener_count: int}>
+     * @return array<int, array{class: string, name: string, module: string, parameters: array<int, mixed>, listener_count: int}>
      */
     private function performDiscovery(): array
     {
@@ -173,9 +179,10 @@ final class EventDiscoveryService
         }
 
         // Source 2: Filesystem scan
+        /** @var array<int|string, mixed> $scanPaths */
         $scanPaths = config('middleman.scan_paths', ['app/Events']);
         foreach ($scanPaths as $pattern) {
-            foreach ($this->resolveGlobPaths($pattern) as $dir) {
+            foreach ($this->resolveGlobPaths((string) $pattern) as $dir) { // @phpstan-ignore cast.string
                 if (! is_dir($dir)) {
                     continue;
                 }
@@ -197,7 +204,7 @@ final class EventDiscoveryService
         try {
             $historicalClasses = \Modules\MiddleMan\Models\MiddleManLog::distinct()
                 ->pluck('event_class')
-                ->filter(fn (string $class): bool => class_exists($class))
+                ->filter(fn (mixed $class): bool => is_string($class) && class_exists($class))
                 ->all();
 
             foreach ($historicalClasses as $class) {
@@ -221,16 +228,16 @@ final class EventDiscoveryService
     }
 
     /**
-     * @param string[] $listeners
-     * @return array{class: string, name: string, module: string, parameters: array, listener_count: int}
+     * @param  string[]  $listeners
+     * @return array{class: string, name: string, module: string, parameters: array<int, mixed>, listener_count: int}
      */
     private function buildEventDescriptor(string $eventClass, array $listeners): array
     {
         return [
-            'class'          => $eventClass,
-            'name'           => class_basename($eventClass),
-            'module'         => $this->inferModule($eventClass),
-            'parameters'     => $this->getParameters($eventClass),
+            'class' => $eventClass,
+            'name' => class_basename($eventClass),
+            'module' => $this->inferModule($eventClass),
+            'parameters' => $this->getParameters($eventClass),
             'listener_count' => count($listeners),
         ];
     }
@@ -294,7 +301,7 @@ final class EventDiscoveryService
                 }
             }
         } catch (Throwable $e) {
-            Log::debug('MiddleMan EventDiscovery: Could not extract listener map', [
+            $this->logger->debug('MiddleMan EventDiscovery: Could not extract listener map', [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -309,8 +316,9 @@ final class EventDiscoveryService
         }
 
         if (is_array($listener) && count($listener) === 2) {
-            $class = is_object($listener[0]) ? get_class($listener[0]) : (string) $listener[0];
-            return $class . '@' . $listener[1];
+            $class = is_object($listener[0]) ? get_class($listener[0]) : (string) $listener[0]; // @phpstan-ignore cast.string
+
+            return $class.'@'.$listener[1];
         }
 
         if ($listener instanceof \Closure) {
@@ -334,7 +342,7 @@ final class EventDiscoveryService
         $classes = [];
 
         try {
-            $finder = new Finder();
+            $finder = new Finder;
             $finder->files()->name('*.php')->in($dir)->depth('< 3');
 
             foreach ($finder as $file) {
@@ -356,7 +364,7 @@ final class EventDiscoveryService
                 }
             }
         } catch (Throwable $e) {
-            Log::debug('MiddleMan EventDiscovery: Directory scan failed', [
+            $this->logger->debug('MiddleMan EventDiscovery: Directory scan failed', [
                 'dir' => $dir,
                 'error' => $e->getMessage(),
             ]);
@@ -384,7 +392,7 @@ final class EventDiscoveryService
         }
 
         if ($namespace !== null && $class !== null) {
-            return $namespace . '\\' . $class;
+            return $namespace.'\\'.$class;
         }
 
         return $class;
@@ -397,7 +405,7 @@ final class EventDiscoveryService
     */
 
     /**
-     * @return array{name: string, type: string, required: bool, default: mixed, is_model: bool, model_class: string|null, is_enum: bool, enum_cases: array}
+     * @return array{name: string, type: string, required: bool, default: mixed, is_model: bool, model_class: string|null, is_enum: bool, enum_cases: array<int, array{name: string, value: int|string}>}
      */
     private function describeParameter(ReflectionParameter $param): array
     {
@@ -409,14 +417,14 @@ final class EventDiscoveryService
         }
 
         $desc = [
-            'name'        => $param->getName(),
-            'type'        => $typeName,
-            'required'    => ! $param->isOptional(),
-            'default'     => null,
-            'is_model'    => false,
+            'name' => $param->getName(),
+            'type' => $typeName,
+            'required' => ! $param->isOptional(),
+            'default' => null,
+            'is_model' => false,
             'model_class' => null,
-            'is_enum'     => false,
-            'enum_cases'  => [],
+            'is_enum' => false,
+            'enum_cases' => [],
         ];
 
         if ($param->isDefaultValueAvailable()) {
@@ -434,7 +442,7 @@ final class EventDiscoveryService
 
             // Extract searchable columns for the async search endpoint
             try {
-                $instance = new $typeName();
+                $instance = new $typeName;
                 $desc['model_table'] = $instance->getTable();
                 $desc['model_key'] = $instance->getKeyName();
             } catch (Throwable) {
@@ -447,7 +455,7 @@ final class EventDiscoveryService
             $desc['is_enum'] = true;
             $desc['enum_cases'] = array_map(
                 fn (\UnitEnum $case): array => [
-                    'name'  => $case->name,
+                    'name' => $case->name,
                     'value' => $case instanceof \BackedEnum ? $case->value : $case->name,
                 ],
                 $typeName::cases(),
@@ -476,14 +484,16 @@ final class EventDiscoveryService
         if (file_exists($statusFile)) {
             $contents = @file_get_contents($statusFile);
             if ($contents !== false) {
-                $modules = array_keys(json_decode($contents, true) ?? []);
+                $decoded = json_decode($contents, true);
+                $modules = is_array($decoded) ? array_keys($decoded) : [];
             }
         }
 
         // Also hash the scan_paths glob results
+        /** @var array<int|string, mixed> $scanPaths */
         $scanPaths = config('middleman.scan_paths', []);
         foreach ($scanPaths as $pattern) {
-            $resolved = $this->resolveGlobPaths($pattern);
+            $resolved = $this->resolveGlobPaths((string) $pattern); // @phpstan-ignore cast.string
             foreach ($resolved as $dir) {
                 $modules[] = $dir;
             }
@@ -498,6 +508,7 @@ final class EventDiscoveryService
     {
         try {
             $storedHash = $this->store()->get(self::MODULE_HASH_KEY);
+
             return $storedHash !== null && $storedHash === $this->computeModuleHash();
         } catch (Throwable) {
             return false;
@@ -528,6 +539,6 @@ final class EventDiscoveryService
 
     private function store(): \Illuminate\Contracts\Cache\Repository
     {
-        return Cache::store($this->cacheStore);
+        return $this->cache->store($this->cacheStore);
     }
 }

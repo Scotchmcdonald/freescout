@@ -184,13 +184,16 @@ class UserPolicyTest extends PureUnitTestCase
         // all policy actions — no implicit guest privileges are permitted.
         $target = $this->makeUser(1, false);
 
-        $this->assertFalse($this->policy->view(null, $target),
+        $this->assertFalse(
+            $this->policy->view(null, $target),
             'Authorization boundary: guest must not view any user'
         );
-        $this->assertFalse($this->policy->create(null),
+        $this->assertFalse(
+            $this->policy->create(null),
             'Authorization boundary: guest must not create users'
         );
-        $this->assertFalse($this->policy->delete(null, $target),
+        $this->assertFalse(
+            $this->policy->delete(null, $target),
             'Authorization boundary: guest must not delete users'
         );
     }

@@ -219,13 +219,17 @@ final class CustomerDataTest extends PureUnitTestCase
         // while still ensuring the customer has an identity for authorization checks.
         $minimal = new CustomerData(firstName: 'RequiredOnly');
 
-        $this->assertSame('RequiredOnly', $minimal->firstName,
+        $this->assertSame(
+            'RequiredOnly',
+            $minimal->firstName,
             'Validation: firstName must be present and non-null'
         );
-        $this->assertNull($minimal->lastName,
+        $this->assertNull(
+            $minimal->lastName,
             'Validation: lastName is optional and must default to null'
         );
-        $this->assertNull($minimal->email,
+        $this->assertNull(
+            $minimal->email,
             'Validation: email is optional and must default to null when not provided'
         );
     }

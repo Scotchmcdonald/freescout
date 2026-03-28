@@ -8,23 +8,22 @@ use App\Models\SyncOperation;
 use Tests\PureUnitTestCase;
 
 if (! class_exists(StubSyncOperation::class)) {
-final class StubSyncOperation extends SyncOperation
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+    final class StubSyncOperation extends SyncOperation
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
-}
-
 
 final class SyncOperationTest extends PureUnitTestCase
 {
     private function op(array $attrs): StubSyncOperation
     {
-        $o = new StubSyncOperation();
+        $o = new StubSyncOperation;
         $o->setRawAttributes($attrs);
 
         return $o;

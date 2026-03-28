@@ -40,4 +40,3 @@ test('jobs do not use HTTP request or response facades')
         'Illuminate\Support\Facades\Request',
         'Illuminate\Http\Request',
     ]);
-
