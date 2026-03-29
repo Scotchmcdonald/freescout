@@ -1,11 +1,6 @@
-name: 🧬 Mutation Testing (Tier 2) - PR Gate
+name: 🧬 Mutation Testing (Tier 2) - Manual
 
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-      - '.gitignore'
   workflow_dispatch:
 
 jobs:
