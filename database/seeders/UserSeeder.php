@@ -13,6 +13,11 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        $seedScaffold = filter_var(
+            env('SEED_SCAFFOLD_USERS', true),
+            FILTER_VALIDATE_BOOLEAN
+        );
+
         $users = [
             [
                 'role' => UserRole::Admin->value,
@@ -21,28 +26,33 @@ class UserSeeder extends Seeder
                 'first_name' => config('app.seeding.admin.first_name', 'System'),
                 'last_name' => config('app.seeding.admin.last_name', 'Administrator'),
             ],
-            [
-                'role' => UserRole::User->value,
-                'email' => config('app.seeding.agent.email', 'agent@example.com'),
-                'password' => config('app.seeding.agent.password', 'agent123456789'),
-                'first_name' => config('app.seeding.agent.first_name', 'Support'),
-                'last_name' => config('app.seeding.agent.last_name', 'Agent'),
-            ],
-            [
-                'role' => UserRole::Finance->value,
-                'email' => config('app.seeding.finance.email', 'finance@example.com'),
-                'password' => config('app.seeding.finance.password', 'finance123456789'),
-                'first_name' => config('app.seeding.finance.first_name', 'Finance'),
-                'last_name' => config('app.seeding.finance.last_name', 'Manager'),
-            ],
-            [
-                'role' => UserRole::Reporter->value,
-                'email' => config('app.seeding.reporter.email', 'reporter@example.com'),
-                'password' => config('app.seeding.reporter.password', 'reporter123456789'),
-                'first_name' => config('app.seeding.reporter.first_name', 'Report'),
-                'last_name' => config('app.seeding.reporter.last_name', 'Viewer'),
-            ],
         ];
+
+        if ($seedScaffold) {
+            $users = array_merge($users, [
+                [
+                    'role' => UserRole::User->value,
+                    'email' => config('app.seeding.agent.email', 'agent@example.com'),
+                    'password' => config('app.seeding.agent.password', 'agent123456789'),
+                    'first_name' => config('app.seeding.agent.first_name', 'Support'),
+                    'last_name' => config('app.seeding.agent.last_name', 'Agent'),
+                ],
+                [
+                    'role' => UserRole::Finance->value,
+                    'email' => config('app.seeding.finance.email', 'finance@example.com'),
+                    'password' => config('app.seeding.finance.password', 'finance123456789'),
+                    'first_name' => config('app.seeding.finance.first_name', 'Finance'),
+                    'last_name' => config('app.seeding.finance.last_name', 'Manager'),
+                ],
+                [
+                    'role' => UserRole::Reporter->value,
+                    'email' => config('app.seeding.reporter.email', 'reporter@example.com'),
+                    'password' => config('app.seeding.reporter.password', 'reporter123456789'),
+                    'first_name' => config('app.seeding.reporter.first_name', 'Report'),
+                    'last_name' => config('app.seeding.reporter.last_name', 'Viewer'),
+                ],
+            ]);
+        }
 
         foreach ($users as $userData) {
             if (! User::where('email', $userData['email'])->exists()) {
