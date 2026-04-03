@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Process;
+use Throwable;
 
 class SecurityAudit extends Command
 {
@@ -49,12 +51,12 @@ class SecurityAudit extends Command
 
         if ($composerResult->failed()) {
             $output .= "=== COMPOSER AUDIT FAILURES ===\n\n";
-            $output .= $composerResult->output()."\n\n";
+            $output .= $this->combineProcessOutput($composerResult->output(), $composerResult->errorOutput())."\n\n";
         }
 
         if ($npmResult->failed()) {
             $output .= "=== NPM AUDIT FAILURES ===\n\n";
-            $output .= $npmResult->output()."\n\n";
+            $output .= $this->combineProcessOutput($npmResult->output(), $npmResult->errorOutput())."\n\n";
         }
 
         $this->error('Security vulnerabilities found!');
@@ -64,18 +66,62 @@ class SecurityAudit extends Command
         $recipient = is_string($email) ? $email : '';
 
         if ($recipient) {
-            $this->info("Sending alert to {$recipient}...");
-
-            Mail::raw($output, function ($message) use ($recipient) {
-                $message->to($recipient)
-                    ->subject('⚠️ Security Alert: Audit Failed');
-            });
-
-            $this->info('Alert sent.');
+            $this->attemptAlertEmail($recipient, $output);
         } else {
             $this->warn('No recipient email configured. Use --email or set ADMIN_EMAIL in .env');
         }
 
         return Command::FAILURE;
+    }
+
+    private function combineProcessOutput(string $stdout, string $stderr): string
+    {
+        $sections = [];
+
+        if (trim($stdout) !== '') {
+            $sections[] = trim($stdout);
+        }
+
+        if (trim($stderr) !== '') {
+            $sections[] = trim($stderr);
+        }
+
+        return $sections === [] ? 'No output returned by audit command.' : implode("\n\n", $sections);
+    }
+
+    private function attemptAlertEmail(string $recipient, string $output): void
+    {
+        if (! $this->isMailTransportConfigured()) {
+            $this->warn('Mail transport is not configured. Skipping alert email.');
+
+            return;
+        }
+
+        $this->info("Sending alert to {$recipient}...");
+
+        try {
+            Mail::raw($output, function ($message) use ($recipient) {
+                $message->to($recipient)
+                    ->subject('Security Alert: Audit Failed');
+            });
+
+            $this->info('Alert sent.');
+        } catch (Throwable $exception) {
+            $this->warn('Unable to send alert email: '.$exception->getMessage());
+        }
+    }
+
+    private function isMailTransportConfigured(): bool
+    {
+        $defaultMailer = (string) config('mail.default', '');
+
+        if ($defaultMailer === '') {
+            return false;
+        }
+
+        $mailerConfig = config("mail.mailers.{$defaultMailer}");
+        $transport = Arr::get($mailerConfig, 'transport');
+
+        return is_string($transport) && trim($transport) !== '';
     }
 }
