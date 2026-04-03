@@ -37,6 +37,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: borealtek/treescout
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -70,8 +71,18 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
           token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Initialize deployment submodule only
+        if: steps.gate.outputs.run == 'true'
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config --global url."https://oauth2:${REPO_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git submodule sync -- deployment
+          git submodule update --init --depth 1 deployment
 
       # ── Clone all private modules for this profile ─────────────────────────
       - name: Clone private modules
