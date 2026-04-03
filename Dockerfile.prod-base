@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1.7
+
+FROM serversideup/php:8.3-fpm-nginx
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl unzip \
+    && curl -sSLf \
+    -o /usr/local/bin/install-php-extensions \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions imap gmp soap intl bcmath gd redis sockets \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN printf "opcache.enable=1\n\
+    opcache.validate_timestamps=0\n\
+    opcache.memory_consumption=256\n\
+    opcache.max_accelerated_files=20000\n\
+    realpath_cache_size=4096K\n\
+    realpath_cache_ttl=600\n" \
+    > /usr/local/etc/php/conf.d/zzz-prod.ini
