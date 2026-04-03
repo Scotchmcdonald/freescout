@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Conversation;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -30,7 +31,7 @@ class FocusFollowUpService
     }
 
     /**
-     * @return Collection<int|string, Collection<int, Conversation>>
+     * @return Collection<int|string, EloquentCollection<int, Conversation>>
      */
     public function getCurrentWeekDigestGroupedByWaitingOn(?Carbon $reference = null): Collection
     {

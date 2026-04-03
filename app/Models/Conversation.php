@@ -455,18 +455,18 @@ class Conversation extends Model
         }
 
         $now = now();
-        $minutes = max(0, $this->last_contact_at->diffInMinutes($now));
+        $minutes = (int) max(0.0, $this->last_contact_at->diffInMinutes($now));
 
         if ($minutes < 60) {
             return $minutes.' '.($minutes === 1 ? 'Minute' : 'Minutes');
         }
 
-        $hours = $this->last_contact_at->diffInHours($now);
+        $hours = (int) $this->last_contact_at->diffInHours($now);
         if ($hours < 24) {
             return $hours.' '.($hours === 1 ? 'Hour' : 'Hours');
         }
 
-        $days = $this->last_contact_at->diffInDays($now);
+        $days = (int) $this->last_contact_at->diffInDays($now);
 
         return $days.' '.($days === 1 ? 'Day' : 'Days');
     }
