@@ -83,7 +83,13 @@ RUN composer install \
     --no-scripts
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+RUN mkdir -p /var/www/html/bootstrap/cache \
+    /var/www/html/storage/app \
+    /var/www/html/storage/framework/cache/data \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/storage/logs \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && find /var/www/html/storage -type d -exec chmod 775 {} + \
     && find /var/www/html/bootstrap/cache -type d -exec chmod 775 {} +
 
