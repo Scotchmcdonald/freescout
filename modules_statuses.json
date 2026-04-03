@@ -16,5 +16,5 @@
     "Payment": true,
     "SoftwareSubscriptions": true,
     "WidgetRegistry": true,
-    "MiddleMan": true
+    "MiddleMan": false
 }
