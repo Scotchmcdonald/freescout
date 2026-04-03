@@ -10,9 +10,18 @@ Schedule::command('freescout:fetch-emails')
     ->onOneServer()
     ->runInBackground();
 
-// Schedule daily security audit
+// Schedule daily security audit — runs composer audit + npm audit and emails admin on findings
 Schedule::command('security:audit')
     ->dailyAt('08:00')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground();
+
+// Weekly browserslist (caniuse-lite) refresh — keeps CSS/JS compatibility data current
+Schedule::command('browserslist:update')
+    ->weeklyOn(1, '03:00') // Every Monday at 03:00
+    ->withoutOverlapping()
+    ->onOneServer()
     ->runInBackground();
 
 // Webhook: Daily webhook renewal check (renew channels expiring within 48 hours)
