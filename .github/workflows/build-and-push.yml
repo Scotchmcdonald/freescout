@@ -1,0 +1,167 @@
+name: Build & Push Docker Images
+
+# Builds one image per deployment profile, pushes to GHCR.
+# Images are pulled by gcp-server-init.sh — no git clone or docker build on the server.
+#
+# Prerequisites (one-time):
+#   1. Add REPO_TOKEN as a GitHub Actions secret (Settings → Secrets → Actions).
+#      The PAT needs scopes: repo, read:packages, write:packages
+#   2. Enable "Improved container support" in org Settings → Packages
+#
+# Image tags produced:
+#   ghcr.io/borealtek/treescout:full-latest
+#   ghcr.io/borealtek/treescout:full-<sha>
+#   ghcr.io/borealtek/treescout:core-msp-latest
+#   ... etc for each profile
+
+on:
+  push:
+    branches: [laravel-11-foundation]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'tests/**'
+      - '.github/workflows/test*.yml'
+      - '.github/workflows/lint*.yml'
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: 'Profiles to build — comma-separated or "all"'
+        default: 'all'
+        type: string
+      no_cache:
+        description: 'Disable build cache (force full rebuild)'
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: borealtek/treescout
+
+jobs:
+  build:
+    name: Build — ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        profile: [full, core-msp, helpdesk-only, google-workspace-msp]
+      fail-fast: false
+
+    steps:
+      # ── Skip if this profile wasn't requested ──────────────────────────────
+      - name: Check if profile should build
+        id: gate
+        run: |
+          INPUT="${{ github.event.inputs.profiles }}"
+          PROFILE="${{ matrix.profile }}"
+          if [[ -z "$INPUT" || "$INPUT" == "all" || "$INPUT" == *"$PROFILE"* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping profile '$PROFILE' (not in requested list: $INPUT)"
+          fi
+
+      # ── Checkout ───────────────────────────────────────────────────────────
+      - name: Checkout app repo
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      # ── Clone all private modules for this profile ─────────────────────────
+      - name: Clone private modules
+        if: steps.gate.outputs.run == 'true'
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          PROFILE="${{ matrix.profile }}"
+
+          echo "Profile: $PROFILE"
+          echo "Reading module list from deployment/modules.manifest.json..."
+
+          # jq is available on GitHub Actions runners
+          MODULES=$(jq -r --arg p "$PROFILE" '.profiles[$p].modules[]' deployment/modules.manifest.json)
+
+          mkdir -p Modules
+
+          while IFS= read -r module; do
+            repo=$(jq -r --arg m "$module" '.modules[$m].repo' deployment/modules.manifest.json)
+            branch=$(jq -r --arg m "$module" '.modules[$m].branch' deployment/modules.manifest.json)
+
+            echo "→ Cloning $module @ $branch"
+            git clone --depth=1 --branch "$branch" \
+              "https://oauth2:${REPO_TOKEN}@${repo#https://}" \
+              "Modules/${module}" -q
+            # Strip git history — not needed in the image and reduces size
+            rm -rf "Modules/${module}/.git"
+          done <<< "$MODULES"
+
+          CLONED=$(ls Modules/ | tr '\n' ' ')
+          echo "Modules ready: ${CLONED}"
+          echo "module_list=${CLONED}" >> "$GITHUB_OUTPUT"
+
+      # ── Docker Buildx ──────────────────────────────────────────────────────
+      - name: Set up Docker Buildx
+        if: steps.gate.outputs.run == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      # ── Registry login ─────────────────────────────────────────────────────
+      - name: Log in to GitHub Container Registry
+        if: steps.gate.outputs.run == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          # REPO_TOKEN (PAT) is used instead of GITHUB_TOKEN because this repo
+          # (Scotchmcdonald/freescout) publishes to the BorealTek org's package
+          # namespace. GITHUB_TOKEN only has write access to the current repo.
+          password: ${{ secrets.REPO_TOKEN }}
+
+      # ── Image metadata / tags ──────────────────────────────────────────────
+      - name: Docker metadata
+        if: steps.gate.outputs.run == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ matrix.profile }}-latest
+            type=raw,value=${{ matrix.profile }}-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.title=TreeScout
+            org.opencontainers.image.description=TreeScout MSP platform — profile ${{ matrix.profile }}
+            treescout.profile=${{ matrix.profile }}
+
+      # ── Build & push ───────────────────────────────────────────────────────
+      - name: Build and push
+        if: steps.gate.outputs.run == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PROFILE=${{ matrix.profile }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+          cache-from: ${{ github.event.inputs.no_cache == 'true' && '' || format('type=gha,scope={0}', matrix.profile) }}
+          cache-to: ${{ github.event.inputs.no_cache == 'true' && '' || format('type=gha,scope={0},mode=max', matrix.profile) }}
+
+      # ── Summary ────────────────────────────────────────────────────────────
+      - name: Write job summary
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          echo "## ✅ ${{ matrix.profile }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tag |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- |" >> "$GITHUB_STEP_SUMMARY"
+          while IFS= read -r tag; do
+            echo "| \`$tag\` |" >> "$GITHUB_STEP_SUMMARY"
+          done <<< "${{ steps.meta.outputs.tags }}"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Modules:** $(ls Modules/ | tr '\n' ' ')" >> "$GITHUB_STEP_SUMMARY"

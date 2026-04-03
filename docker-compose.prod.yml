@@ -1,0 +1,136 @@
+# =============================================================================
+# TreeScout Production Docker Compose
+#
+# Uses pre-built images from GHCR — no build step on the server.
+# Written and managed by gcp-server-init.sh.
+#
+# Run from /opt/treescout/:
+#   docker compose pull
+#   docker compose up -d
+#   docker compose exec app php artisan migrate --force
+# =============================================================================
+
+# TREESCOUT_PROFILE is set in .env (written by gcp-server-init.sh)
+# Defaults to "full" if not set.
+
+services:
+    app:
+        image: ghcr.io/borealtek/treescout:${TREESCOUT_PROFILE:-full}-latest
+        container_name: treescout-app
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:8080:8080" # Cloudflare tunnel or reverse proxy connects here
+        env_file: .env
+        volumes:
+            - storage_data:/var/www/html/storage
+            - bootstrap_cache:/var/www/html/bootstrap/cache
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        networks:
+            - treescout-net
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+
+    queue:
+        image: ghcr.io/borealtek/treescout:${TREESCOUT_PROFILE:-full}-latest
+        container_name: treescout-queue
+        restart: always
+        command: php artisan queue:work --queue=emails,default,long-running --sleep=3 --tries=3 --max-time=3600
+        env_file: .env
+        volumes:
+            - storage_data:/var/www/html/storage
+            - bootstrap_cache:/var/www/html/bootstrap/cache
+        depends_on:
+            - app
+            - db
+            - redis
+        networks:
+            - treescout-net
+
+    cron:
+        image: ghcr.io/borealtek/treescout:${TREESCOUT_PROFILE:-full}-latest
+        container_name: treescout-cron
+        restart: unless-stopped
+        command: >
+            /bin/sh -c 'while true; do
+              php artisan schedule:run >> /var/www/html/storage/logs/cron.log 2>&1;
+              sleep 60;
+            done'
+        env_file: .env
+        volumes:
+            - storage_data:/var/www/html/storage
+            - bootstrap_cache:/var/www/html/bootstrap/cache
+        depends_on:
+            - app
+            - db
+            - redis
+        networks:
+            - treescout-net
+
+    reverb:
+        image: ghcr.io/borealtek/treescout:${TREESCOUT_PROFILE:-full}-latest
+        container_name: treescout-reverb
+        restart: unless-stopped
+        command: php artisan reverb:start --host=0.0.0.0 --port=8081
+        env_file: .env
+        ports:
+            - "127.0.0.1:8081:8081"
+        volumes:
+            - storage_data:/var/www/html/storage
+            - bootstrap_cache:/var/www/html/bootstrap/cache
+        depends_on:
+            - app
+            - db
+            - redis
+        networks:
+            - treescout-net
+
+    db:
+        image: mariadb:10.6
+        container_name: treescout-db
+        restart: unless-stopped
+        command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed
+        # MariaDB reads MARIADB_* on first init only (if data volume is empty).
+        # Values come from the .env file (auto-loaded by docker compose for variable substitution).
+        environment:
+            MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+            MARIADB_DATABASE: ${DB_NAME}
+            MARIADB_USER: ${DB_USER}
+            MARIADB_PASSWORD: ${DB_PASS}
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - treescout-net
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    redis:
+        image: redis:7-alpine
+        container_name: treescout-redis
+        restart: unless-stopped
+        networks:
+            - treescout-net
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+networks:
+    treescout-net:
+        driver: bridge
+
+volumes:
+    db_data:
+    storage_data:
+    bootstrap_cache:
