@@ -1,7 +1,7 @@
 name: Build & Push Docker Images
 
-# Builds one image per deployment profile, pushes to GHCR.
-# Images are pulled by gcp-server-init.sh — no git clone or docker build on the server.
+# Optional manual image build job.
+# gcp-server-init.sh can now fall back to building on the VM if GHCR is unavailable.
 #
 # Prerequisites (one-time):
 #   1. Add REPO_TOKEN as a GitHub Actions secret (Settings → Secrets → Actions).
@@ -15,14 +15,6 @@ name: Build & Push Docker Images
 #   ... etc for each profile
 
 on:
-  push:
-    branches: [laravel-11-foundation]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'tests/**'
-      - '.github/workflows/test*.yml'
-      - '.github/workflows/lint*.yml'
   workflow_dispatch:
     inputs:
       profiles:
