@@ -5,7 +5,9 @@ name: Build & Push Docker Images
 #
 # Prerequisites (one-time):
 #   1. Add REPO_TOKEN as a GitHub Actions secret (Settings → Secrets → Actions).
-#      The PAT needs scopes: repo, read:packages, write:packages
+#      The PAT needs scope: repo (for private module repos).
+#   2. Add DOCKER_TOKEN as a GitHub Actions secret.
+#      The PAT needs scopes: read:packages, write:packages.
 #   2. Enable "Improved container support" in org Settings → Packages
 #
 # Image tags produced:
@@ -39,11 +41,17 @@ jobs:
       - name: Validate required secrets
         env:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "${REPO_TOKEN:-}" ]]; then
             echo "::error title=Missing REPO_TOKEN::Set REPO_TOKEN in Settings -> Secrets and variables -> Actions."
-            echo "::error::REPO_TOKEN PAT needs scopes: repo, read:packages, write:packages"
+            echo "::error::REPO_TOKEN PAT needs scope: repo"
+            exit 1
+          fi
+          if [[ -z "${DOCKER_TOKEN:-}" ]]; then
+            echo "::error title=Missing DOCKER_TOKEN::Set DOCKER_TOKEN in Settings -> Secrets and variables -> Actions."
+            echo "::error::DOCKER_TOKEN PAT needs scopes: read:packages, write:packages"
             exit 1
           fi
 
@@ -136,10 +144,9 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          # REPO_TOKEN (PAT) is used instead of GITHUB_TOKEN because this repo
-          # (Scotchmcdonald/freescout) publishes to the BorealTek org's package
-          # namespace. GITHUB_TOKEN only has write access to the current repo.
-          password: ${{ secrets.REPO_TOKEN }}
+          # DOCKER_TOKEN is used instead of GITHUB_TOKEN because this repo
+          # publishes to the BorealTek package namespace.
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       # ── Image metadata / tags ──────────────────────────────────────────────
       - name: Docker metadata
