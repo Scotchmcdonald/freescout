@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $mailbox_id
  * @property int|null $user_id
  * @property int|null $customer_id
+ * @property int|null $waiting_on_user_id
  * @property int $status
  * @property int $state
  * @property string $subject
@@ -37,11 +39,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $closed_by_user_id
  * @property \Illuminate\Support\Carbon|null $closed_at
  * @property \Illuminate\Support\Carbon|null $follow_up_date
+ * @property \Illuminate\Support\Carbon|null $next_follow_up
  * @property \Illuminate\Support\Carbon|null $follow_up_reminded_at
  * @property \Illuminate\Support\Carbon|null $user_updated_at
  * @property \Illuminate\Support\Carbon|null $last_reply
  * @property \Illuminate\Support\Carbon|null $last_reply_at
+ * @property \Illuminate\Support\Carbon|null $last_contact_at
  * @property int|null $last_reply_from
+ * @property string|null $waiting_reason
  * @property bool $read_by_user
  * @property array<string, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -134,6 +139,7 @@ class Conversation extends Model
         'folder_id',
         'mailbox_id',
         'user_id',
+        'waiting_on_user_id',
         'customer_id',
         'status',
         'state',
@@ -160,7 +166,10 @@ class Conversation extends Model
         'read_by_user',
         'meta',
         'follow_up_date',
+        'next_follow_up',
         'follow_up_reminded_at',
+        'waiting_reason',
+        'last_contact_at',
     ];
 
     /**
@@ -187,7 +196,9 @@ class Conversation extends Model
             'closed_at' => 'datetime',
             'user_updated_at' => 'datetime',
             'last_reply_at' => 'datetime',
+            'last_contact_at' => 'datetime',
             'follow_up_date' => 'datetime',
+            'next_follow_up' => 'datetime',
             'follow_up_reminded_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -222,6 +233,16 @@ class Conversation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user currently responsible for the next action.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function waitingOnUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'waiting_on_user_id');
     }
 
     /**
@@ -414,6 +435,40 @@ class Conversation extends Model
     public function hasFollowUpScheduled(): bool
     {
         return $this->follow_up_date !== null;
+    }
+
+    /**
+     * Human-friendly elapsed time since the last ticket contact event.
+     */
+    public function getTimeSinceLastContactAttribute(): ?string
+    {
+        return $this->getTimeSinceLastContact();
+    }
+
+    /**
+     * Human-friendly elapsed time since the last ticket contact event.
+     */
+    public function getTimeSinceLastContact(): ?string
+    {
+        if (! $this->last_contact_at instanceof Carbon) {
+            return null;
+        }
+
+        $now = now();
+        $minutes = max(0, $this->last_contact_at->diffInMinutes($now));
+
+        if ($minutes < 60) {
+            return $minutes.' '.($minutes === 1 ? 'Minute' : 'Minutes');
+        }
+
+        $hours = $this->last_contact_at->diffInHours($now);
+        if ($hours < 24) {
+            return $hours.' '.($hours === 1 ? 'Hour' : 'Hours');
+        }
+
+        $days = $this->last_contact_at->diffInDays($now);
+
+        return $days.' '.($days === 1 ? 'Day' : 'Days');
     }
 
     /**

@@ -6,6 +6,7 @@ namespace App\Widgets\Dashboard;
 
 use App\Models\Conversation;
 use App\Models\User;
+use App\Services\FocusFollowUpService;
 use Modules\WidgetRegistry\Contracts\Widget;
 
 /**
@@ -51,6 +52,7 @@ class AgentDashboardWidget implements Widget
 
         $html = '<div class="space-y-6">';
         $html .= $this->renderConversationKpis($user, $data);
+        $html .= $this->renderMyFocus($user);
         $html .= $this->renderCaseQueue($user);
         $html .= '</div>';
 
@@ -159,6 +161,68 @@ class AgentDashboardWidget implements Widget
         }
 
         $html .= '</div></div>';
+
+        return $html;
+    }
+
+    private function renderMyFocus(User $user): string
+    {
+        /** @var FocusFollowUpService $focusService */
+        $focusService = app(FocusFollowUpService::class);
+        $tickets = $focusService->getDueForUser($user)->take(10);
+
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-5">';
+        $html .= '<div class="flex items-center justify-between mb-4">';
+        $html .= '<h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wider">My Focus</h3>';
+        $html .= '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium '.($tickets->count() > 0 ? 'bg-warning-100 text-warning-800' : 'bg-success-100 text-success-800').'">'.$tickets->count().' due</span>';
+        $html .= '</div>';
+
+        if ($tickets->isEmpty()) {
+            $html .= '<div class="bg-success-50 border border-success-200 rounded-lg p-3 text-sm text-success-700">No follow-ups due today.</div>';
+            $html .= '</div>';
+
+            return $html;
+        }
+
+        $html .= '<div class="space-y-2">';
+        foreach ($tickets as $ticket) {
+            $isOverdue = $ticket->next_follow_up?->isPast() ?? false;
+            $wrap = $isOverdue ? 'border-danger-200 bg-danger-50' : 'border-warning-200 bg-warning-50';
+
+            $html .= '<div class="rounded-lg border '.$wrap.' p-3">';
+            $html .= '<div class="flex items-start justify-between gap-3">';
+            $html .= '<div class="min-w-0">';
+            $html .= '<a href="'.route('conversations.show', $ticket).'" class="text-sm font-medium text-primary-700 hover:underline">#'.$ticket->number.' '.e((string) $ticket->subject).'</a>';
+            $html .= '<p class="text-xs text-neutral-600 mt-1">TSLC: '.e((string) ($ticket->time_since_last_contact ?? 'No contact yet')).'</p>';
+            $html .= '<p class="text-xs '.($isOverdue ? 'text-danger-700' : 'text-warning-700').' mt-0.5">Follow-up '.e((string) ($ticket->next_follow_up?->diffForHumans() ?? 'unscheduled')).'</p>';
+            $html .= '</div>';
+
+            $html .= '<details class="text-xs">';
+            $html .= '<summary class="cursor-pointer text-primary-700 font-medium">Snooze</summary>';
+            $html .= '<div class="mt-2 space-y-1">';
+            $html .= $this->renderSnoozeForm((int) $ticket->id, 'add_hours', '2', '+2 Hours');
+            $html .= $this->renderSnoozeForm((int) $ticket->id, 'add_days', '1', '+1 Day');
+            $html .= $this->renderSnoozeForm((int) $ticket->id, 'to_next_week', '1', '+Next Week');
+            $html .= '</div>';
+            $html .= '</details>';
+
+            $html .= '</div>';
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    private function renderSnoozeForm(int $ticketId, string $field, string $value, string $label): string
+    {
+        $html = '<form method="POST" action="'.route('tickets.snooze', ['conversation' => $ticketId]).'">';
+        $html .= '<input type="hidden" name="_token" value="'.csrf_token().'">';
+        $html .= '<input type="hidden" name="_method" value="PATCH">';
+        $html .= '<input type="hidden" name="'.$field.'" value="'.$value.'">';
+        $html .= '<button type="submit" class="w-full text-left rounded border border-primary-200 bg-primary-50 px-2 py-1 text-primary-700 hover:bg-primary-100">'.$label.'</button>';
+        $html .= '</form>';
 
         return $html;
     }

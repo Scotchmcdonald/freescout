@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Conversations\ReplyToConversationAction;
+use App\Enums\WaitingReason;
 use App\Http\Requests\ReplyConversationRequest;
+use App\Http\Requests\SnoozeTicketRequest;
 use App\Http\Requests\StoreConversationRequest;
 use App\Http\Requests\UpdateConversationRequest;
 use App\Models\Conversation;
@@ -21,6 +23,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class ConversationController extends Controller
 {
@@ -79,6 +82,7 @@ class ConversationController extends Controller
             'mailbox',
             'customer',
             'user',
+            'waitingOnUser',
             'folder',
             'threads' => function ($query) {
                 $query->where('state', Thread::STATE_PUBLISHED)
@@ -107,7 +111,22 @@ class ConversationController extends Controller
             ->where('state', Thread::STATE_DRAFT)
             ->first();
 
-        return view('conversations.show', compact('conversation', 'folders', 'draft'));
+        $waitingOnUsers = $conversation->mailbox->users()
+            ->where('status', User::STATUS_ACTIVE)
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        if ($conversation->waiting_on_user_id && ! $waitingOnUsers->contains('id', $conversation->waiting_on_user_id)) {
+            $currentWaitingOn = User::find($conversation->waiting_on_user_id);
+            if ($currentWaitingOn) {
+                $waitingOnUsers->push($currentWaitingOn);
+            }
+        }
+
+        $waitingReasons = WaitingReason::options();
+
+        return view('conversations.show', compact('conversation', 'folders', 'draft', 'waitingOnUsers', 'waitingReasons'));
     }
 
     /**
@@ -422,6 +441,47 @@ class ConversationController extends Controller
                 ->withInput()
                 ->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Snooze a ticket follow-up by a preset duration.
+     */
+    public function snooze(SnoozeTicketRequest $request, Conversation $conversation): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
+
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        $validated = $request->validated();
+        $base = $conversation->next_follow_up?->copy() ?? now();
+
+        if (isset($validated['add_hours']) && is_numeric($validated['add_hours'])) {
+            $nextFollowUp = $base->addHours((int) $validated['add_hours']);
+        } elseif (isset($validated['add_days']) && is_numeric($validated['add_days'])) {
+            $nextFollowUp = $base->addDays((int) $validated['add_days']);
+        } else {
+            $nextFollowUp = now()->addWeek()->startOfWeek(Carbon::MONDAY)->setTime(9, 0);
+        }
+
+        $conversation->update([
+            'next_follow_up' => $nextFollowUp,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'nextFollowUp' => $conversation->fresh()?->next_follow_up?->toISOString(),
+            ]);
+        }
+
+        return back()->with('success', 'Follow-up snoozed successfully.');
     }
 
     /**

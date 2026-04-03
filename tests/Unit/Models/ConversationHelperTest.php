@@ -293,6 +293,39 @@ class ConversationHelperTest extends PureUnitTestCase
         $this->assertSame('Scheduled for Dec 25, 2026', $conv->getFollowUpStatus());
     }
 
+    public function test_get_time_since_last_contact_returns_minutes_when_under_one_hour(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-04-03 10:30:00'));
+
+        $conv = $this->conv(['last_contact_at' => Carbon::parse('2026-04-03 10:00:00')]);
+
+        $this->assertSame('30 Minutes', $conv->getTimeSinceLastContact());
+
+        Carbon::setTestNow();
+    }
+
+    public function test_get_time_since_last_contact_returns_hours_when_under_one_day(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-04-03 14:00:00'));
+
+        $conv = $this->conv(['last_contact_at' => Carbon::parse('2026-04-03 10:00:00')]);
+
+        $this->assertSame('4 Hours', $conv->getTimeSinceLastContact());
+
+        Carbon::setTestNow();
+    }
+
+    public function test_get_time_since_last_contact_returns_days_for_day_scale_values(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-04-06 10:00:00'));
+
+        $conv = $this->conv(['last_contact_at' => Carbon::parse('2026-04-03 10:00:00')]);
+
+        $this->assertSame('3 Days', $conv->getTimeSinceLastContact());
+
+        Carbon::setTestNow();
+    }
+
     // -------------------------------------------------------------------------
     // getViewersInfo — pure paths (no DB hit)
     // -------------------------------------------------------------------------

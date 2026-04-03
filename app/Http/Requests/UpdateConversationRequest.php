@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Enums\ConversationStatus;
+use App\Enums\WaitingReason;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateConversationRequest extends FormRequest
@@ -28,6 +30,9 @@ class UpdateConversationRequest extends FormRequest
             'status' => 'nullable|integer|in:'.ConversationStatus::Active->value.','.ConversationStatus::Pending->value.','.ConversationStatus::Closed->value,
             'user_id' => 'nullable|integer|exists:users,id',
             'folder_id' => 'nullable|integer|exists:folders,id',
+            'waiting_on_user_id' => 'nullable|integer|exists:users,id',
+            'waiting_reason' => ['nullable', 'string', Rule::in(array_map(fn (WaitingReason $reason): string => $reason->value, WaitingReason::cases()))],
+            'next_follow_up' => 'nullable|date',
         ];
     }
 
@@ -51,6 +56,18 @@ class UpdateConversationRequest extends FormRequest
                     'status_text' => strtolower($status),
                 ]);
             }
+        }
+
+        if ($this->has('waitingOn') && ! $this->has('waiting_on_user_id')) {
+            $this->merge(['waiting_on_user_id' => $this->input('waitingOn')]);
+        }
+
+        if ($this->has('waitingReason') && ! $this->has('waiting_reason')) {
+            $this->merge(['waiting_reason' => $this->input('waitingReason')]);
+        }
+
+        if ($this->has('nextFollowUp') && ! $this->has('next_follow_up')) {
+            $this->merge(['next_follow_up' => $this->input('nextFollowUp')]);
         }
     }
 

@@ -129,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/mailbox/{mailbox}/conversation', [ConversationController::class, 'store'])->name('conversations.store');
     Route::patch('/conversation/{conversation}', [ConversationController::class, 'update'])->name('conversations.update');
+    Route::patch('/tickets/{conversation}/snooze', [ConversationController::class, 'snooze'])->name('tickets.snooze');
     // Route::post('/conversation/{conversation}/assign', [ConversationController::class, 'update'])->name('conversations.assign'); // Alias for tests (Removed)
     Route::post('/conversation/{conversation}/reply', [ConversationController::class, 'reply'])->name('conversations.reply');
     // Route::post('/conversation/{conversation}/update-status', [ConversationController::class, 'update'])->name('conversations.update_status'); // Alias for tests (Removed)
