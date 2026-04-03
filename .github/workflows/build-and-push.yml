@@ -40,7 +40,23 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${REPO_TOKEN:-}" ]]; then
+            echo "::error title=Missing REPO_TOKEN::Set REPO_TOKEN in Settings -> Secrets and variables -> Actions."
+            echo "::error::REPO_TOKEN PAT needs scopes: repo, read:packages, write:packages"
+            exit 1
+          fi
+
   build:
+    needs: preflight
     name: Build — ${{ matrix.profile }}
     runs-on: ubuntu-latest
     permissions:
@@ -69,20 +85,9 @@ jobs:
       # ── Checkout ───────────────────────────────────────────────────────────
       - name: Checkout app repo
         if: steps.gate.outputs.run == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: false
-
-      - name: Validate required secrets
-        if: steps.gate.outputs.run == 'true'
-        env:
-          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [[ -z "${REPO_TOKEN:-}" ]]; then
-            echo "REPO_TOKEN is required. Add it under Settings -> Secrets and variables -> Actions."
-            exit 1
-          fi
 
       - name: Initialize deployment submodule only
         if: steps.gate.outputs.run == 'true'
