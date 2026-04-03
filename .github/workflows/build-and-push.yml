@@ -69,6 +69,8 @@ jobs:
       - name: Checkout app repo
         if: steps.gate.outputs.run == 'true'
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       # ── Clone all private modules for this profile ─────────────────────────
       - name: Clone private modules
