@@ -18,7 +18,9 @@ class SocialAuthController extends Controller
      */
     public function redirectToGoogle(): \Symfony\Component\HttpFoundation\Response
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->redirectUrl($this->resolveRedirectUri())
+            ->redirect();
     }
 
     /**
@@ -27,7 +29,9 @@ class SocialAuthController extends Controller
     public function handleGoogleCallback(): \Symfony\Component\HttpFoundation\Response
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')
+                ->redirectUrl($this->resolveRedirectUri())
+                ->user();
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Google authentication failed.');
         }
@@ -115,5 +119,31 @@ class SocialAuthController extends Controller
 
             return redirect()->route('login')->with('error', 'Access denied. Your email domain is not authorized.');
         }
+    }
+
+    /**
+     * Resolve the callback URL used by Socialite.
+     *
+     * If configured host mismatches the current request host, we prefer the
+     * current host callback route to prevent invalid OAuth redirect behavior
+     * on multi-domain deployments.
+     */
+    private function resolveRedirectUri(): string
+    {
+        $configured = (string) config('services.google.redirect', '');
+        $current = route('auth.google.callback');
+
+        if ($configured === '') {
+            return $current;
+        }
+
+        $configuredHost = parse_url($configured, PHP_URL_HOST);
+        $currentHost = parse_url($current, PHP_URL_HOST);
+
+        if (is_string($configuredHost) && is_string($currentHost) && strcasecmp($configuredHost, $currentHost) !== 0) {
+            return $current;
+        }
+
+        return $configured;
     }
 }
