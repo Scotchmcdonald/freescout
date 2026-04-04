@@ -446,7 +446,7 @@ class SystemController extends Controller
                     $returnVar = 0;
 
                     // Try to find npm
-                    $npm = 'npm';
+                    $npm = trim((string) shell_exec('command -v npm 2>/dev/null'));
                     // Common paths for npm if not in PATH
                     $possiblePaths = [
                         '/usr/bin/npm',
@@ -454,9 +454,8 @@ class SystemController extends Controller
                         '/root/.nvm/versions/node/v*/bin/npm', // NVM support
                     ];
 
-                    // Check if npm is in PATH
-                    exec('which npm', $whichOutput, $whichReturn);
-                    if ($whichReturn !== 0) {
+                    // Fall back to common paths when npm is not in PATH
+                    if ($npm === '') {
                         foreach ($possiblePaths as $path) {
                             $glob = glob($path);
                             if (! empty($glob)) {
@@ -466,8 +465,27 @@ class SystemController extends Controller
                         }
                     }
 
+                    if ($npm === '') {
+                        // Production containers may not include npm. If assets exist,
+                        // treat this as a non-fatal operational limitation.
+                        $manifestPath = public_path('build/manifest.json');
+
+                        if (File::exists($manifestPath)) {
+                            return response()->json([
+                                'success' => true,
+                                'message' => 'NPM is not installed in this runtime container. Assets are already built in the image. Rebuild/redeploy the image to regenerate assets.',
+                                'output' => "Found existing build manifest at: {$manifestPath}",
+                            ]);
+                        }
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'NPM is not installed in this runtime container and no built assets were found. Rebuild/redeploy the Docker image to generate frontend assets.',
+                        ], 422);
+                    }
+
                     // Run build command
-                    $command = "cd {$basePath} && {$npm} run build 2>&1";
+                    $command = 'cd '.escapeshellarg($basePath).' && '.escapeshellcmd($npm).' run build 2>&1';
                     exec($command, $output, $returnVar);
 
                     $outputStr = implode("\n", $output);
