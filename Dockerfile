@@ -23,15 +23,14 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git ri
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Configure Xdebug with env-driven values so it can be toggled per environment.
-RUN printf "xdebug.mode=
-xdebug.start_with_request=trigger
-xdebug.client_host=host.docker.internal
-xdebug.client_port=9003
-xdebug.discover_client_host=1
-xdebug.idekey=VSCODE
-xdebug.log_level=0
-" > /usr/local/etc/php/conf.d/zzz-xdebug.ini
+# Configure Xdebug defaults (runtime env vars can still override behavior).
+RUN printf "xdebug.mode=off\n\
+    xdebug.start_with_request=trigger\n\
+    xdebug.client_host=host.docker.internal\n\
+    xdebug.client_port=9003\n\
+    xdebug.discover_client_host=1\n\
+    xdebug.idekey=VSCODE\n\
+    xdebug.log_level=0\n" > /usr/local/etc/php/conf.d/zzz-xdebug.ini
 
 # Configure Docker socket access for www-data user
 RUN mkdir -p /etc/entrypoint.d && \
