@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -720,11 +721,16 @@ class SystemController extends Controller
             // Get current version from config
             $currentVersion = config('app.version', '1.0.0');
 
+            // Production images may not include .git metadata.
+            if (! is_dir($appPath.'/.git')) {
+                return $this->checkForAppUpdatesFromGithubEnv($currentVersion);
+            }
+
             // Get current branch
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $appPath);
             $process->run();
             if (! $process->isSuccessful()) {
-                return null;
+                return $this->checkForAppUpdatesFromGithubEnv($currentVersion);
             }
             $branch = trim($process->getOutput());
 
@@ -732,7 +738,7 @@ class SystemController extends Controller
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $appPath);
             $process->run();
             if (! $process->isSuccessful()) {
-                return null;
+                return $this->checkForAppUpdatesFromGithubEnv($currentVersion);
             }
             $localHash = trim($process->getOutput());
             $localHashShort = substr($localHash, 0, 7);
@@ -760,14 +766,14 @@ class SystemController extends Controller
             $process->setTimeout(30);
             $process->run();
             if (! $process->isSuccessful()) {
-                return null;
+                return $this->checkForAppUpdatesFromGithubEnv($currentVersion, $localHash, $branch);
             }
 
             // Get remote commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $appPath);
             $process->run();
             if (! $process->isSuccessful()) {
-                return null;
+                return $this->checkForAppUpdatesFromGithubEnv($currentVersion, $localHash, $branch);
             }
             $remoteHash = trim($process->getOutput());
             $remoteHashShort = substr($remoteHash, 0, 7);
@@ -819,6 +825,89 @@ class SystemController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Fallback update check for production images without a git working tree.
+     *
+     * @return array{current_version: mixed, current_commit: string, current_commit_url?: string, remote_commit?: string, remote_commit_url?: string, commits_behind?: int, branch: string, latest_message?: string, has_update: bool}|null
+     */
+    private function checkForAppUpdatesFromGithubEnv(mixed $currentVersion, ?string $currentCommit = null, ?string $branch = null): ?array
+    {
+        $repo = (string) env('APP_SOURCE_REPO', '');
+        $branch = $branch ?: (string) env('APP_SOURCE_BRANCH', 'laravel-11-foundation');
+        $currentCommit = $currentCommit ?: (string) env('APP_BUILD_COMMIT', '');
+
+        if ($repo === '') {
+            return null;
+        }
+
+        $currentCommitShort = $currentCommit !== '' ? substr($currentCommit, 0, 7) : 'unknown';
+        $commitBaseUrl = "https://github.com/{$repo}/commit";
+
+        try {
+            $latestResponse = Http::timeout(15)
+                ->acceptJson()
+                ->withHeaders(['User-Agent' => 'TreeScout-UpdateChecker'])
+                ->get("https://api.github.com/repos/{$repo}/commits/{$branch}");
+
+            if (! $latestResponse->successful()) {
+                return [
+                    'current_version' => $currentVersion,
+                    'current_commit' => $currentCommitShort,
+                    'current_commit_url' => $currentCommit !== '' ? "{$commitBaseUrl}/{$currentCommit}" : null,
+                    'branch' => $branch,
+                    'commits_behind' => 0,
+                    'has_update' => false,
+                ];
+            }
+
+            $latest = $latestResponse->json();
+            $remoteHash = (string) ($latest['sha'] ?? '');
+            $remoteHashShort = $remoteHash !== '' ? substr($remoteHash, 0, 7) : '';
+            $latestCommitMessage = (string) ($latest['commit']['message'] ?? '');
+
+            $commitsBehind = 0;
+            if ($currentCommit !== '' && $remoteHash !== '' && strtolower($currentCommit) !== strtolower($remoteHash)) {
+                $compareResponse = Http::timeout(15)
+                    ->acceptJson()
+                    ->withHeaders(['User-Agent' => 'TreeScout-UpdateChecker'])
+                    ->get("https://api.github.com/repos/{$repo}/compare/{$currentCommit}...{$branch}");
+
+                if ($compareResponse->successful()) {
+                    $commitsBehind = (int) ($compareResponse->json('behind_by') ?? 0);
+                } else {
+                    $commitsBehind = 1;
+                }
+            }
+
+            return [
+                'current_version' => $currentVersion,
+                'current_commit' => $currentCommitShort,
+                'current_commit_url' => $currentCommit !== '' ? "{$commitBaseUrl}/{$currentCommit}" : null,
+                'remote_commit' => $remoteHashShort,
+                'remote_commit_url' => $remoteHash !== '' ? "{$commitBaseUrl}/{$remoteHash}" : null,
+                'commits_behind' => $commitsBehind,
+                'branch' => $branch,
+                'latest_message' => $latestCommitMessage,
+                'has_update' => $commitsBehind > 0,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('GitHub fallback update check failed', [
+                'error' => $e->getMessage(),
+                'repo' => $repo,
+                'branch' => $branch,
+            ]);
+        }
+
+        return [
+            'current_version' => $currentVersion,
+            'current_commit' => $currentCommitShort,
+            'current_commit_url' => $currentCommit !== '' ? "{$commitBaseUrl}/{$currentCommit}" : null,
+            'branch' => $branch,
+            'commits_behind' => 0,
+            'has_update' => false,
+        ];
     }
 
     /**
