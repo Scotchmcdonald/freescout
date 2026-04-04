@@ -97,9 +97,9 @@ function activityDrawer() {
                 this.jobs = this.jobs.filter(j => j.id !== e.detail.id);
             });
 
-            // Listen for Echo events
-            if (typeof Echo !== 'undefined') {
-                Echo.private('App.Models.User.{{ auth()->id() }}')
+            // Listen for Echo events when realtime is configured.
+            if (window.Echo && typeof window.Echo.private === 'function') {
+                window.Echo.private('App.Models.User.{{ auth()->id() }}')
                     .listen('.job.updated', (e) => {
                         if (e.status === 'started') {
                             // Avoid duplicates
